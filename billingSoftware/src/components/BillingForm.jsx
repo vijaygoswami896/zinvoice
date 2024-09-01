@@ -38,19 +38,25 @@ const BillingForm = () => {
             setError('Please fill out all product details.');
             return;
         }
+        const updatedData = [...formData.data, product];
         setFormData({
             ...formData,
-            data: [...formData.data, product]
+            //data: [...formData.data, product]
+            data: updatedData
         });
         setProduct({ name: '', quantity: '', rate: '' });
         setError(null);
+        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const removeProduct = (index) => {
+        const updatedData = formData.data.filter((_, i) => i != index);
         setFormData({
             ...formData,
-            data: formData.data.filter((_, i) => i !== index)
+            //data: formData.data.filter((_, i) => i !== index)
+            data: updatedData
         });
+        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const validateForm = () => {
