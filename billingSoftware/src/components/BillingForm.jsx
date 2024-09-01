@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../assets/BillingForm.css'; // Import the CSS file for styling
+
 
 const BillingForm = () => {
     const [formData, setFormData] = useState({
@@ -38,19 +39,27 @@ const BillingForm = () => {
             setError('Please fill out all product details.');
             return;
         }
+        const updatedData = [...formData.data, product];
         setFormData({
             ...formData,
-            data: [...formData.data, product]
+            //data: [...formData.data, product]
+            data: updatedData
         });
         setProduct({ name: '', quantity: '', rate: '' });
         setError(null);
+
+        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const removeProduct = (index) => {
+        const updatedData = formData.data.filter((_, i) => i != index);
         setFormData({
             ...formData,
-            data: formData.data.filter((_, i) => i !== index)
+            //data: formData.data.filter((_, i) => i !== index)
+            data: updatedData
         });
+
+        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const validateForm = () => {
@@ -62,6 +71,14 @@ const BillingForm = () => {
         }
         return null;
     };
+
+    const apiURI = import.meta.env.VITE_API_URL;
+
+    if (!apiURI) {
+        console.error('REACT_APP_API_URL is not defined');
+    } else {
+        console.log('API URL:', apiURI);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -75,7 +92,7 @@ const BillingForm = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:5000/write-to-file', formData, {
+            const response = await axios.post(`${apiURI}/write-to-file`, formData, {
                 responseType: 'blob'
             });
 
@@ -95,6 +112,15 @@ const BillingForm = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const savedData = sessionStorage.getItem('formData');
+        if (savedData) {
+            setFormData(JSON.parse(savedData));
+            console.log("formData 555: ", formData);
+
+        }
+    }, []);
 
     return (
         <div className="billing-form-container">
