@@ -47,6 +47,7 @@ const BillingForm = () => {
         });
         setProduct({ name: '', quantity: '', rate: '' });
         setError(null);
+        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const removeProduct = (index) => {
@@ -56,6 +57,7 @@ const BillingForm = () => {
             //data: formData.data.filter((_, i) => i !== index)
             data: updatedData
         });
+        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const validateForm = () => {
@@ -113,8 +115,7 @@ const BillingForm = () => {
         const savedData = sessionStorage.getItem('formData');
         if (savedData) {
             setFormData(JSON.parse(savedData));
-            console.log("formData 555: ", formData);
-
+            //sconsole.log("formData 555: ", formData);
         }
     }, []);
 
