@@ -75,7 +75,7 @@ const BillingForm = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('https://billingsoftware-backend.onrender.com', formData, {
+            const response = await axios.post('https://billingsoftware-backend.onrender.com/write-to-file', formData, {
                 responseType: 'blob'
             });
 
