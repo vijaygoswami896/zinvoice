@@ -47,8 +47,6 @@ const BillingForm = () => {
         });
         setProduct({ name: '', quantity: '', rate: '' });
         setError(null);
-
-        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const removeProduct = (index) => {
@@ -58,8 +56,6 @@ const BillingForm = () => {
             //data: formData.data.filter((_, i) => i !== index)
             data: updatedData
         });
-
-        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
     };
 
     const validateForm = () => {
@@ -92,7 +88,7 @@ const BillingForm = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`${apiURI}/write-to-file`, formData, {
+            const response = await axios.post('http://localhost:5000/write-to-file', formData, {
                 responseType: 'blob'
             });
 
