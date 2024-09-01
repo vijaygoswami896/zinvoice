@@ -102,6 +102,15 @@ const BillingForm = () => {
         }
     };
 
+    useEffect(() => {
+        const savedData = sessionStorage.getItem('formData');
+        if (savedData) {
+            setFormData(JSON.parse(savedData));
+            console.log("formData 555: ", formData);
+
+        }
+    }, []);
+
     return (
         <div className="billing-form-container">
             <h1>Billing Form</h1>
