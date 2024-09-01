@@ -88,7 +88,7 @@ const BillingForm = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:5000/write-to-file', formData, {
+            const response = await axios.post(`${apiURI}/write-to-file`, formData, {
                 responseType: 'blob'
             });
 
