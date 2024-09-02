@@ -18,6 +18,11 @@ const BillingForm = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    const date = new Date(formData.date);
+    const month = date.getMonth();
+    const day = date.getDate();
+    const year = date.getFullYear();
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -80,7 +85,9 @@ const BillingForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         const validationError = validateForm();
+
         if (validationError) {
             setError(validationError);
             return;
@@ -97,7 +104,7 @@ const BillingForm = () => {
             const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'billing_report.docx');
+            link.setAttribute('download', `${formData.partyName}_${day}_${month}_${year}.docx`);
             document.body.appendChild(link);
             link.click();
             link.parentNode.removeChild(link);

@@ -562,7 +562,7 @@ app.post('/write-to-file', (req, res) => {
         });
 
         Packer.toBuffer(doc).then((buffer) => {
-            fs.writeFileSync(path.resolve(__dirname, `output_${Date.now()}.docx`), buffer);
+            //fs.writeFileSync(path.resolve(__dirname, `output_${Date.now()}.docx`), buffer);
             //res.send('Data written to file successfully!');
             res.setHeader('Content-Disposition', 'attachment; filename=invoice.docx');
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
