@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import FormGroup from './FormGroup';
+import ProductForm from './ProductForm';
+import ProductList from './ProductList';
 import '../assets/BillingForm.css'; // Import the CSS file for styling
-
 
 const BillingForm = () => {
     const [formData, setFormData] = useState({
@@ -15,21 +17,28 @@ const BillingForm = () => {
         quantity: '',
         rate: ''
     });
+
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);  // Track if initial data is loaded
 
     const date = new Date(formData.date);
     const month = date.getMonth();
     const day = date.getDate();
     const year = date.getFullYear();
 
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+
         setFormData({
             ...formData,
             [name]: value
         });
+
+        //sessionStorage.setItem('formData', JSON.stringify({ ...formData }));
     };
+
 
     const handleProductChange = (e) => {
         const { name, value } = e.target;
@@ -44,25 +53,27 @@ const BillingForm = () => {
             setError('Please fill out all product details.');
             return;
         }
+
         const updatedData = [...formData.data, product];
         setFormData({
             ...formData,
-            //data: [...formData.data, product]
             data: updatedData
         });
+
         setProduct({ name: '', quantity: '', rate: '' });
         setError(null);
-        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
+
+        //sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }));
     };
 
     const removeProduct = (index) => {
-        const updatedData = formData.data.filter((_, i) => i != index);
+        const updatedData = formData.data.filter((_, i) => i !== index);
         setFormData({
             ...formData,
-            //data: formData.data.filter((_, i) => i !== index)
             data: updatedData
         });
-        sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }))
+
+        //sessionStorage.setItem('formData', JSON.stringify({ ...formData, data: updatedData }));
     };
 
     const validateForm = () => {
@@ -76,12 +87,6 @@ const BillingForm = () => {
     };
 
     const apiURI = import.meta.env.VITE_API_URL;
-
-    if (!apiURI) {
-        console.error('REACT_APP_API_URL is not defined');
-    } else {
-        console.log('API URL:', apiURI);
-    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -111,117 +116,52 @@ const BillingForm = () => {
             window.URL.revokeObjectURL(url);
 
         } catch (error) {
-            console.error('Error submitting form:', error);
             setError('Failed to generate the report. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
+    /* useEffect(() => {
+        const savedData = sessionStorage.getItem('formData');
+        if (savedData) {
+            setFormData(JSON.parse(savedData));
+        }
+    }, []); */
+
+    // Load data from sessionStorage when component mounts
     useEffect(() => {
         const savedData = sessionStorage.getItem('formData');
         if (savedData) {
             setFormData(JSON.parse(savedData));
-            //sconsole.log("formData 555: ", formData);
         }
+        setLoaded(true);  // Mark data as loaded
     }, []);
 
+    // Update sessionStorage whenever formData changes, but only after initial load
+    useEffect(() => {
+        if (loaded) {
+            sessionStorage.setItem('formData', JSON.stringify(formData));
+        }
+    }, [formData, loaded]);
+
     return (
-        <div className="billing-form-container">
-            <h1>Billing Form</h1>
-            <form onSubmit={handleSubmit} className="billing-form">
-                <div className="form-group">
-                    <label>Date:</label>
-                    <input
-                        type="date"
-                        name="date"
-                        value={formData.date}
-                        onChange={handleInputChange}
-                        className="form-input"
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Party Name:</label>
-                    <input
-                        type="text"
-                        name="partyName"
-                        value={formData.partyName}
-                        onChange={handleInputChange}
-                        className="form-input"
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Party Address:</label>
-                    <input
-                        type="text"
-                        name="partyAddress"
-                        value={formData.partyAddress}
-                        onChange={handleInputChange}
-                        className="form-input"
-                    />
-                </div>
-                <div className="form-group">
-                    <h2>Add Product</h2>
-                    <label>Product Name:</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={product.name}
-                        onChange={handleProductChange}
-                        className="form-input"
-                    />
-                    <label>Quantity:</label>
-                    <input
-                        type="number"
-                        name="quantity"
-                        value={product.quantity}
-                        onChange={handleProductChange}
-                        className="form-input"
-                    />
-                    <label>Rate:</label>
-                    <input
-                        type="number"
-                        name="rate"
-                        value={product.rate}
-                        onChange={handleProductChange}
-                        className="form-input"
-                    />
-                    <button type="button" onClick={addProduct} className="add-button">Add Product</button>
-                    {error && <div className="error-message">{error}</div>}
-                </div>
-                <div>
-                    <h2>Product List</h2>
-                    <table className="product-table">
-                        <thead>
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Quantity</th>
-                                <th>Rate</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {formData.data.map((product, index) => (
-                                <tr key={index}>
-                                    <td>{product.name}</td>
-                                    <td>{product.quantity}</td>
-                                    <td>{product.rate}</td>
-                                    <td>
-                                        <button type="button" onClick={() => removeProduct(index)} className="remove-button">
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                {error && <div className="error-message">{error}</div>}
-                <button type="submit" disabled={loading} className="submit-button">
-                    {loading ? 'Submitting...' : 'Submit'}
-                </button>
-            </form>
-        </div>
+        <form onSubmit={handleSubmit} className="billing-form">
+            <FormGroup label="Date:" type="date" name="date" value={formData.date} onChange={handleInputChange} />
+
+            <FormGroup label="Party Name:" type="text" name="partyName" value={formData.partyName} onChange={handleInputChange} />
+
+            <FormGroup label="Party Address:" type="text" name="partyAddress" value={formData.partyAddress} onChange={handleInputChange} />
+
+            <ProductForm product={product} handleProductChange={handleProductChange} addProduct={addProduct} error={error} />
+
+            <ProductList products={formData.data} removeProduct={removeProduct} />
+            {error && <div className="error-message">{error}</div>}
+
+            <button type="submit" disabled={loading} className="submit-button">
+                {loading ? 'Submitting...' : 'Submit'}
+            </button>
+        </form>
     );
 };
 
