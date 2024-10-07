@@ -1,14 +1,29 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 const Navbar = () => {
+
+    const [isOpen, setIsOpen] = useState(false);
+
+    const toggleDropdown = () => {
+        setIsOpen((prevState) => !prevState);
+    }
+
+    const closeDropdown = () => {
+        setIsOpen(false);
+    }
 
     return (
         <div className="navbar mb-1 sticky top-0 z-50 border-b border-gray-60 bg-gradient-to-tr from-blue-900 to-blue-600 shadow-lg">
             <div className="navbar-start">
 
                 <div className="dropdown">
-                    <div tabIndex={0} role="button" className=" btn btn-ghost lg:hidden">
+                    <div
+                        tabIndex={0}
+                        role="button"
+                        className=" btn btn-ghost lg:hidden"
+                        onClick={toggleDropdown}
+                    >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5 text-white"
@@ -23,20 +38,22 @@ const Navbar = () => {
                         </svg>
                     </div>
 
-                    <ul
-                        tabIndex={0}
-                        className="menu menu-sm dropdown-content rounded-box z-[1] mt-3 w-52 p-2 shadow bg-blue-950 text-white">
-                        <li>
-                            <NavLink to='/'>
-                                Generate Invoice
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to='/contact-me'>
-                                Contact Us
-                            </NavLink>
-                        </li>
-                    </ul>
+                    {isOpen && (
+                        <ul
+                            tabIndex={0}
+                            className="menu menu-sm dropdown-content rounded-box z-[1] mt-3 w-52 p-2 shadow bg-blue-950 text-white">
+                            <li>
+                                <NavLink to='/' onClick={closeDropdown}>
+                                    Generate Invoice
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink to='/contact-me' onClick={closeDropdown}>
+                                    Contact Us
+                                </NavLink>
+                            </li>
+                        </ul>
+                    )}
                 </div>
 
                 <NavLink
