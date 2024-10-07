@@ -1,4 +1,5 @@
 import BillingFormContainer from './components/BillingFormContainer'
+import './index.css';
 
 function App() {
 

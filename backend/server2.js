@@ -5,6 +5,8 @@ const { Document, Packer, Table, TableRow, TableCell, Paragraph, WidthType, Page
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const { exec } = require('child_process');
+const convertToPdf = require('docx-pdf');
 
 const app = express();
 const port = 5000;
@@ -14,16 +16,30 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.post('/write-to-file', (req, res) => {
-    const { date, partyName, partyAddress, data } = req.body;
+    const { date, partyName, partyAddress, billType, data } = req.body;
+    //console.log('Received data:', data); // Log the received data for debugging
 
-    console.log('Received data:', data); // Log the received data for debugging
+    const totalAmount = data.reduce((accumulator, item) => {
+        return accumulator += (item.quantity * item.rate)
+    }, 0);
+    //console.log("totalAmount : ", totalAmount);
 
-    if (!date || !partyName || !partyAddress || !Array.isArray(data)) {
+    const formatDate = (inputDate) => {
+        const date = new Date(inputDate);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear());
+
+        return `${day}/${month}/${year}`;
+    }
+
+    const formattedDate = formatDate(date);
+
+    if (!date || !partyName || !Array.isArray(data)) {
         return res.status(400).send('Invalid request data. Ensure date, partyName, partyAddress, and data array are provided.');
     }
 
     try {
-
         // Define the business header content
         const businessHeader = new Header({
             children: [
@@ -118,7 +134,7 @@ app.post('/write-to-file', (req, res) => {
                         }),
 
                         new TextRun({
-                            text: 'Date : ' + date,
+                            text: 'Date : ' + formattedDate,
                             size: 24, // Font size (1/2 point size; 24 = 12pt)
                             font: 'Calibri (Body)', // Font family
                             bold: true, // Bold text
@@ -158,14 +174,17 @@ app.post('/write-to-file', (req, res) => {
                 new Paragraph({
                     children: [
                         new TextRun({
-                            text: 'Bill',
-                            size: 28, // Font size (1/2 point size; 24 = 12pt)
+                            text: billType,
+                            size: 24, // Font size (1/2 point size; 24 = 12pt)
                             font: 'Calibri (Body)', // Font family
                             bold: true, // Bold text   
                             underline: true,
                         }),
                     ],
                     alignment: AlignmentType.CENTER,
+                    spacing: {
+                        after: 100,
+                    },
                 }),
 
                 /*  new Paragraph({
@@ -348,7 +367,6 @@ app.post('/write-to-file', (req, res) => {
 
                     }),
                 ],
-
                 /* spacing: { before: 200, after: 200 }, */
                 alignment: alignment,
                 indent: {
@@ -378,7 +396,7 @@ app.post('/write-to-file', (req, res) => {
                 new TableCell({
                     children: [createStyledHeading('Description', AlignmentType.CENTER)],
                     width: {
-                        size: 63, // Percentage of the page width
+                        size: 59, // Percentage of the page width
                         type: WidthType.PERCENTAGE,
                     },
                     verticalAlign: 'center',
@@ -387,7 +405,16 @@ app.post('/write-to-file', (req, res) => {
                 new TableCell({
                     children: [createStyledHeading('Qty.', AlignmentType.CENTER)],
                     width: {
-                        size: 10, // Percentage of the page width
+                        size: 7, // Percentage of the page width
+                        type: WidthType.PERCENTAGE,
+                    },
+                    verticalAlign: 'center',
+                }),
+
+                new TableCell({
+                    children: [createStyledHeading('Unit', AlignmentType.CENTER)],
+                    width: {
+                        size: 5, // Percentage of the page width
                         type: WidthType.PERCENTAGE,
                     },
                     verticalAlign: 'center',
@@ -405,7 +432,7 @@ app.post('/write-to-file', (req, res) => {
                 new TableCell({
                     children: [createStyledHeading('Total\n(Rs.)', AlignmentType.CENTER)],
                     width: {
-                        size: 10, // Percentage of the page width
+                        size: 12, // Percentage of the page width
                         type: WidthType.PERCENTAGE,
                     },
                     verticalAlign: 'center',
@@ -413,6 +440,61 @@ app.post('/write-to-file', (req, res) => {
 
             ],
             tableHeader: true,  // Ensures that this row repeats as a header on each page
+        })
+
+        const totalAmountRow = new TableRow({
+            children: [
+                new TableCell({
+                    children: [
+                        new Paragraph({
+                            text: ''
+                        }),
+                    ],
+                }),
+
+                new TableCell({
+                    children: [
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: 'Total',
+                                    bold: true,
+                                    font: fontStyle.font,
+                                    size: fontStyle.size,
+                                }),
+                            ],
+                            alignment: 'center',
+                        }),
+                    ],
+                    margins: {
+                        top: 50,
+                        bottom: 50,
+                    },
+                    verticalAlign: 'center',
+                    columnSpan: 3,
+                }),
+
+                new TableCell({
+                    children: [
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: totalAmount.toFixed(2).toString(),
+                                    bold: true,
+                                    font: fontStyle.font,
+                                    size: fontStyle.size,
+                                }),
+                            ],
+                            alignment: 'right',
+                        }),
+                    ],
+                    margins: {
+                        right: 100,
+                    },
+                    verticalAlign: 'right',
+                    columnSpan: 2,
+                }),
+            ]  // Ensures that this row repeats as a header on each page
         })
 
         // Define the table structure
@@ -424,60 +506,6 @@ app.post('/write-to-file', (req, res) => {
             },
 
             rows: [
-                /* new TableRow({
-                    children: [
-                        new TableCell({
-                            children: [createStyledHeading('S.N.', AlignmentType.CENTER)],
-                            width: {
-                                size: 7, // Percentage of the page width
-                                type: WidthType.PERCENTAGE,
-                            },
-                            margins: {
-                                top: 100,
-                                bottom: 100,
-                            },
-                            verticalAlign: 'center',
-                        }),
-    
-                        new TableCell({
-                            children: [createStyledHeading('Description', AlignmentType.CENTER)],
-                            width: {
-                                size: 63, // Percentage of the page width
-                                type: WidthType.PERCENTAGE,
-                            },
-                            verticalAlign: 'center',
-                        }),
-    
-                        new TableCell({
-                            children: [createStyledHeading('Qty.', AlignmentType.CENTER)],
-                            width: {
-                                size: 10, // Percentage of the page width
-                                type: WidthType.PERCENTAGE,
-                            },
-                            verticalAlign: 'center',
-                        }),
-    
-                        new TableCell({
-                            children: [createStyledHeading('Rate\n(Rs.)', AlignmentType.CENTER)],
-                            width: {
-                                size: 10, // Percentage of the page width
-                                type: WidthType.PERCENTAGE,
-                            },
-                            verticalAlign: 'center',
-                        }),
-    
-                        new TableCell({
-                            children: [createStyledHeading('Total\n(Rs.)', AlignmentType.CENTER)],
-                            width: {
-                                size: 10, // Percentage of the page width
-                                type: WidthType.PERCENTAGE,
-                            },
-                            verticalAlign: 'center',
-                        }),
-    
-                    ],
-                }), */
-
                 headingRow,     // Heading row that will repeat on every page
 
                 ...data.map((item, index) => new TableRow({
@@ -502,6 +530,13 @@ app.post('/write-to-file', (req, res) => {
                         new TableCell({ children: [createStyledParagraph(item.name || 'N/A', AlignmentType.LEFT, 50)], verticalAlign: 'center', }),
 
                         new TableCell({ children: [createStyledParagraph(item.quantity !== undefined ? item.quantity.toString() : 'N/A', AlignmentType.CENTER)], verticalAlign: 'center', }),
+
+                        new TableCell({
+                            children: [
+                                createStyledParagraph(item.unit !== undefined ? item.unit.toString() : 'N/A', AlignmentType.CENTER)
+                            ],
+                            verticalAlign: 'center',
+                        }),
 
                         new TableCell({
                             children: [
@@ -530,6 +565,8 @@ app.post('/write-to-file', (req, res) => {
                         }),
                     ],
                 })),
+
+                totalAmountRow,
             ],
         });
 
@@ -544,6 +581,8 @@ app.post('/write-to-file', (req, res) => {
                                 right: 720,
                                 bottom: 284,
                                 left: 720,
+                                header: 500,
+                                footer: 300,
                             },
                         },
                     },
