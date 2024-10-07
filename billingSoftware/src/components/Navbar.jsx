@@ -26,8 +26,16 @@ const Navbar = () => {
                     <ul
                         tabIndex={0}
                         className="menu menu-sm dropdown-content rounded-box z-[1] mt-3 w-52 p-2 shadow bg-blue-950 text-white">
-                        <li><a href='/'>Generate Invoice</a></li>
-                        <li><a href='/contact-me'>Contact Us</a></li>
+                        <li>
+                            <NavLink to='/'>
+                                Generate Invoice
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to='/contact-me'>
+                                Contact Us
+                            </NavLink>
+                        </li>
                     </ul>
                 </div>
 
