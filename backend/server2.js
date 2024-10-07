@@ -1,12 +1,13 @@
 // backend/server.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Document, Packer, Table, TableRow, TableCell, Paragraph, WidthType, PageSize, Header, TextRun, AlignmentType, Footer, VerticalAlign, BorderStyle, Numbering } = require('docx');
+const { Document, Packer, Table, TableRow, TableCell, Paragraph, WidthType, PageSize, Header, TextRun, AlignmentType, Footer, VerticalAlign, BorderStyle, Numbering, PageNumber } = require('docx');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const { exec } = require('child_process');
 const convertToPdf = require('docx-pdf');
+const text = require('body-parser/lib/types/text');
 
 const app = express();
 const port = 5000;
@@ -18,6 +19,9 @@ app.use(cors());
 app.post('/write-to-file', (req, res) => {
     const { date, partyName, partyAddress, billType, data } = req.body;
     //console.log('Received data:', data); // Log the received data for debugging
+
+    const myFont = 'Times New Roman';
+    const myFontSize = '24';
 
     const totalAmount = data.reduce((accumulator, item) => {
         return accumulator += (item.quantity * item.rate)
@@ -315,11 +319,64 @@ app.post('/write-to-file', (req, res) => {
             },
         });
 
+        const myTextRunForFooter = (children) => {
+            return new TextRun({
+                children,
+                size: myFontSize,
+                font: myFont,
+                bold: true,
+            })
+        };
+
+        const noBorders = () => ({
+            top: { size: 0, color: "#ffffff" },
+            bottom: { size: 0, color: "#ffffff" },
+            left: { size: 0, color: "#ffffff" },
+            right: { size: 0, color: "#ffffff" },
+        });
+
+        const pageNumberTable = new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    children: [
+                                        myTextRunForFooter(['Page ', PageNumber.CURRENT]),
+
+                                        myTextRunForFooter([' of ', PageNumber.TOTAL_PAGES]),
+                                    ],
+                                    alignment: 'right',
+                                    verticalAlign: 'center',
+                                }),
+                            ],
+                            borders: noBorders(),
+                            alignment: 'right',
+                            verticalAlign: 'center',
+                        }),
+                    ],
+                }),
+            ],
+
+        });
+
+        const singleLineSpace = new Paragraph({
+            children: [
+                new TextRun({
+                    text: '',
+                }),
+            ],
+        })
+
         const businessFooter = new Footer({
             children: [
                 ...Array(1).fill(new Paragraph({ children: [new TextRun({ text: '' })] })),
 
                 footerTable,
+                singleLineSpace,
+                pageNumberTable,
             ],
         });
 
