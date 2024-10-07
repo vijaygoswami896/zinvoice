@@ -162,7 +162,7 @@ const BillingForm = () => {
                         name="billType"
                         value={formData?.billType}
                         onChange={(e) => handleBillTypeChange(e)}
-                        className='p-2 rounded-lg'
+                        className='p-2 rounded-lg border border-blue-950'
                     >
                         <option value="">Select Type of Bill</option>
                         {billTypes.map((billType, idx) => (
@@ -179,7 +179,12 @@ const BillingForm = () => {
                 {error && <div className="text-red-500 ml-3">{error}</div>}
 
                 <div className='flex flex-col items-center justify-center mb-4 mt-5'>
-                    <button type="submit" disabled={loading} className="p-2 mb-2 bg-blue-900 text-white font-semibold px-10 rounded-full">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`p-2 mb-2 bg-blue-900 text-white font-semibold px-10 rounded-full ${loading ? 'bg-gray-400 text-black' : ''}`}
+
+                    >
                         {loading ? 'Generating...' : 'Generate Word File'}
                     </button>
                 </div>

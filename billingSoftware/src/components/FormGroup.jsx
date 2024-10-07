@@ -10,7 +10,7 @@ const FormGroup = ({ label, type, name, value, placeholderText, onChange, classN
                 name={name}
                 value={value}
                 onChange={onChange}
-                className={`p-2 rounded-lg ${className}`}
+                className={`p-2 rounded-lg ${className} border border-blue-950 focus:outline-none`}
             />
         </div>
     )
