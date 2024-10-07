@@ -6,12 +6,14 @@ import ProductList from './ProductList';
 import '../assets/BillingForm.css'; // Import the CSS file for styling
 
 const BillingForm = () => {
+
     const [formData, setFormData] = useState({
         date: '',
         partyName: '',
         partyAddress: '',
         data: []
     });
+
     const [product, setProduct] = useState({
         name: '',
         quantity: '',
