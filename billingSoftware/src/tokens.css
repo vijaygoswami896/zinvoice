@@ -1,0 +1,149 @@
+/* =============================================================================
+   tokens.css — Design tokens as CSS custom properties
+   All colours, spacing, typography, shadows, and radii live here.
+   Components reference var(--token-name) only — never raw values.
+   ============================================================================= */
+
+:root {
+  /* ── Brand / Primary (Indigo) ────────────────────────────────────────────── */
+  --color-primary-50:  #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+
+  /* ── Neutrals ────────────────────────────────────────────────────────────── */
+  --color-gray-0:   #ffffff;
+  --color-gray-50:  #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* ── Semantic colours ────────────────────────────────────────────────────── */
+  --color-success-light: #dcfce7;
+  --color-success:       #16a34a;
+  --color-success-dark:  #166534;
+
+  --color-warning-light: #fef9c3;
+  --color-warning:       #ca8a04;
+  --color-warning-dark:  #854d0e;
+
+  --color-error-light:   #fee2e2;
+  --color-error:         #dc2626;
+  --color-error-dark:    #991b1b;
+
+  --color-info-light:    #dbeafe;
+  --color-info:          #2563eb;
+  --color-info-dark:     #1e40af;
+
+  /* ── Surface colours ─────────────────────────────────────────────────────── */
+  --color-bg:           var(--color-gray-50);
+  --color-surface:      var(--color-gray-0);
+  --color-surface-alt:  var(--color-gray-100);
+  --color-border:       var(--color-gray-200);
+  --color-border-focus: var(--color-primary-500);
+
+  /* ── Text colours ────────────────────────────────────────────────────────── */
+  --color-text-primary:   var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-500);
+  --color-text-muted:     var(--color-gray-400);
+  --color-text-inverse:   var(--color-gray-0);
+  --color-text-link:      var(--color-primary-600);
+
+  /* ── Sidebar ─────────────────────────────────────────────────────────────── */
+  --sidebar-bg:           #1e1b4b;   /* Deep indigo */
+  --sidebar-bg-hover:     #2d2a6e;
+  --sidebar-bg-active:    #4f46e5;
+  --sidebar-text:         #c7d2fe;
+  --sidebar-text-active:  #ffffff;
+  --sidebar-text-muted:   #6366f1;
+  --sidebar-width:        256px;
+  --sidebar-width-collapsed: 72px;
+
+  /* ── Topbar ──────────────────────────────────────────────────────────────── */
+  --topbar-height:        64px;
+  --topbar-bg:            var(--color-gray-0);
+  --topbar-border:        var(--color-gray-200);
+
+  /* ── Spacing scale (4px base) ────────────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Typography ──────────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 14px;
+  --text-md:   15px;
+  --text-lg:   16px;
+  --text-xl:   18px;
+  --text-2xl:  20px;
+  --text-3xl:  24px;
+  --text-4xl:  30px;
+
+  --font-normal:   400;
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+
+  --leading-tight:  1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* ── Border radius ───────────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius:    6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ─────────────────────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow:    0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* ── Transitions ─────────────────────────────────────────────────────────── */
+  --transition-fast:   150ms ease;
+  --transition:        200ms ease;
+  --transition-slow:   300ms ease;
+
+  /* ── Z-index scale ───────────────────────────────────────────────────────── */
+  --z-base:    1;
+  --z-sidebar: 100;
+  --z-topbar:  200;
+  --z-overlay: 300;
+  --z-modal:   400;
+  --z-toast:   500;
+  --z-tooltip: 600;
+
+  /* ── Breakpoints (for JS reference — actual MQ in global.css) ────────────── */
+  --bp-sm:  640px;
+  --bp-md:  768px;
+  --bp-lg:  1024px;
+  --bp-xl:  1280px;
+}
