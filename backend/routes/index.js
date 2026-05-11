@@ -16,13 +16,13 @@ const router = Router();
 // Core
 router.use('/health', healthRoutes);
 router.use('/auth', authLimiter, require('./auth.routes'));
+router.use('/settings', require('./settings.routes'));
+// router.use('/customers', require('./customer.routes'));
 
 // Feature routes — uncomment and add as implemented:
-// router.use('/customers',  require('./customer.routes'));
 // router.use('/products',   require('./product.routes'));
 // router.use('/invoices',   require('./invoice.routes'));
 // router.use('/payments',   require('./payment.routes'));
-// router.use('/settings',   require('./settings.routes'));
 // router.use('/reports',    require('./report.routes'));
 
 module.exports = router;

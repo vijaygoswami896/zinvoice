@@ -1,10 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
-import formReducer from '../store/formSlice';
+import authReducer from '@features/auth/authSlice';
+import uiReducer from '@features/ui/uiSlice';
 
-const store = configureStore({
+export const store = configureStore({
     reducer: {
-        form: formReducer,
-    }
-})
+        auth: authReducer,
+        ui: uiReducer,
+        // Future: invoices, customers, products…
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({ serializableCheck: {} }),
+    devTools: import.meta.env.DEV,
+});
 
-export default store;
+/** @typedef {ReturnType<typeof store.getState>} RootState */
+/** @typedef {typeof store.dispatch} AppDispatch */

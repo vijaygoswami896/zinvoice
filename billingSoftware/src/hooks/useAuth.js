@@ -1,97 +1,67 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import {
-    selectUser,
-    selectIsAuth,
-    selectUserRole,
-    selectIsInitialised,
-    setCredentials,
-    clearCredentials,
-} from '../features/auth/authSlice';
-import { loginApi, registerApi, logoutApi, changePasswordApi } from '../api/auth.api';
+    selectUser, selectIsAuth, selectUserRole,
+    selectIsInitialised, selectIsAdmin,
+    setCredentials, clearCredentials,
+} from '@features/auth/authSlice';
+import { authApi } from '@api/auth.api';
+import { ROUTES } from '../constants/index';
 
-/**
- * useAuth — central hook for all authentication actions.
- *
- * Combines Redux selectors (read state) with TanStack Query mutations
- * (write/side-effect operations).
- *
- * Usage:
- *   const { user, isAuth, login, logout, isLoggingIn } = useAuth();
- */
 export const useAuth = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const qc = useQueryClient();
     const user = useSelector(selectUser);
     const isAuth = useSelector(selectIsAuth);
     const role = useSelector(selectUserRole);
     const isInitialised = useSelector(selectIsInitialised);
-
-    // ── Login ──────────────────────────────────────────────────────────────────
+    const isAdmin = useSelector(selectIsAdmin);
 
     const loginMutation = useMutation({
-        mutationFn: loginApi,
+        mutationFn: authApi.login,
         onSuccess: ({ user, accessToken }) => {
             dispatch(setCredentials({ user, accessToken }));
-            navigate('/dashboard', { replace: true });
+            navigate(ROUTES.DASHBOARD, { replace: true });
         },
     });
-
-    // ── Register ───────────────────────────────────────────────────────────────
 
     const registerMutation = useMutation({
-        mutationFn: registerApi,
+        mutationFn: authApi.register,
         onSuccess: ({ user, accessToken }) => {
             dispatch(setCredentials({ user, accessToken }));
-            navigate('/dashboard', { replace: true });
+            navigate(ROUTES.DASHBOARD, { replace: true });
         },
     });
-
-    // ── Logout ─────────────────────────────────────────────────────────────────
 
     const logoutMutation = useMutation({
-        mutationFn: logoutApi,
+        mutationFn: authApi.logout,
         onSettled: () => {
-            // Clear state regardless of server response
             dispatch(clearCredentials());
-            navigate('/login', { replace: true });
+            qc.clear();
+            navigate(ROUTES.LOGIN, { replace: true });
         },
     });
-
-    // ── Change password ────────────────────────────────────────────────────────
 
     const changePasswordMutation = useMutation({
-        mutationFn: changePasswordApi,
+        mutationFn: authApi.changePassword,
         onSuccess: () => {
             dispatch(clearCredentials());
-            navigate('/login', { replace: true });
+            navigate(ROUTES.LOGIN, { replace: true });
         },
     });
 
-    // ── Role helpers ───────────────────────────────────────────────────────────
-
-    const isAdmin = role === 'admin';
-    const isStaff = role === 'staff';
-
     return {
-        // State
-        user,
-        isAuth,
-        role,
-        isAdmin,
-        isStaff,
-        isInitialised,
+        user, isAuth, role, isAdmin, isInitialised,
+        isStaff: role === 'staff',
 
-        // Actions
         login: loginMutation.mutate,
         loginAsync: loginMutation.mutateAsync,
         register: registerMutation.mutate,
-        registerAsync: registerMutation.mutateAsync,
         logout: logoutMutation.mutate,
         changePassword: changePasswordMutation.mutateAsync,
 
-        // Loading / error states
         isLoggingIn: loginMutation.isPending,
         isRegistering: registerMutation.isPending,
         isLoggingOut: logoutMutation.isPending,
@@ -99,6 +69,5 @@ export const useAuth = () => {
 
         loginError: loginMutation.error,
         registerError: registerMutation.error,
-        changePasswordError: changePasswordMutation.error,
     };
 };

@@ -64,5 +64,6 @@ export const selectUser = (state) => state.auth.user;
 export const selectIsAuth = (state) => !!state.auth.user && !!state.auth.accessToken;
 export const selectUserRole = (state) => state.auth.user?.role ?? null;
 export const selectIsInitialised = (state) => state.auth.isInitialised;
+export const selectIsAdmin = (s) => s.auth.user?.role === 'admin';
 
 export default authSlice.reducer;

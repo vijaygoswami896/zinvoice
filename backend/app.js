@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -78,6 +79,8 @@ const createApp = () => {
 
     // ── 8. Feature routes ────────────────────────────────────────────────────────
     app.use('/api/v1', routes);
+
+    app.use('/uploads', express.static(path.join(process.cwd(), 'storage/uploads')));
 
     // ── 9. 404 — must come after all valid routes ─────────────────────────────────
     app.use(notFoundHandler);

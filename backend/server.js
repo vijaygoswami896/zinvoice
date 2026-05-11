@@ -78,9 +78,18 @@ process.on('SIGINT', () => shutdown('SIGINT'));   // Ctrl+C in dev
 
 // Catch unhandled promise rejections (programming errors, not operational)
 process.on('unhandledRejection', (reason) => {
-    logger.error({ msg: 'Unhandled promise rejection', reason });
+    logger.error({
+        msg: 'Unhandled promise rejection',
+        err: reason,
+    });
+
     shutdown('unhandledRejection');
 });
+
+// process.on('unhandledRejection', (reason) => {
+//     logger.error({ msg: 'Unhandled promise rejection', reason });
+//     shutdown('unhandledRejection');
+// });
 
 // Catch synchronous throws outside request scope
 process.on('uncaughtException', (err) => {

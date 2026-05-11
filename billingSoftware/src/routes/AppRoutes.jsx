@@ -1,54 +1,69 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import ProtectedRoute from '../components/auth/ProtectedRoute';
-import GuestRoute from '../components/auth/GuestRoute';
+import { Routes, Route } from 'react-router-dom';
+import { ProtectedRoute, GuestRoute } from '@components/auth/RouteGuards';
+import AppLayout from '@components/layout/AppLayout';
+import PageLoader from '@components/common/PageLoader';
+import { ROUTES } from '@constants';
+import SettingsPage from '@pages/settings/SettingsPage';
+import CustomersPage from '@pages/customers/CustomersPage';
 
-// Lazy-load pages for code splitting
-const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
-const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
-const DashboardPage = lazy(() => import('../pages/dashboard/DashboadPage'));
+// ── Lazy page imports ─────────────────────────────────────────────────────────
 
-// Placeholder pages — replace with real implementations
-// const AdminPage = lazy(() => import('../pages/AdminPage'));
-// const ForbiddenPage = lazy(() => import('../pages/ForbiddenPage'));
-// const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
+// Auth
+const LoginPage = lazy(() => import('@pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('@pages/auth/RegisterPage'));
 
-/**
- * AppRoutes — central route definitions.
- *
- * Route guard hierarchy:
- *   <GuestRoute>     — visible only to unauthenticated users
- *   <ProtectedRoute> — requires authentication
- *     allowedRoles   — optional RBAC narrowing
- */
+// App — placeholders until modules are built
+const DashboardPage = lazy(() => import('@pages/dashboard/DashboadPage'));
+
+// Error pages
+const ForbiddenPage = lazy(() => import('@pages/errors/ErrorPages'));
+const NotFoundPage = lazy(() => import('@pages/errors/ErrorPages'));
+
+// ── Routes ────────────────────────────────────────────────────────────────────
+
 const AppRoutes = () => (
-    <Suspense fallback={<div className="page-loading">Loading…</div>}>
+    <Suspense fallback={<PageLoader />}>
         <Routes>
-            {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
+            {/* Root → dashboard */}
+            {/* <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} /> */}
 
-            {/* Guest-only routes (redirect to /dashboard if already logged in) */}
+            {/* Guest-only: redirect to /dashboard if already authenticated */}
             <Route element={<GuestRoute />}>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+                <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
             </Route>
 
-            {/* Protected: any authenticated role */}
+            {/* Protected: any authenticated user, uses AppLayout shell */}
             <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                {/* Add further protected routes here:
-            /invoices, /customers, /products, /payments, /settings … */}
+                <Route element={<AppLayout />}>
+                    <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+                    <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+                    <Route path={ROUTES.CUSTOMERS} element={<CustomersPage />} />
+                    {/*
+            Future modules — uncomment as you build them:
+
+            <Route path={ROUTES.INVOICES}        element={<InvoicesPage />} />
+            <Route path={ROUTES.INVOICE_NEW}     element={<InvoiceNewPage />} />
+            <Route path={ROUTES.INVOICE_DETAIL}  element={<InvoiceDetailPage />} />
+            <Route path={ROUTES.PRODUCTS}        element={<ProductsPage />} />
+            <Route path={ROUTES.PAYMENTS}        element={<PaymentsPage />} />
+            <Route path={ROUTES.REPORTS}         element={<ReportsPage />} />
+            <Route path={ROUTES.SETTINGS}        element={<SettingsPage />} />
+          */}
+                </Route>
             </Route>
 
-            {/* Protected: admin only */}
-            {/* <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                <Route path="/admin" element={<AdminPage />} />
-            </Route> */}
+            {/* Admin-only routes */}
+            <Route element={<ProtectedRoute allowedRoles={['admin']} fallback={<PageLoader />} />}>
+                <Route element={<AppLayout />}>
+                    {/* <Route path={ROUTES.ADMIN} element={<AdminPage />} /> */}
+                </Route>
+            </Route>
 
             {/* Utility */}
-            {/* <Route path="/403" element={<ForbiddenPage />} />
-            <Route path="*" element={<NotFoundPage />} /> */}
+            <Route path={ROUTES.FORBIDDEN} element={<ForbiddenPage />} />
+            <Route path="*" element={<NotFoundPage />} />
         </Routes>
     </Suspense>
 );

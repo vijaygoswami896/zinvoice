@@ -34,7 +34,9 @@ const AuthInitialiser = () => {
                 const { user, accessToken } = await refreshApi();
                 dispatch(setCredentials({ user, accessToken }));
             } catch {
-                // 401 = no valid refresh token — treat as logged out, not an error
+                // no valid session
+            } finally {
+                // ✅ ALWAYS runs
                 dispatch(setInitialised());
             }
         };
