@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export interface EnvTypes {
     NODE_ENV: string;
     PORT: number;
@@ -30,4 +32,8 @@ export interface EnvTypes {
     isProd: boolean;
     isDev: boolean;
     isTest: boolean;
+}
+
+export interface AuthenticatedRequest extends Request {
+    user: { id: string; role: string }; // non-optional — guaranteed by authenticate middleware
 }
