@@ -34,6 +34,14 @@ export interface EnvTypes {
     isTest: boolean;
 }
 
+// export interface AuthenticatedRequest extends Request {
+//     user: { id: string; role: string }; // non-optional — guaranteed by authenticate middleware
+// }
+
 export interface AuthenticatedRequest extends Request {
-    user: { id: string; role: string }; // non-optional — guaranteed by authenticate middleware
+    user: {
+        id: string;
+        role: string;
+        businessId?: string; // add this
+    };
 }

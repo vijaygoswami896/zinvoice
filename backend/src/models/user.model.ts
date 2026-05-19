@@ -39,10 +39,6 @@ interface IUser extends Document {
     removeExpiredTokens(): void;
 }
 
-// interface IUserModel extends Model<IUser> {
-//     findByEmailWithPassword(email: string): ReturnType<Model<IUser>['findOne']>;
-// }
-
 interface IUserModel extends Model<IUser> {
     findByEmailWithPassword(email: string): Promise<IUser | null>;
 }
@@ -136,11 +132,6 @@ userSchema.methods.pruneRefreshTokens = function (): void {
             .slice(0, 5);
     }
 };
-
-// userSchema.methods.removeExpiredTokens = function (): void {
-//     const now = new Date();
-//     this.refreshTokens = (this.refreshTokens as IRefreshToken[]).filter((t) => t.expiresAt > now);
-// };
 
 userSchema.methods.removeExpiredTokens = function (): void {
     const now = new Date();

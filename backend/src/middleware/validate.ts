@@ -1,6 +1,6 @@
 import { ZodError, ZodTypeAny } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import AppError from '../utils/AppError';
+import AppError from '../utils/appError';
 
 interface ValidateSchemas {
     body?: ZodTypeAny;

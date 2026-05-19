@@ -1,5 +1,5 @@
 import { User } from '../models/user.model';
-import AppError from '../utils/AppError';
+import AppError from '../utils/appError';
 import logger from '../middleware/logger';
 import {
     signAccessToken,
@@ -95,6 +95,7 @@ const login = async ({ email, password, userAgent, ip }: LoginParams) => {
     const { raw, hash } = generateRefreshToken();
 
     user.removeExpiredTokens();
+
     user.refreshTokens.push({
         token: raw.slice(0, 8) + '…',
         tokenHash: hash,
@@ -102,6 +103,7 @@ const login = async ({ email, password, userAgent, ip }: LoginParams) => {
         ip: ip ?? '',
         expiresAt: refreshTokenExpiresAt(),
     });
+
     user.pruneRefreshTokens();
     user.lastLoginAt = new Date();
 

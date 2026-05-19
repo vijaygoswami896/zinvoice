@@ -7,5 +7,3 @@ declare namespace Express {
         // files?: Multer.File[];
     }
 }
-
-export { };  // ← add this

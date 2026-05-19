@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendError } from '../utils/apiResponse';
-import AppError from '../utils/AppError';
+import AppError from '../utils/appError';
 import logger from './logger';
 
 interface MongoServerError {

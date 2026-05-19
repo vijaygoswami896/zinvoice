@@ -8,5 +8,6 @@ const router = Router();
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/settings', settingsRoutes);
+// router.use('/customers', require('./customer.routes'));
 
 export default router;

@@ -20,6 +20,7 @@ const register = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
+// debugger;
 const login = asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const { userAgent, ip } = getClientMeta(req);
@@ -78,22 +79,5 @@ const getMe = asyncHandler(async (req: Request, res: Response) => {
         message: 'User profile fetched',
     });
 });
-
-// const logoutAll = asyncHandler(async (req: Request, res: Response) => {
-//     await authService.logoutAll(req?.user.id);
-//     clearRefreshCookie(res);
-
-//     sendSuccess(res, {
-//         data: null,
-//         message: 'Logged out from all devices successfully',
-//     });
-// });
-
-// const getMe = asyncHandler(async (req: Request, res: Response) => {
-//     sendSuccess(res, {
-//         data: { user: req.user },
-//         message: 'User profile fetched',
-//     });
-// });
 
 export default { register, login, refreshToken, logout, logoutAll, getMe };
