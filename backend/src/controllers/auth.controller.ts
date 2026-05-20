@@ -3,11 +3,32 @@ import authService from '../services/auth.service';
 import asyncHandler from '../utils/asyncHandler';
 import { sendSuccess } from '../utils/apiResponse';
 import { setRefreshCookie, clearRefreshCookie, getRefreshTokenFromCookie } from '../utils/tokenUtils';
-import { AuthenticatedRequest } from '../types';
+// import { AuthenticatedRequest } from '../types';
 
 const getClientMeta = (req: Request) => ({
     userAgent: req.headers['user-agent'] ?? '',
     ip: req.ip ?? req.socket?.remoteAddress ?? '',
+});
+
+const signup = asyncHandler(async (req: Request, res: Response) => {
+    const user = await authService.signup(req.body);
+    sendSuccess(res, {
+        data: { user },
+        message: 'Account created successfully. You can now log in.',
+        status: 201,
+    });
+});
+
+const invite = asyncHandler(async (req: Request, res: Response) => {
+    const user = await authService.invite(
+        req.user!.businessId ?? req.user!.id,
+        req.body,
+    );
+    sendSuccess(res, {
+        data: { user },
+        message: 'Staff account created successfully.',
+        status: 201,
+    });
 });
 
 const register = asyncHandler(async (req: Request, res: Response) => {
@@ -64,7 +85,8 @@ const logout = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const logoutAll = asyncHandler(async (req: Request, res: Response) => {
-    await authService.logoutAll((req as AuthenticatedRequest).user.id);
+    // await authService.logoutAll((req as AuthenticatedRequest).user.id);
+    await authService.logoutAll(req.user!.id);
     clearRefreshCookie(res);
 
     sendSuccess(res, {
@@ -75,9 +97,10 @@ const logoutAll = asyncHandler(async (req: Request, res: Response) => {
 
 const getMe = asyncHandler(async (req: Request, res: Response) => {
     sendSuccess(res, {
-        data: { user: (req as AuthenticatedRequest).user },
+        // data: { user: (req as AuthenticatedRequest).user },
+        data: { user: req.user },
         message: 'User profile fetched',
     });
 });
 
-export default { register, login, refreshToken, logout, logoutAll, getMe };
+export default { signup, invite, register, login, refreshToken, logout, logoutAll, getMe };

@@ -1,19 +1,20 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
+import { INDIAN_STATES, IndianState } from '../constants/india';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-export const INDIAN_STATES = [
-    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
-    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
-    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
-    'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
-    'Andaman and Nicobar Islands', 'Chandigarh',
-    'Dadra and Nagar Haveli and Daman and Diu',
-    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
-] as const;
+// export const INDIAN_STATES = [
+//     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+//     'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+//     'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+//     'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
+//     'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+//     'Andaman and Nicobar Islands', 'Chandigarh',
+//     'Dadra and Nagar Haveli and Daman and Diu',
+//     'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
+// ] as const;
 
-export type IndianState = typeof INDIAN_STATES[number];
+// export type IndianState = typeof INDIAN_STATES[number];
 export type GstType = 'B2B' | 'B2C' | 'export';
 
 // ── Interfaces ────────────────────────────────────────────────────────────────
@@ -65,7 +66,7 @@ const customerSchema = new Schema<ICustomer>(
     {
         businessId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
+            ref: 'Business',
             required: [true, 'businessId is required'],
         },
 
@@ -128,6 +129,8 @@ const customerSchema = new Schema<ICustomer>(
         toJSON: {
             transform: (_doc: Document, ret: Record<string, unknown>) => {
                 delete ret.__v;
+                delete ret.deletedAt;       //--added
+                delete ret.deletedBy;       //--added
                 return ret;
             },
         },

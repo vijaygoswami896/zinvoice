@@ -9,13 +9,16 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        // "types": ["node"]
+        "declaration": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        // "noUncheckedIndexedAccess": true
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist"]
 }
 
-
+//existing.......
 // {
 //     "compilerOptions": {
 //         "target": "ES2020",
@@ -27,15 +30,8 @@
 //         "esModuleInterop": true,
 //         "skipLibCheck": true,
 //         "forceConsistentCasingInFileNames": true,
-//         "types": [
-//             "node"
-//         ]
+//         // "types": ["node"]
 //     },
-//     "include": [
-//         "./**/*.ts"
-// , "src/middleware/upload.middleware.js", "src/middleware/validate.js"    ],
-//     "exclude": [
-//         "node_modules",
-//         "dist"
-//     ]
+//     "include": ["src/**/*.ts"],
+//     "exclude": ["node_modules", "dist"]
 // }

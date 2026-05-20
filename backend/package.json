@@ -7,18 +7,18 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc"
+    "lint": "eslint src/**/*.ts",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "docx": "^8.5.0",
-    "docx-pdf": "^0.0.1",
     "docxtemplater": "^3.50.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

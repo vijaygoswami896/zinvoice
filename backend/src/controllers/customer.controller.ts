@@ -1,29 +1,36 @@
 import { Request, Response, RequestHandler } from 'express';
-import { AuthenticatedRequest } from '../types/index.js';
 import * as customerService from '../services/customer.service.js';
 import { sendSuccess, sendPaginated } from '../utils/apiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import type { CustomerListQuery } from '../schemas/customer.schema.server.js';
+import getBusinessId from '../utils/getBusinessId.js';
 
-const getBusinessId = (req: Request): string => {
-    const { user } = req as AuthenticatedRequest;
-    return user.businessId || user.id;
-};
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Resolves the business context for the request.
+ * Uses businessId from JWT payload if present (multi-business users),
+ * otherwise falls back to the user's own ID (single-business users).
+ * Throws if neither is available — should never happen after authenticate.
+ */
+
+// ── Controllers ───────────────────────────────────────────────────────────────
 
 /**
  * GET /api/v1/customers
  * List with pagination, search, and filters.
  */
 const listCustomers: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
-    const { items, total, page, limit } = await customerService.listCustomers(
+    const result = await customerService.listCustomers(
         getBusinessId(req),
-        req.query as CustomerListQuery,
+        req.query as unknown as CustomerListQuery,
     );
-    sendSuccess(res, {
-        items,
-        total,
-        page,
-        limit,
+
+    sendPaginated(res, {
+        items: result.items,
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
         message: 'Customers retrieved.',
     });
 });
@@ -36,7 +43,8 @@ const getCustomer: RequestHandler = asyncHandler(async (req: Request, res: Respo
         getBusinessId(req),
         req.params.id,
     );
-    return sendSuccess(res, { data: { customer }, message: 'Customer retrieved.' });
+
+    sendSuccess(res, { data: { customer }, message: 'Customer retrieved.' });
 });
 
 /**
@@ -47,7 +55,8 @@ const createCustomer: RequestHandler = asyncHandler(async (req: Request, res: Re
         getBusinessId(req),
         req.body,
     );
-    return sendSuccess(res, { data: { customer }, message: 'Customer created.', status: 201 });
+
+    sendSuccess(res, { data: { customer }, message: 'Customer created.', status: 201 });
 });
 
 /**
@@ -59,7 +68,8 @@ const updateCustomer: RequestHandler = asyncHandler(async (req: Request, res: Re
         req.params.id,
         req.body,
     );
-    return sendSuccess(res, { data: { customer }, message: 'Customer updated.' });
+
+    sendSuccess(res, { data: { customer }, message: 'Customer updated.' });
 });
 
 /**
@@ -67,13 +77,13 @@ const updateCustomer: RequestHandler = asyncHandler(async (req: Request, res: Re
  * Soft delete — sets deletedAt, does not remove the document.
  */
 const deleteCustomer: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
-    const { user } = req as AuthenticatedRequest;
     await customerService.deleteCustomer(
         getBusinessId(req),
         req.params.id,
-        user.id,
+        req.user!.id,
     );
-    return sendSuccess(res, { data: null, message: 'Customer deleted.' });
+
+    sendSuccess(res, { data: null, message: 'Customer deleted.' });
 });
 
 export { listCustomers, getCustomer, createCustomer, updateCustomer, deleteCustomer };

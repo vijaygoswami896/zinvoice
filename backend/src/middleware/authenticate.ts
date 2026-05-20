@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import AppError from '../utils/appError';
 import { verifyAccessToken } from '../utils/tokenUtils';
-import { AuthenticatedRequest } from '../types';
 
 const authenticate = (req: Request, _res: Response, next: NextFunction): void => {
-    const { user } = req as AuthenticatedRequest;
+    // const { user } = req;
 
     const authHeader = req.headers.authorization;
 
@@ -21,9 +20,10 @@ const authenticate = (req: Request, _res: Response, next: NextFunction): void =>
     try {
         const payload = verifyAccessToken(token);
 
-        (req as AuthenticatedRequest).user = {
+        req.user = {
             id: payload.sub,
             role: payload.role,
+            businessId: payload.businessId ?? undefined,
         };
 
         next();

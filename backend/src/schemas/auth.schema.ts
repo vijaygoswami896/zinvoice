@@ -1,37 +1,41 @@
 import { z } from 'zod';
-
-const emailField = z
-    .string({ required_error: 'Email is required' })
-    .email('Please provide a valid email address')
-    .toLowerCase()
-    .trim();
-
-const passwordField = z
-    .string({ required_error: 'Password is required' })
-    .min(8, 'Password must be at least 8 characters')
-    .max(72, 'Password cannot exceed 72 characters')
-    .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Password must contain at least one uppercase letter, one lowercase letter, and one number',
-    );
-
-const nameField = z
-    .string({ required_error: 'Name is required' })
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name cannot exceed 100 characters')
-    .trim();
-
-export const RegisterSchema = z.object({
-    name: nameField,
-    email: emailField,
-    password: passwordField,
-    role: z.enum(['admin', 'staff']).optional().default('staff'),
-});
+import {
+    nameField,
+    emailField,
+    passwordField,
+    gstinField,
+    indianMobileField,
+    BusinessBaseSchema,
+} from './shared.schema';
 
 export const LoginSchema = z.object({
     email: emailField,
-    password: z.string({ required_error: 'Password is required' }).min(1, 'Password is required'),
+    password: z.string({ required_error: 'Password is required' }).min(1),
 });
 
-export type RegisterInput = z.infer<typeof RegisterSchema>;
+export const SignupSchema = z.object({
+    // Owner
+    name: nameField,
+    email: emailField,
+    password: passwordField,
+
+    // Business — reuses same validators as settings
+    // businessName: z.string().trim().min(2).max(150),
+    // businessEmail: emailField.optional(),
+    // businessPhone: indianMobileField,
+    // businessGstin: gstinField,
+}).merge(BusinessBaseSchema);;
+
+export const InviteSchema = z.object({
+    name: nameField,
+    email: emailField,
+    password: passwordField,
+    role: z.enum(['staff', 'manager']),
+});
+
+export const RegisterSchema = SignupSchema;
+
 export type LoginInput = z.infer<typeof LoginSchema>;
+export type SignupBody = z.infer<typeof SignupSchema>;
+export type InviteBody = z.infer<typeof InviteSchema>;
+export type RegisterInput = z.infer<typeof RegisterSchema>;

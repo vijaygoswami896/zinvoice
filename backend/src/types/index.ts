@@ -1,4 +1,4 @@
-import { Request } from 'express';
+// import { Request } from 'express';
 
 export interface EnvTypes {
     NODE_ENV: string;
@@ -38,10 +38,10 @@ export interface EnvTypes {
 //     user: { id: string; role: string }; // non-optional — guaranteed by authenticate middleware
 // }
 
-export interface AuthenticatedRequest extends Request {
-    user: {
-        id: string;
-        role: string;
-        businessId?: string; // add this
-    };
-}
+// export interface AuthenticatedRequest extends Request {
+//     user: {
+//         id: string;
+//         role: string;
+//         businessId?: string; // add this
+//     };
+// }

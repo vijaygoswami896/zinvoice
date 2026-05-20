@@ -81,7 +81,9 @@ process.on('unhandledRejection', (reason) => {
         err: reason,
     });
 
-    shutdown('unhandledRejection');
+    // shutdown('unhandledRejection');
+
+    if (env.isProd) shutdown('unhandledRejection');
 });
 
 // Catch synchronous throws outside request scope

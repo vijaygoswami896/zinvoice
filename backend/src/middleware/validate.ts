@@ -14,8 +14,13 @@ const formatZodErrors = (zodError: ZodError) =>
         message: issue.message,
     }));
 
-const validate = (schemas: ValidateSchemas = {}) =>
-    (req: Request, _res: Response, next: NextFunction): void => {
+const validate = (schemas: ValidateSchemas = {}) => {
+    // Fail fast at route definition time, not at request time
+    if (!schemas.body && !schemas.query && !schemas.params) {
+        throw new Error('validate() called with no schemas — did you mean to use it?');
+    }
+
+    return (req: Request, _res: Response, next: NextFunction): void => {
         try {
             if (schemas.body) req.body = schemas.body.parse(req.body);
             if (schemas.query) req.query = schemas.query.parse(req.query);
@@ -27,6 +32,7 @@ const validate = (schemas: ValidateSchemas = {}) =>
             }
             next(err);
         }
-    };
+    }
+};
 
 export default validate;

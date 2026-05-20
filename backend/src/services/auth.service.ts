@@ -9,6 +9,12 @@ import {
     parseMs,
 } from '../utils/tokenUtils';
 import env from '../config/env';
+import bcrypt from 'bcryptjs';
+import { Types } from 'mongoose';
+import { InviteBody, SignupBody } from '../schemas/auth.schema';
+import mongoose from 'mongoose';
+import { Business } from '../models/business.model';
+import { Settings } from '../models/settings.model';
 
 const REFRESH_TOKEN_MS = parseMs(env.JWT_REFRESH_EXPIRES_IN);
 
@@ -39,14 +45,23 @@ interface LogoutParams {
 }
 
 interface SanitisedUser {
-    id: unknown;
+    id: Types.ObjectId;
+    businesses: Types.ObjectId[];
     name: string;
     email: string;
     role: string;
-    businesses: unknown[];
     lastLoginAt: Date | null;
     createdAt: Date;
 }
+// interface SanitisedUser {
+//     id: unknown;
+//     name: string;
+//     email: string;
+//     role: string;
+//     businesses: unknown[];
+//     lastLoginAt: Date | null;
+//     createdAt: Date;
+// }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -80,9 +95,20 @@ const login = async ({ email, password, userAgent, ip }: LoginParams) => {
     const user = await User.findByEmailWithPassword(email);
 
     const DUMMY_HASH = '$2b$12$invalidhashpaddingtomatch.bcrypt.output.length.xxxxxxxxx';
-    const passwordMatch = user
-        ? await user.comparePassword(password)
-        : (await import('bcryptjs').then((m) => m.compare(password, DUMMY_HASH)), false);
+
+    let passwordMatch = false;
+
+    if (user) {
+        passwordMatch = await user.comparePassword(password);
+    } else {
+        // Run a real bcrypt compare to consume equivalent time
+        await bcrypt.compare(password, DUMMY_HASH);
+        passwordMatch = false;
+    }
+
+    // const passwordMatch = user
+    //     ? await user.comparePassword(password)
+    //     : (await import('bcryptjs').then((m) => m.compare(password, DUMMY_HASH)), false);
 
     if (!user || !passwordMatch) {
         throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
@@ -97,7 +123,7 @@ const login = async ({ email, password, userAgent, ip }: LoginParams) => {
     user.removeExpiredTokens();
 
     user.refreshTokens.push({
-        token: raw.slice(0, 8) + '…',
+        token: raw.slice(0, 8) + '…',           //What is the use of it?
         tokenHash: hash,
         userAgent: userAgent ?? '',
         ip: ip ?? '',
@@ -116,19 +142,128 @@ const login = async ({ email, password, userAgent, ip }: LoginParams) => {
     return { accessToken, rawRefreshToken: raw, user: sanitiseUser(user) };
 };
 
+const signup = async ({
+    name, email, password,
+    businessName, businessEmail, businessPhone, businessGstin, gstRegistrationType
+}: SignupBody) => {
+
+    // 1. Check email not already taken
+    const existing = await User.findOne({ email, deletedAt: null });
+
+    if (existing) {
+        throw new AppError('An account with this email already exists', 409, 'EMAIL_TAKEN');
+    }
+
+    // 2. Use a session for atomicity — both docs created or neither
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        // 3. Create the owner account
+        const user = new User({
+            name,
+            email,
+            passwordHash: password,
+            role: 'admin',
+        });
+        await user.save({ session });
+
+        // 4. Create the business
+        const business = new Business({
+            name: businessName,
+            // email: businessEmail,
+            // phone: businessPhone,
+            // gstin: businessGstin,
+            owner: user._id,
+        });
+        await business.save({ session });
+
+        // 3. Seed Settings with business details from signup
+        await Settings.create([{
+            businessId: business._id,
+            businessName,
+            email: businessEmail,
+            phone: businessPhone,
+            gstin: businessGstin,
+            gstRegistrationType
+            // gstRegistrationType left out — owner sets this in onboarding
+        }], { session });
+
+        // 5. Link business to user
+        user.businesses.push(business._id);
+        await user.save({ session });
+
+        await session.commitTransaction();
+
+        logger.info({
+            msg: 'Owner signed up',
+            userId: user._id,
+            businessId: business._id,
+        });
+
+        return sanitiseUser(user);
+
+    } catch (err) {
+        await session.abortTransaction();
+        throw err;
+    } finally {
+        session.endSession();
+    }
+};
+
+const invite = async (
+    adminBusinessId: string,
+    { name, email, password, role }: InviteBody,
+) => {
+    // 1. Check email not already taken
+    const existing = await User.findOne({ email, deletedAt: null });
+    if (existing) {
+        throw new AppError('An account with this email already exists', 409, 'EMAIL_TAKEN');
+    }
+
+    // 2. Verify the business exists
+    const business = await Business.findById(adminBusinessId);
+    if (!business) {
+        throw new AppError('Business not found', 404, 'NOT_FOUND');
+    }
+
+    // 3. Create staff user linked to same business
+    const user = new User({
+        name,
+        email,
+        passwordHash: password,
+        role, // 'staff' | 'manager' — admin cannot be invited
+        businesses: [business._id],
+    });
+    await user.save();
+
+    logger.info({
+        msg: 'Staff invited',
+        userId: user._id,
+        businessId: business._id,
+        role,
+    });
+
+    return sanitiseUser(user);
+};
+
+// Note: userAgent/ip are stored for audit purposes only,
+// not used for validation. Strict UA matching causes
+// false rejections on browser/OS updates.
 const refresh = async ({ rawToken, userAgent, ip }: RefreshParams) => {
     if (!rawToken) {
         throw new AppError('Refresh token not provided', 401, 'TOKEN_MISSING');
     }
 
     // Double-check this returns what you expect:
-    console.log('$$$$$$REFRESH_TOKEN_MS:', REFRESH_TOKEN_MS);
-    console.log('########Token expires at:', refreshTokenExpiresAt());
+    // console.log('$$$$$$REFRESH_TOKEN_MS:', REFRESH_TOKEN_MS);
+    // console.log('########Token expires at:', refreshTokenExpiresAt());
 
     const tokenHash = hashRefreshToken(rawToken);
-    console.log('Computed hash:', tokenHash);
-    console.log('Expected hash:', '2a4b3795a806b32ae0bbf4d5f8126cf4f3bb30249c1417da0660c1663c54e5e0');
-    console.log('Match:', tokenHash === '2a4b3795a806b32ae0bbf4d5f8126cf4f3bb30249c1417da0660c1663c54e5e0');
+    // console.log('Computed hash:', tokenHash);
+    // console.log('Expected hash:', '2a4b3795a806b32ae0bbf4d5f8126cf4f3bb30249c1417da0660c1663c54e5e0');
+    // console.log('Match:', tokenHash === '2a4b3795a806b32ae0bbf4d5f8126cf4f3bb30249c1417da0660c1663c54e5e0');
 
     const user = await User.findOne({
         'refreshTokens.tokenHash': tokenHash,
@@ -142,10 +277,10 @@ const refresh = async ({ rawToken, userAgent, ip }: RefreshParams) => {
 
     const storedToken = user.refreshTokens.find((t) => t.tokenHash === tokenHash);
 
-    console.log('storedToken:', storedToken);
-    console.log('expiresAt:', storedToken?.expiresAt);
-    console.log('now:', new Date());
-    console.log('expired?', storedToken && storedToken.expiresAt < new Date());
+    // console.log('storedToken:', storedToken);
+    // console.log('expiresAt:', storedToken?.expiresAt);
+    // console.log('now:', new Date());
+    // console.log('expired?', storedToken && storedToken.expiresAt < new Date());
 
     if (!storedToken || storedToken.expiresAt < new Date()) {
         user.refreshTokens = user.refreshTokens.filter((t) => t.tokenHash !== tokenHash);
@@ -197,4 +332,4 @@ const logoutAll = async (userId: string): Promise<void> => {
     logger.info({ msg: 'All refresh tokens revoked', userId });
 };
 
-export default { register, login, refresh, logout, logoutAll };
+export default { register, signup, invite, login, refresh, logout, logoutAll };

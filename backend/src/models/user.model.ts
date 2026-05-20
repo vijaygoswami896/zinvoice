@@ -48,7 +48,6 @@ interface IUserModel extends Model<IUser> {
 const refreshTokenSchema = new Schema<IRefreshToken>(
     {
         token: { type: String, required: true },
-        // tokenHash: { type: String, required: true, select: false },
         tokenHash: { type: String, required: true },
         userAgent: { type: String, default: '' },
         ip: { type: String, default: '' },
@@ -109,7 +108,8 @@ const userSchema = new Schema<IUser, IUserModel>(
 // ── Indexes ───────────────────────────────────────────────────────────────────
 
 userSchema.index({ email: 1, deletedAt: 1 });
-userSchema.index({ 'refreshTokens.token': 1 });
+// userSchema.index({ 'refreshTokens.token': 1 });
+userSchema.index({ 'refreshTokens.tokenHash': 1 });
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
@@ -142,10 +142,15 @@ userSchema.methods.removeExpiredTokens = function (): void {
 
 // ── Statics ───────────────────────────────────────────────────────────────────
 
-userSchema.statics.findByEmailWithPassword = function (email: string) {
+userSchema.statics.findByEmailWithPassword = async function (email: string): Promise<IUser | null> {
     return this.findOne({ email: email.toLowerCase().trim(), deletedAt: null })
-        .select('+passwordHash +refreshTokens') as unknown as Promise<IUser | null>;;
+        .select('+passwordHash +refreshTokens')
+        .exec();
 };
+// userSchema.statics.findByEmailWithPassword = function (email: string) {
+//     return this.findOne({ email: email.toLowerCase().trim(), deletedAt: null })
+//         .select('+passwordHash +refreshTokens') as unknown as Promise<IUser | null>;;
+// };
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 

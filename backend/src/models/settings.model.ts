@@ -1,21 +1,22 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model, Types } from 'mongoose';
+import { INDIAN_STATE_CODES, INDIAN_STATES } from '../constants/india';
 
-const INDIAN_STATE_CODES: string[] = [
-  '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
-  '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-  '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-  '31', '32', '33', '34', '35', '36', '37', '38', '97', '99',
-];
+// const INDIAN_STATE_CODES: string[] = [
+//   '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
+//   '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+//   '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
+//   '31', '32', '33', '34', '35', '36', '37', '38', '97', '99',
+// ];
 
-const INDIAN_STATES: string[] = [
-  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
-  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
-  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
-  'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
-  'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
-  'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
-];
+// const INDIAN_STATES: string[] = [
+//   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+//   'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+//   'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+//   'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
+//   'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+//   'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+//   'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
+// ];
 
 // ── Interfaces ────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ interface IUploadedFile {
 }
 
 interface ISettings extends Document {
+  _id: Types.ObjectId;
   businessId: mongoose.Types.ObjectId;
   businessName: string;
   legalName?: string;
@@ -65,6 +67,8 @@ interface ISettings extends Document {
   defaultDueDays?: number;
   logo?: IUploadedFile | null;
   signature?: IUploadedFile | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ── Sub-schemas ───────────────────────────────────────────────────────────────
@@ -108,7 +112,7 @@ const uploadedFileSchema = new Schema<IUploadedFile>(
 
 const settingsSchema = new Schema<ISettings>(
   {
-    businessId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    businessId: { type: Schema.Types.ObjectId, ref: 'Business', required: true },
 
     businessName: { type: String, required: [true, 'Business name is required'], trim: true, minlength: [2, 'Business name must be at least 2 characters'], maxlength: [150, 'Business name must not exceed 150 characters'] },
     legalName: { type: String, trim: true, maxlength: [150, 'Legal name must not exceed 150 characters'] },
@@ -117,7 +121,8 @@ const settingsSchema = new Schema<ISettings>(
     pan: { type: String, trim: true, uppercase: true, match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN format (e.g. AAPFU0939F)'] },
 
     registrationDate: { type: Date },
-    gstRegistrationType: { type: String, enum: { values: ['regular', 'composition', 'unregistered'], message: 'Registration type must be regular, composition, or unregistered' }, default: 'regular' },
+    gstRegistrationType: { type: String, enum: { values: ['regular', 'composition', 'unregistered'], message: 'Registration type must be regular, composition, or unregistered' }, required: [true, 'GST registration type is required'], },
+    // gstRegistrationType: { type: String, enum: { values: ['regular', 'composition', 'unregistered'], message: 'Registration type must be regular, composition, or unregistered' }, default: 'regular' },
 
     email: { type: String, trim: true, lowercase: true, maxlength: 255 },
     phone: { type: String, trim: true, match: [/^[6-9]\d{9}$/, 'Enter a valid 10-digit mobile number'] },
@@ -149,10 +154,16 @@ const settingsSchema = new Schema<ISettings>(
 settingsSchema.index({ businessId: 1 }, { unique: true });
 
 settingsSchema.pre('save', function (next) {
-  if (this.isModified('gstin') && this.gstin) {
-    this.stateCode = this.gstin.slice(0, 2);
+  // if (this.isModified('gstin') && this.gstin) {
+  //   this.stateCode = this.gstin.slice(0, 2);
+  // }
+  // next();
+
+  if (this.isModified('gstin')) {
+    this.stateCode = this.gstin ? this.gstin.slice(0, 2) : undefined;
   }
   next();
+
 });
 
 const Settings: Model<ISettings> = mongoose.model<ISettings>('Settings', settingsSchema);

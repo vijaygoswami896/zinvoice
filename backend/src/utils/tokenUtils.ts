@@ -9,11 +9,13 @@ import AppError from './appError';
 interface TokenUser {
     _id: { toString(): string };
     role: string;
+    businesses?: { toString(): string }[];
 }
 
 interface AccessTokenPayload {
     sub: string;
     role: string;
+    businessId: string | null;
     iat: number;
     exp: number;
 }
@@ -44,7 +46,11 @@ const JWT_OPTIONS: SignOptions & VerifyOptions = {
 
 export const signAccessToken = (user: TokenUser): string =>
     jwt.sign(
-        { sub: user._id.toString(), role: user.role },
+        {
+            sub: user._id.toString(),
+            role: user.role,
+            businessId: user.businesses?.[0]?.toString() ?? null,
+        },
         env.JWT_SECRET,
         { ...JWT_OPTIONS, expiresIn: ACCESS_TOKEN_MS },
     );

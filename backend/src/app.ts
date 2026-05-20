@@ -1,4 +1,3 @@
-import path from 'path';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -54,9 +53,9 @@ const createApp = () => {
         maxAge: 86400,
     };
 
+    app.options('*', cors(corsOptions));
     app.use(cors(corsOptions));
     app.use(cookieParser());
-    app.options('*', cors(corsOptions));
 
     app.use(requestLogger);
 
@@ -67,7 +66,7 @@ const createApp = () => {
 
     app.use('/api', apiLimiter);
     app.use('/api/v1', routes);
-    app.use('/uploads', express.static(path.join(process.cwd(), 'storage/uploads')));
+    // app.use('/uploads', express.static(path.join(process.cwd(), 'storage/uploads')));
 
     app.use(notFoundHandler);
     app.use(errorHandler);
