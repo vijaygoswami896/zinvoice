@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { sendError } from '../utils/apiResponse';
-import AppError from '../utils/appError';
-import logger from './logger';
+import { sendError } from '../utils/apiResponse.js';
+import AppError from '../utils/appError.js';
+import logger from './logger.js';
 
 interface MongoServerError {
     code: number;

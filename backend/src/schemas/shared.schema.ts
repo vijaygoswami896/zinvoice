@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { INDIAN_STATES } from '../constants/india';
+import { INDIAN_STATES } from '../constants/india.js';
 
 export const emptyStringToUndefined = (val: unknown) =>
     val === '' ? undefined : val;

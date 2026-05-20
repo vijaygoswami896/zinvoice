@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import settingsService from '../services/settings.service';
-import { sendSuccess } from '../utils/apiResponse';
-import asyncHandler from '../utils/asyncHandler';
-import AppError from '../utils/appError';
-import { buildFileUrl } from '../middleware/upload.middleware';
-import getBusinessId from '../utils/getBusinessId';
+import settingsService from '../services/settings.service.js';
+import { sendSuccess } from '../utils/apiResponse.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import AppError from '../utils/appError.js';
+import { buildFileUrl } from '../middleware/upload.middleware.js';
+import getBusinessId from '../utils/getBusinessId.js';
 // import { AuthenticatedRequest } from '../types';
 
 const getSettings = asyncHandler(async (req: Request, res: Response) => {

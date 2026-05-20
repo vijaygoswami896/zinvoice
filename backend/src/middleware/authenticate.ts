@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import AppError from '../utils/appError';
-import { verifyAccessToken } from '../utils/tokenUtils';
+import AppError from '../utils/appError.js';
+import { verifyAccessToken } from '../utils/tokenUtils.js';
+import logger from './logger.js';
 
 const authenticate = (req: Request, _res: Response, next: NextFunction): void => {
     // const { user } = req;
@@ -19,6 +20,7 @@ const authenticate = (req: Request, _res: Response, next: NextFunction): void =>
 
     try {
         const payload = verifyAccessToken(token);
+        console.log('payload: ', payload)
 
         req.user = {
             id: payload.sub,

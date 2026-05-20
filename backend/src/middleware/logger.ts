@@ -14,17 +14,17 @@ const redactPaths = [
     '*.ifsc',
 ];
 
-const transport =
-    env.isDev
-        ? pino.transport({
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'SYS:HH:MM:ss',
-                ignore: 'pid,hostname',
-            },
-        })
-        : undefined;
+// const transport =
+//     env.isDev
+//         ? pino.transport({
+//             target: 'pino-pretty',
+//             options: {
+//                 colorize: true,
+//                 translateTime: 'SYS:HH:MM:ss',
+//                 ignore: 'pid,hostname',
+//             },
+//         })
+//         : undefined;
 
 const logger = pino(
     {
@@ -42,9 +42,18 @@ const logger = pino(
             req: pino.stdSerializers.req,
             res: pino.stdSerializers.res,
         },
+        transport: env.isDev
+            ? {
+                target: 'pino-pretty',
+                options: {
+                    colorize: true,
+                    translateTime: 'SYS:HH:MM:ss',
+                    ignore: 'pid,hostname',
+                },
+            }
+            : undefined,
     },
-    transport,
+    // transport,
 );
 
-// module.exports = logger;
 export default logger;

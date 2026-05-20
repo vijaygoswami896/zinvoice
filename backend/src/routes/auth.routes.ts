@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import authController from '../controllers/auth.controller';
-import authenticate from '../middleware/authenticate';
-import requireRole from '../middleware/requireRole';
-import validate from '../middleware/validate';
-import { authLimiter } from '../middleware/rateLimiter';
-import { RegisterSchema, LoginSchema, SignupSchema, InviteSchema } from '../schemas/auth.schema';
+import authController from '../controllers/auth.controller.js';
+import authenticate from '../middleware/authenticate.js';
+import requireRole from '../middleware/requireRole.js';
+import validate from '../middleware/validate.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
+import { RegisterSchema, LoginSchema, SignupSchema, InviteSchema } from '../schemas/auth.schema.js';
 
 const router = Router();
 

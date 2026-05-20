@@ -6,7 +6,7 @@ import {
   AddressSchema,
   BankDetailsSchema,
   BusinessSchema,
-} from './shared.schema';
+} from './shared.schema.js';
 
 // export const UpdateSettingsSchema = z.object({
 //   businessName: z

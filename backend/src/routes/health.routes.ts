@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
-import { sendSuccess } from '../utils/apiResponse';
+import { sendSuccess } from '../utils/apiResponse.js';
 
 const router = Router();
 

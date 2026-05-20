@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import controller from '../controllers/settings.controller';
-import authenticate from '../middleware/authenticate';
-import validate from '../middleware/validate';
-import { UpdateSettingsSchema } from '../schemas/settings.schema.server';
-import { handleUpload, uploadLogo, uploadSignature } from '../middleware/upload.middleware';
+import controller from '../controllers/settings.controller.js';
+import authenticate from '../middleware/authenticate.js';
+import validate from '../middleware/validate.js';
+import { UpdateSettingsSchema } from '../schemas/settings.schema.server.js';
+import { handleUpload, uploadLogo, uploadSignature } from '../middleware/upload.middleware.js';
 
 const router = Router();
 

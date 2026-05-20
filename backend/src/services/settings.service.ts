@@ -1,9 +1,9 @@
-import { Settings } from '../models/settings.model';
-import AppError from '../utils/appError';
-import logger from '../middleware/logger';
-import { deleteFile } from '../middleware/upload.middleware';
-import { Business } from '../models/business.model';
-import { UpdateSettingsInput } from '../schemas/settings.schema.server';
+import { Settings } from '../models/settings.model.js';
+import AppError from '../utils/appError.js';
+import logger from '../middleware/logger.js';
+import { deleteFile } from '../middleware/upload.middleware.js';
+import { Business } from '../models/business.model.js';
+import { UpdateSettingsInput } from '../schemas/settings.schema.server.js';
 
 const getSettings = async (userId: string) => {
   let settings = await Settings.findOne({ businessId: userId });
@@ -21,6 +21,7 @@ const getSettings = async (userId: string) => {
       businessId: userId,
       businessName: business?.name ?? 'My Business',
       invoicePrefix: 'INV',
+      gstRegistrationType: 'unregistered'
     });
 
     logger.info({ msg: 'Default settings created', userId });

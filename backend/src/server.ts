@@ -2,10 +2,10 @@ import type { Server } from 'http';
 // Load env vars before anything else
 import 'dotenv/config';
 
-import env from './config/env';
-import logger from './middleware/logger';
-import { connectDB, disconnectDB } from './config/db';
-import createApp from './app';
+import env from './config/env.js';
+import logger from './middleware/logger.js';
+import { connectDB, disconnectDB } from './config/db.js';
+import createApp from './app.js';
 
 let server: Server | undefined;
 

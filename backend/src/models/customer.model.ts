@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-import { INDIAN_STATES, IndianState } from '../constants/india';
+import { INDIAN_STATES, IndianState } from '../constants/india.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

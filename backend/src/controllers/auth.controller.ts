@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import authService from '../services/auth.service';
-import asyncHandler from '../utils/asyncHandler';
-import { sendSuccess } from '../utils/apiResponse';
-import { setRefreshCookie, clearRefreshCookie, getRefreshTokenFromCookie } from '../utils/tokenUtils';
+import authService from '../services/auth.service.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { sendSuccess } from '../utils/apiResponse.js';
+import { setRefreshCookie, clearRefreshCookie, getRefreshTokenFromCookie } from '../utils/tokenUtils.js';
 // import { AuthenticatedRequest } from '../types';
 
 const getClientMeta = (req: Request) => ({

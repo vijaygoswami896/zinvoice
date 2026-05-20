@@ -1,8 +1,9 @@
 import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { Request, Response } from 'express';
-import env from '../config/env';
-import AppError from './appError';
+
+import env from '../config/env.js';
+import AppError from './appError.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

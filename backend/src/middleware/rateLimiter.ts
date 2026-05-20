@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
-import { sendError } from '../utils/apiResponse';
-import env from '../config/env';
+import { sendError } from '../utils/apiResponse.js';
+import env from '../config/env.js';
 
 interface LimiterOptions {
     windowMs: number;

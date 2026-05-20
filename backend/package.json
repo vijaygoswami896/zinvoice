@@ -8,7 +8,7 @@
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "lint": "eslint src/**/*.ts",
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "build": "npm run clean && tsc"
   },
   "keywords": [],
@@ -45,6 +45,7 @@
     "@types/node": "^25.8.0",
     "eslint": "^9.5.0",
     "pino-pretty": "^11.2.0",
+    "rimraf": "^6.1.3",
     "tsx": "^4.22.0",
     "typescript": "^6.0.3"
   }

@@ -4,11 +4,11 @@ import cors from 'cors';
 import mongoSanitize from 'express-mongo-sanitize';
 import cookieParser from 'cookie-parser';
 
-import env from './config/env';
-import requestLogger from './middleware/requestLogger';
-import { apiLimiter } from './middleware/rateLimiter';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import routes from './routes/index';
+import env from './config/env.js';
+import requestLogger from './middleware/requestLogger.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import routes from './routes/index.js';
 
 const createApp = () => {
     const app = express();

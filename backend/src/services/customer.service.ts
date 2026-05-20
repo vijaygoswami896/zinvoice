@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { Customer, ICustomer } from '../models/customer.model.js';
-import AppError from '../utils/appError';
-import logger from '../middleware/logger';
-import type { CustomerBody, CustomerListQuery } from '../schemas/customer.schema.server';
+import AppError from '../utils/appError.js';
+import logger from '../middleware/logger.js';
+import type { CustomerBody, CustomerListQuery } from '../schemas/customer.schema.server.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

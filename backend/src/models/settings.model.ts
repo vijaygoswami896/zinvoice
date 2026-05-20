@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { INDIAN_STATE_CODES, INDIAN_STATES } from '../constants/india';
+import { INDIAN_STATE_CODES, INDIAN_STATES } from '../constants/india.js';
 
 // const INDIAN_STATE_CODES: string[] = [
 //   '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',

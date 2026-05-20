@@ -6,7 +6,7 @@ import {
     gstinField,
     indianMobileField,
     BusinessBaseSchema,
-} from './shared.schema';
+} from './shared.schema.js';
 
 export const LoginSchema = z.object({
     email: emailField,

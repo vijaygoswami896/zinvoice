@@ -1,6 +1,6 @@
 import mongoose, { ConnectOptions } from 'mongoose';
-import env from './env';
-import logger from '../middleware/logger';
+import env from './env.js';
+import logger from '../middleware/logger.js';
 
 const MONGO_OPTIONS: ConnectOptions = {
     minPoolSize: env.MONGO_MIN_POOL_SIZE,

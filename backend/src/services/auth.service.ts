@@ -1,20 +1,20 @@
-import { User } from '../models/user.model';
-import AppError from '../utils/appError';
-import logger from '../middleware/logger';
+import mongoose, { Types } from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+import { User } from '../models/user.model.js';
+import AppError from '../utils/appError.js';
+import logger from '../middleware/logger.js';
 import {
     signAccessToken,
     generateRefreshToken,
     hashRefreshToken,
     refreshTokenExpiresAt,
     parseMs,
-} from '../utils/tokenUtils';
-import env from '../config/env';
-import bcrypt from 'bcryptjs';
-import { Types } from 'mongoose';
-import { InviteBody, SignupBody } from '../schemas/auth.schema';
-import mongoose from 'mongoose';
-import { Business } from '../models/business.model';
-import { Settings } from '../models/settings.model';
+} from '../utils/tokenUtils.js';
+import env from '../config/env.js';
+import { InviteBody, SignupBody } from '../schemas/auth.schema.js';
+import { Business } from '../models/business.model.js';
+import { Settings } from '../models/settings.model.js';
 
 const REFRESH_TOKEN_MS = parseMs(env.JWT_REFRESH_EXPIRES_IN);
 

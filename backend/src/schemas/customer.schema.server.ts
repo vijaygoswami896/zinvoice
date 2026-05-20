@@ -7,8 +7,8 @@ import {
     AddressSchema,
     emptyStringToUndefined,
     withDefault,
-} from './shared.schema';
-import { INDIAN_STATES } from '../constants/india';
+} from './shared.schema.js';
+import { INDIAN_STATES } from '../constants/india.js';
 
 // ── Customer-specific primitives ──────────────────────────────────────────────
 

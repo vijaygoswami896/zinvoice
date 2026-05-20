@@ -1,4 +1,4 @@
-import { EnvTypes } from "../types";
+import { EnvTypes } from "../types/index.js";
 
 const requiredVars: string[] = [
     'NODE_ENV',
