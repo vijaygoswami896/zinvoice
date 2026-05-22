@@ -1,5 +1,8 @@
 // import { Request } from 'express';
 
+import mongoose, { Document, Model, Schema } from 'mongoose';
+import { GstRateType, UNITS, UnitType, VALID_GST_RATES } from '../constants/products';
+
 export interface EnvTypes {
     NODE_ENV: string;
     PORT: number;
@@ -45,3 +48,43 @@ export interface EnvTypes {
 //         businessId?: string; // add this
 //     };
 // }
+
+export type ProductType = 'goods' | 'service';
+
+export interface IProduct extends Document {
+    businessId: mongoose.Types.ObjectId;
+
+    // Classification
+    name: string;
+    type: ProductType;
+    hsnSacCode?: string;
+
+    // Pricing
+    price: number;
+    unit: UnitType;
+
+    // Tax
+    gstRate: GstRateType;
+    taxIncluded: boolean;
+
+    // Inventory
+    inventoryEnabled: boolean;
+    stockQuantity: number;
+    lowStockThreshold: number;
+
+    // Meta
+    description?: string;
+    isActive: boolean;
+
+    // Soft delete
+    deletedAt: Date | null;
+    deletedBy: mongoose.Types.ObjectId | null;
+
+    // Virtuals
+    isLowStock: boolean;
+
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface ProductModel extends Model<IProduct> { }

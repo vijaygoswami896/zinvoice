@@ -1,31 +1,37 @@
-// import { FilterQuery, SortOrder } from 'mongoose';
+import mongoose, { FilterQuery, FlattenMaps, SortOrder } from 'mongoose';
 
-// import { IProduct, Product } from '../models/product.model';
-// import AppError from '../utils/appError';
-// import logger from '../middleware/logger';
+// import { IProduct, Product } from '../models/product.model.js';
+import AppError from '../utils/appError.js';
+import logger from '../middleware/logger.js';
 
-// import {
-//     ProductBodyInput,
-//     ProductListQueryInput,
-// } from '../schemas/product.schema.server';
+import {
+    ProductBodyInput,
+    ProductListQueryInput,
+} from '../schemas/product.schema.server.js';
+import { IProduct } from '../types/index.js';
+import { Product } from '../models/product.model.js';
 
-// // ── Helpers ───────────────────────────────────────────────────────────────────
 
-// const baseFilter = (
-//     businessId: string
-// ): FilterQuery<IProduct> => ({
-//     businessId,
-//     deletedAt: null,
-// });
+// type LeanProduct = FlattenMaps<IProduct> & { _id: mongoose.Types.ObjectId };
+type LeanProduct = mongoose.mongo.WithId<mongoose.FlattenMaps<IProduct>>;
 
-// const escapeRegex = (str: string): string =>
-//     str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-// // ── Types ─────────────────────────────────────────────────────────────────────
+const baseFilter = (
+    businessId: string
+): FilterQuery<IProduct> => ({
+    businessId,
+    deletedAt: null,
+});
+
+const escapeRegex = (str: string): string =>
+    str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 // interface ProductListResult {
 //     items: Array<
-//         LeanDocument<IProduct> & {
+//         LeanProduct & {
 //             isLowStock: boolean;
 //         }
 //     >;
@@ -34,299 +40,327 @@
 //     limit: number;
 // }
 
-// // ── List ──────────────────────────────────────────────────────────────────────
+interface ProductListResult {
+    items: Array<Record<string, unknown> & { isLowStock: boolean }>;
+    total: number;
+    page: number;
+    limit: number;
+}
 
-// /**
-//  * List products with pagination, search, and filters.
-//  * Also used by the invoice line-item product picker (search only).
-//  */
-// export const listProducts = async (
-//     businessId: string,
-//     query: ProductListQueryInput
-// ): Promise<ProductListResult> => {
-//     const {
-//         page,
-//         limit,
-//         search,
-//         type,
-//         gstRate,
-//         isActive,
-//         lowStock,
-//         sortBy,
-//         sortDir,
-//     } = query;
+// ── List ──────────────────────────────────────────────────────────────────────
 
-//     const filter: FilterQuery<IProduct> = baseFilter(businessId);
+/**
+ * List products with pagination, search, and filters.
+ * Also used by the invoice line-item product picker (search only).
+ */
+export const listProducts = async (
+    businessId: string,
+    query: ProductListQueryInput
+): Promise<ProductListResult> => {
+    const {
+        page,
+        limit,
+        search,
+        type,
+        gstRate,
+        isActive,
+        lowStock,
+        sortBy,
+        sortDir,
+    } = query;
 
-//     // Full-text style search across name, HSN/SAC code, description
-//     if (search) {
-//         const regex = new RegExp(escapeRegex(search), 'i');
+    const filter: FilterQuery<IProduct> = baseFilter(businessId);
 
-//         filter.$or = [
-//             { name: regex },
-//             { hsnSacCode: regex },
-//             { description: regex },
-//         ];
-//     }
+    // Full-text style search across name, HSN/SAC code, description
+    if (search) {
+        const regex = new RegExp(escapeRegex(search), 'i');
 
-//     if (type) {
-//         filter.type = type;
-//     }
+        filter.$or = [
+            { name: regex },
+            { hsnSacCode: regex },
+            { description: regex },
+        ];
+    }
 
-//     if (gstRate !== undefined) {
-//         filter.gstRate = gstRate;
-//     }
+    if (type) {
+        filter.type = type;
+    }
 
-//     if (isActive !== undefined) {
-//         filter.isActive = isActive === 'true';
-//     }
+    if (gstRate !== undefined) {
+        filter.gstRate = gstRate;
+    }
 
-//     // Low-stock filter
-//     if (lowStock === 'true') {
-//         filter.inventoryEnabled = true;
-//         filter.type = 'goods';
+    if (isActive !== undefined) {
+        filter.isActive = isActive === 'true';
+    }
 
-//         filter.$expr = {
-//             $lte: ['$stockQuantity', '$lowStockThreshold'],
-//         };
-//     }
+    // Low-stock filter
+    if (lowStock === 'true') {
+        filter.inventoryEnabled = true;
+        filter.type = 'goods';
 
-//     const sort: Record<string, SortOrder> = {
-//         [sortBy]: sortDir === 'asc' ? 1 : -1,
-//     };
+        (filter as any).$expr = {
+            $lte: ['$stockQuantity', '$lowStockThreshold'],
+        };
+    }
 
-//     const skip = (page - 1) * limit;
+    const sort: Record<string, SortOrder> = {
+        [sortBy]: sortDir === 'asc' ? 1 : -1,
+    };
 
-//     const [items, total] = await Promise.all([
-//         Product.find(filter)
-//             .sort(sort)
-//             .skip(skip)
-//             .limit(limit)
-//             .lean(),
+    const skip = (page - 1) * limit;
 
-//         Product.countDocuments(filter),
-//     ]);
+    const [items, total] = await Promise.all([
+        Product.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
 
-//     // Reattach virtual since lean() strips virtuals
-//     const itemsWithVirtual = items.map((product) => ({
-//         ...product,
+        Product.countDocuments(filter),
+    ]);
 
-//         isLowStock:
-//             product.inventoryEnabled &&
-//             product.stockQuantity <= product.lowStockThreshold,
-//     }));
+    // Reattach virtual since lean() strips virtuals
+    const itemsWithVirtual = items.map((product) => ({
+        ...product,
 
-//     return {
-//         items: itemsWithVirtual,
-//         total,
-//         page,
-//         limit,
-//     };
-// };
+        isLowStock:
+            product.inventoryEnabled &&
+            product.stockQuantity <= product.lowStockThreshold,
+    }));
 
-// // ── Get single ────────────────────────────────────────────────────────────────
+    return {
+        items: itemsWithVirtual,
+        total,
+        page,
+        limit,
+    };
+};
 
-// export const getProduct = async (
-//     businessId: string,
-//     productId: string
-// ): Promise<IProduct> => {
-//     const product = await Product.findOne({
-//         _id: productId,
-//         ...baseFilter(businessId),
-//     });
+// ── Get single ────────────────────────────────────────────────────────────────
 
-//     if (!product) {
-//         throw new AppError(
-//             'Product not found.',
-//             404,
-//             'NOT_FOUND'
-//         );
-//     }
+export const getProduct = async (
+    businessId: string,
+    productId: string
+): Promise<IProduct> => {
+    const product = await Product.findOne({
+        _id: productId,
+        ...baseFilter(businessId),
+    });
 
-//     return product;
-// };
+    if (!product) {
+        throw new AppError(
+            'Product not found.',
+            404,
+            'NOT_FOUND'
+        );
+    }
 
-// // ── Create ────────────────────────────────────────────────────────────────────
+    return product;
+};
 
-// export const createProduct = async (
-//     businessId: string,
-//     dto: ProductBodyInput
-// ): Promise<IProduct> => {
-//     const product = await Product.create({
-//         ...dto,
-//         businessId,
-//     });
+// ── Create ────────────────────────────────────────────────────────────────────
 
-//     logger.info({
-//         msg: 'Product created',
-//         businessId,
-//         productId: product._id,
-//         type: dto.type,
-//     });
+export const createProduct = async (
+    businessId: string,
+    dto: ProductBodyInput
+): Promise<IProduct> => {
+    const product = await Product.create({
+        ...dto,
+        businessId,
+    });
 
-//     return product;
-// };
+    logger.info({
+        msg: 'Product created',
+        businessId,
+        productId: product._id,
+        type: dto.type,
+    });
 
-// // ── Update ────────────────────────────────────────────────────────────────────
+    return product;
+};
 
-// export const updateProduct = async (
-//     businessId: string,
-//     productId: string,
-//     dto: Partial<ProductBodyInput>
-// ): Promise<IProduct> => {
-//     const product = await Product.findOneAndUpdate(
-//         {
-//             _id: productId,
-//             ...baseFilter(businessId),
-//         },
-//         {
-//             $set: dto,
-//         },
-//         {
-//             new: true,
-//             runValidators: true,
-//         }
-//     );
+// ── Update ────────────────────────────────────────────────────────────────────
 
-//     if (!product) {
-//         throw new AppError(
-//             'Product not found.',
-//             404,
-//             'NOT_FOUND'
-//         );
-//     }
+export const updateProduct = async (
+    businessId: string,
+    productId: string,
+    dto: Partial<ProductBodyInput>
+): Promise<IProduct> => {
+    const product = await Product.findOneAndUpdate(
+        {
+            _id: productId,
+            ...baseFilter(businessId),
+        },
+        {
+            $set: dto,
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    );
 
-//     logger.info({
-//         msg: 'Product updated',
-//         businessId,
-//         productId,
-//     });
+    if (!product) {
+        throw new AppError(
+            'Product not found.',
+            404,
+            'NOT_FOUND'
+        );
+    }
 
-//     return product;
-// };
+    logger.info({
+        msg: 'Product updated',
+        businessId,
+        productId,
+    });
 
-// // ── Soft delete ───────────────────────────────────────────────────────────────
+    return product;
+};
 
-// export const deleteProduct = async (
-//     businessId: string,
-//     productId: string,
-//     deletedBy: string
-// ): Promise<IProduct> => {
-//     const product = await Product.findOneAndUpdate(
-//         {
-//             _id: productId,
-//             ...baseFilter(businessId),
-//         },
-//         {
-//             $set: {
-//                 deletedAt: new Date(),
-//                 deletedBy,
-//             },
-//         },
-//         {
-//             new: true,
-//         }
-//     );
+// ── Soft delete ───────────────────────────────────────────────────────────────
 
-//     if (!product) {
-//         throw new AppError(
-//             'Product not found.',
-//             404,
-//             'NOT_FOUND'
-//         );
-//     }
+export const deleteProduct = async (
+    businessId: string,
+    productId: string,
+    deletedBy: string
+): Promise<IProduct> => {
+    const product = await Product.findOneAndUpdate(
+        {
+            _id: productId,
+            ...baseFilter(businessId),
+        },
+        {
+            $set: {
+                deletedAt: new Date(),
+                deletedBy,
+            },
+        },
+        {
+            new: true,
+        }
+    );
 
-//     logger.info({
-//         msg: 'Product soft-deleted',
-//         businessId,
-//         productId,
-//         deletedBy,
-//     });
+    if (!product) {
+        throw new AppError(
+            'Product not found.',
+            404,
+            'NOT_FOUND'
+        );
+    }
 
-//     return product;
-// };
+    logger.info({
+        msg: 'Product soft-deleted',
+        businessId,
+        productId,
+        deletedBy,
+    });
 
-// // ── Stock adjustment ──────────────────────────────────────────────────────────
+    return product;
+};
 
-// /**
-//  * Atomically increment or decrement stock quantity.
-//  * Used internally by the invoice module when recording sales.
-//  */
-// export const adjustStock = async (
-//     businessId: string,
-//     productId: string,
-//     delta: number,
-//     reason = ''
-// ): Promise<IProduct> => {
-//     const product = await Product.findOneAndUpdate(
-//         {
-//             _id: productId,
-//             ...baseFilter(businessId),
-//             inventoryEnabled: true,
+// ── Stock adjustment ──────────────────────────────────────────────────────────
 
-//             // Prevent negative stock
-//             ...(delta < 0
-//                 ? {
-//                     stockQuantity: {
-//                         $gte: Math.abs(delta),
-//                     },
-//                 }
-//                 : {}),
-//         },
-//         {
-//             $inc: {
-//                 stockQuantity: delta,
-//             },
-//         },
-//         {
-//             new: true,
-//         }
-//     );
+/**
+ * Atomically increment or decrement stock quantity.
+ * Used internally by the invoice module when recording sales.
+ */
+export const adjustStock = async (
+    businessId: string,
+    productId: string,
+    delta: number,
+    reason = ''
+): Promise<IProduct> => {
+    // const product = await Product.findOneAndUpdate(
+    //     {
+    //         _id: productId,
+    //         ...baseFilter(businessId),
+    //         inventoryEnabled: true,
 
-//     if (!product) {
-//         throw new AppError(
-//             delta < 0
-//                 ? 'Insufficient stock or product not found.'
-//                 : 'Product not found or inventory not enabled.',
-//             400,
-//             'STOCK_ERROR'
-//         );
-//     }
+    //         // Prevent negative stock
+    //         ...(delta < 0
+    //             ? {
+    //                 stockQuantity: {
+    //                     $gte: Math.abs(delta),
+    //                 },
+    //             }
+    //             : {}),
+    //     },
+    //     {
+    //         $inc: {
+    //             stockQuantity: delta,
+    //         },
+    //     },
+    //     {
+    //         new: true,
+    //     }
+    // );
 
-//     logger.info({
-//         msg: 'Stock adjusted',
-//         businessId,
-//         productId,
-//         delta,
-//         newStock: product.stockQuantity,
-//         reason,
-//     });
+    // if (!product) {
+    //     throw new AppError(
+    //         delta < 0
+    //             ? 'Insufficient stock or product not found.'
+    //             : 'Product not found or inventory not enabled.',
+    //         400,
+    //         'STOCK_ERROR'
+    //     );
+    // }
 
-//     return product;
-// };
+    // First verify product exists
+    const existing = await Product.findOne({ _id: productId, ...baseFilter(businessId) });
 
-// // ── Bulk fetch ────────────────────────────────────────────────────────────────
+    if (!existing) throw new AppError('Product not found.', 404, 'NOT_FOUND');
 
-// /**
-//  * Bulk-fetch products by ID array.
-//  * Used by invoice module for line-item resolution.
-//  */
-// export const getProductsByIds = async (
-//     businessId: string,
-//     ids: string[]
-// ): Promise<
-//     Map<string, LeanDocument<IProduct>>
-// > => {
-//     const products = await Product.find({
-//         _id: { $in: ids },
-//         ...baseFilter(businessId),
-//         isActive: true,
-//     }).lean();
+    if (!existing.inventoryEnabled) throw new AppError('Inventory not enabled for this product.', 400, 'INVENTORY_DISABLED');
 
-//     return new Map(
-//         products.map((product) => [
-//             product._id.toString(),
-//             product,
-//         ])
-//     );
-// };
+    // Then do atomic stock update
+    const product = await Product.findOneAndUpdate(
+        {
+            _id: productId,
+            ...baseFilter(businessId),
+            inventoryEnabled: true,
+            ...(delta < 0 ? { stockQuantity: { $gte: Math.abs(delta) } } : {}),
+        },
+        { $inc: { stockQuantity: delta } },
+        { new: true },
+    );
+
+    if (!product) throw new AppError('Insufficient stock.', 400, 'INSUFFICIENT_STOCK');
+
+    logger.info({
+        msg: 'Stock adjusted',
+        businessId,
+        productId,
+        delta,
+        newStock: product.stockQuantity,
+        reason,
+    });
+
+    return product;
+};
+
+// ── Bulk fetch ────────────────────────────────────────────────────────────────
+
+/**
+ * Bulk-fetch products by ID array.
+ * Used by invoice module for line-item resolution.
+ */
+export const getProductsByIds = async (
+    businessId: string,
+    ids: string[]
+) => {
+    if (ids.length === 0) return new Map(); // ← add this guard
+
+    const products = await Product.find({
+        _id: { $in: ids },
+        ...baseFilter(businessId),
+        isActive: true,
+    }).lean();
+
+    return new Map(
+        products.map((product) => [
+            product._id.toString(),
+            product,
+        ])
+    );
+};

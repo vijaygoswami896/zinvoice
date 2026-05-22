@@ -1,134 +1,110 @@
-// import { z } from 'zod';
+import { z } from 'zod';
+import { UNITS, VALID_GST_RATES } from '../constants/products';
+import { emptyStringToUndefined, withDefault } from './shared.schema';
 
-// // ── Constants ─────────────────────────────────────────────────────────────────
+// ── Body: create / update ─────────────────────────────────────────────────────
 
-// export const VALID_GST_RATES = [0, 5, 12, 18, 28] as const;
+export const ProductBodySchema = z
+    .object({
+        name: z
+            .string({
+                required_error: 'Product name is required',
+            })
+            .trim()
+            .min(2, 'At least 2 characters')
+            .max(200, 'Max 200 characters'),
 
-// export const UNITS = [
-//     'PCS',
-//     'NOS',
-//     'KGS',
-//     'GMS',
-//     'LTR',
-//     'MLT',
-//     'MTR',
-//     'SQM',
-//     'CBM',
-//     'BOX',
-//     'PKT',
-//     'BAG',
-//     'SET',
-//     'PAR',
-//     'ROL',
-//     'TUB',
-//     'HRS',
-//     'DAY',
-//     'MON',
-//     'JOB',
-//     'OTH',
-// ] as const;
+        type: z.enum(['goods', 'service'], {
+            required_error: 'Type is required',
+            invalid_type_error: 'Type must be goods or service',
+        }),
 
-// // ── Body: create / update ─────────────────────────────────────────────────────
+        hsnSacCode: z
+            .string()
+            .trim()
+            .regex(/^\d{4,8}$/, 'Must be 4 to 8 digits')
+            .optional()
+            .or(z.literal('')),
 
-// export const ProductBodySchema = z
-//     .object({
-//         name: z
-//             .string({
-//                 required_error: 'Product name is required',
-//             })
-//             .trim()
-//             .min(2, 'At least 2 characters')
-//             .max(200, 'Max 200 characters'),
+        price: z.coerce
+            .number({
+                required_error: 'Price is required',
+            })
+            .min(0, 'Price cannot be negative')
+            .multipleOf(0.01, 'Max 2 decimal places'),
 
-//         type: z.enum(['goods', 'service'], {
-//             required_error: 'Type is required',
-//             invalid_type_error: 'Type must be goods or service',
-//         }),
+        unit: z.enum(UNITS, {
+            required_error: 'Unit is required',
+            invalid_type_error: `Unit must be one of: ${UNITS.join(', ')}`,
+        }),
 
-//         hsnSacCode: z
-//             .string()
-//             .trim()
-//             .regex(/^\d{4,8}$/, 'Must be 4 to 8 digits')
-//             .optional()
-//             .or(z.literal('')),
+        // gstRate: z
+        //     .number({
+        //         required_error: 'GST rate is required',
+        //     })
+        //     .refine((v) => VALID_GST_RATES.includes(v as never), {
+        //         message: `GST rate must be one of: ${VALID_GST_RATES.join(', ')}`,
+        //     }),
 
-//         price: z.coerce
-//             .number({
-//                 required_error: 'Price is required',
-//             })
-//             .min(0, 'Price cannot be negative')
-//             .multipleOf(0.01, 'Max 2 decimal places'),
+        gstRate: z.coerce
+            .number({ required_error: 'GST rate is required' })
+            .refine((v) => VALID_GST_RATES.includes(v as never), {
+                message: `GST rate must be one of: ${VALID_GST_RATES.join(', ')}`,
+            }),
 
-//         unit: z.enum(UNITS, {
-//             required_error: 'Unit is required',
-//             invalid_type_error: `Unit must be one of: ${UNITS.join(', ')}`,
-//         }),
+        taxIncluded: z.boolean().default(false),
 
-//         gstRate: z
-//             .number({
-//                 required_error: 'GST rate is required',
-//             })
-//             .refine((v) => VALID_GST_RATES.includes(v as never), {
-//                 message: `GST rate must be one of: ${VALID_GST_RATES.join(', ')}`,
-//             }),
+        inventoryEnabled: z.boolean().default(false),
 
-//         taxIncluded: z.boolean().default(false),
+        stockQuantity: z.coerce
+            .number()
+            .int('Must be a whole number')
+            .min(0, 'Cannot be negative')
+            .default(0),
 
-//         inventoryEnabled: z.boolean().default(false),
+        lowStockThreshold: z.coerce
+            .number()
+            .int('Must be a whole number')
+            .min(0, 'Cannot be negative')
+            .default(10),
 
-//         stockQuantity: z.coerce
-//             .number()
-//             .int('Must be a whole number')
-//             .min(0, 'Cannot be negative')
-//             .default(0),
+        description: z
+            .string()
+            .trim()
+            .max(1000, 'Max 1000 characters')
+            .optional()
+            .or(z.literal('')),
 
-//         lowStockThreshold: z.coerce
-//             .number()
-//             .int('Must be a whole number')
-//             .min(0, 'Cannot be negative')
-//             .default(10),
+        isActive: z.boolean().default(true),
+    })
+    // Business rule: services cannot have inventory
+    .refine(
+        (data) => !(data.type === 'service' && data.inventoryEnabled),
+        {
+            message: 'Services cannot have inventory tracking',
+            path: ['inventoryEnabled'],
+        }
+    );
 
-//         description: z
-//             .string()
-//             .trim()
-//             .max(1000, 'Max 1000 characters')
-//             .optional()
-//             .or(z.literal('')),
+// ── Stock adjustment ──────────────────────────────────────────────────────────
 
-//         isActive: z.boolean().default(true),
-//     })
-//     // Business rule: services cannot have inventory
-//     .refine(
-//         (data) => !(data.type === 'service' && data.inventoryEnabled),
-//         {
-//             message: 'Services cannot have inventory tracking',
-//             path: ['inventoryEnabled'],
-//         }
-//     );
+export const StockAdjustmentSchema = z.object({
+    quantity: z.number().int('Must be a whole number'),
 
-// // ── Stock adjustment ──────────────────────────────────────────────────────────
+    reason: z
+        .string()
+        .trim()
+        .max(200, 'Max 200 characters')
+        .optional(),
+});
 
-// export const StockAdjustmentSchema = z.object({
-//     quantity: z.number().int('Must be a whole number'),
-
-//     reason: z
-//         .string()
-//         .trim()
-//         .max(200, 'Max 200 characters')
-//         .optional(),
-// });
-
-// // ── List query ────────────────────────────────────────────────────────────────
+// ── List query ────────────────────────────────────────────────────────────────
 
 // export const ProductListQuerySchema = z.object({
 //     page: z.coerce.number().int().min(1).default(1),
-
 //     limit: z.coerce.number().int().min(1).max(100).default(25),
-
 //     search: z.string().trim().max(100).optional(),
-
 //     type: z.enum(['goods', 'service']).optional(),
-
 //     gstRate: z.coerce
 //         .number()
 //         .refine((v) => VALID_GST_RATES.includes(v as never), {
@@ -137,9 +113,7 @@
 //         .optional(),
 
 //     isActive: z.enum(['true', 'false']).optional(),
-
 //     lowStock: z.enum(['true']).optional(),
-
 //     sortBy: z
 //         .enum([
 //             'name',
@@ -153,24 +127,45 @@
 //     sortDir: z.enum(['asc', 'desc']).default('desc'),
 // });
 
-// // ── ID param ──────────────────────────────────────────────────────────────────
+export const ProductListQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(25),
+    search: z.string().trim().max(100).optional(),
+    type: z.preprocess(emptyStringToUndefined, z.enum(['goods', 'service']).optional()),
+    gstRate: z.preprocess(
+        emptyStringToUndefined,
+        z.coerce.number().refine(
+            (v) => VALID_GST_RATES.includes(v as never),
+            { message: `GST rate must be one of: ${VALID_GST_RATES.join(', ')}` }
+        ).optional()
+    ),
+    isActive: z.preprocess(emptyStringToUndefined, z.enum(['true', 'false']).optional()),
+    lowStock: z.preprocess(emptyStringToUndefined, z.enum(['true']).optional()),
+    sortBy: withDefault(
+        z.enum(['name', 'price', 'stockQuantity', 'createdAt', 'updatedAt']),
+        'createdAt'
+    ),
+    sortDir: withDefault(z.enum(['asc', 'desc']), 'desc'),
+});
 
-// export const ProductIdParamSchema = z.object({
-//     id: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid product ID'),
-// });
+// ── ID param ──────────────────────────────────────────────────────────────────
 
-// // ── Inferred Types ────────────────────────────────────────────────────────────
+export const ProductIdParamSchema = z.object({
+    id: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid product ID'),
+});
 
-// export type ProductBodyInput = z.infer<typeof ProductBodySchema>;
+// ── Inferred Types ────────────────────────────────────────────────────────────
 
-// export type ProductListQueryInput = z.infer<
-//     typeof ProductListQuerySchema
-// >;
+export type ProductBodyInput = z.infer<typeof ProductBodySchema>;
 
-// export type ProductIdParamInput = z.infer<
-//     typeof ProductIdParamSchema
-// >;
+export type ProductListQueryInput = z.infer<
+    typeof ProductListQuerySchema
+>;
 
-// export type StockAdjustmentInput = z.infer<
-//     typeof StockAdjustmentSchema
-// >;
+export type ProductIdParamInput = z.infer<
+    typeof ProductIdParamSchema
+>;
+
+export type StockAdjustmentInput = z.infer<
+    typeof StockAdjustmentSchema
+>;
