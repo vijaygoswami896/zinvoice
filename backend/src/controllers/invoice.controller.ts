@@ -3,6 +3,7 @@ import type { Request, RequestHandler, Response } from 'express';
 import * as invoiceService from '../services/invoice.service.js';
 import { sendSuccess, sendPaginated } from '../utils/apiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { InvoiceListQuerySchema } from '../schemas/invoice.schema.server.js';
 
 /** Resolves the business ID from the authenticated user on the request. */
 const bizId = (req: Request): string =>
@@ -10,7 +11,8 @@ const bizId = (req: Request): string =>
 
 /** GET /api/v1/invoices */
 export const listInvoices = asyncHandler(async (req: Request, res: Response) => {
-    const { items, total, page, limit } = await invoiceService.listInvoices(bizId(req), req.query);
+    const query = InvoiceListQuerySchema.parse(req.query);
+    const { items, total, page, limit } = await invoiceService.listInvoices(bizId(req), query);
     sendPaginated(res, { items, total, page, limit, message: 'Invoices retrieved.' });
 });
 

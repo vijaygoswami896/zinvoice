@@ -1,18 +1,15 @@
 import mongoose, { Types } from 'mongoose';
 
 import { Invoice } from '../models/invoice.model.js';
+import { Customer } from '../models/customer.model.js';
+import { Settings } from '../models/settings.model.js';
+import { getProductsByIds } from '../services/product.service.js';
 import AppError from '../utils/appError.js';
 import logger from '../middleware/logger.js';
 import { generateInvoiceNumber } from '../utils/invoiceNumber.js';
 import { shouldApplyIGST, computeLineItem, computeInvoiceTotals } from '../utils/gstCalculator.js';
 import type { InvoiceListQueryInput, CreateInvoiceInput, UpdateInvoiceInput } from '../schemas/invoice.schema.server.js';
-
-// ── Lazy-loaded cross-module models (avoid circular imports) ──────────────────
-
-// These are typed loosely here; replace with your actual model types once available.
-const getCustomer = () => (require('../models/customer.model.js') as { Customer: mongoose.Model<any> }).Customer;
-const getSettings = () => (require('../models/settings.model.js') as { Settings: mongoose.Model<any> }).Settings;
-const getProductFn = () => (require('../services/product.service.js') as { getProductsByIds: (businessId: string, ids: string[]) => Promise<Map<string, any>> }).getProductsByIds;
+import type { ICustomer } from '../models/customer.model.js';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -45,14 +42,12 @@ interface RawLineItemDTO {
 // ── Resolve helpers ───────────────────────────────────────────────────────────
 
 const resolveCustomer = async (businessId: string | Types.ObjectId, customerId: string) => {
-    const Customer = getCustomer();
     const customer = await Customer.findOne({ _id: customerId, ...baseFilter(businessId) });
     if (!customer) throw new AppError('Customer not found.', 404, 'NOT_FOUND');
     return customer;
 };
 
 const resolveSettings = async (businessId: string | Types.ObjectId): Promise<ResolvedSettings> => {
-    const Settings = getSettings();
     const settings = await Settings.findOne({ businessId });
     return {
         prefix: settings?.invoicePrefix ?? 'INV',
@@ -71,9 +66,8 @@ const buildLineItems = async (
 ) => {
     // Batch-fetch linked products (O(1) map lookup per item)
     const productIds = rawItems.filter((i) => i.productId).map((i) => i.productId as string);
-    const getProducts = getProductFn();
     const productMap = productIds.length
-        ? await getProducts(String(businessId), productIds)
+        ? await getProductsByIds(String(businessId), productIds)
         : new Map<string, any>();
 
     return rawItems.map((item) => {
@@ -241,9 +235,8 @@ export const updateInvoice = async (
     const updates: Record<string, any> = {};
 
     if (dto.items) {
-        const Customer = getCustomer();
         const settings = await resolveSettings(businessId);
-        const customer = await Customer.findById(existing.customerId).lean();
+        const customer = await Customer.findById(existing.customerId).lean<ICustomer>();
         const applyIGST = shouldApplyIGST(
             settings.sellerStateCode,
             customer?.stateCode ?? existing.placeOfSupply,
