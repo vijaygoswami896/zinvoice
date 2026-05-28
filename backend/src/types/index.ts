@@ -2,6 +2,8 @@
 
 import mongoose, { Document, Model, Schema } from 'mongoose';
 import { GstRateType, UNITS, UnitType, VALID_GST_RATES } from '../constants/products';
+import { PlaceOfSupplyResult } from '../gst/gstUtils';
+import { GSTRate, GSTType } from '../gst/gstConstants';
 
 export interface EnvTypes {
     NODE_ENV: string;
@@ -88,3 +90,148 @@ export interface IProduct extends Document {
 }
 
 export interface ProductModel extends Model<IProduct> { }
+
+export interface RawLineItem {
+    name?: string;
+    quantity: number;
+    rate: number;
+    gstRate: GSTRate;
+    taxIncluded?: boolean;
+    discountPct?: number;
+    hsnSacCode?: string;
+    itemType?: string;
+    [key: string]: unknown;
+}
+
+export interface ComputedLineItem {
+    name: string;
+    quantity: number;
+    rate: number;
+    effectiveRate: number;
+    gstRate: GSTRate;
+    discountPct: number;
+    discountAmt: number;
+    taxIncluded: boolean;
+    taxableAmount: number;
+    gstAmount: number;
+    cgst: number;
+    sgst: number;
+    igst: number;
+    cgstRate: number;
+    sgstRate: number;
+    igstRate: number;
+    lineTotal: number;
+    hsnSacCode?: string;
+    itemType?: string;
+    [key: string]: unknown;
+}
+
+export interface InvoiceTotals {
+    subtotal: number;
+    totalDiscount: number;
+    totalCgst: number;
+    totalSgst: number;
+    totalIgst: number;
+    totalTax: number;
+    grandTotal: number;
+    roundOff: number;
+    grandTotalRounded: number;
+}
+
+export interface HSNSummaryRow {
+    hsnSacCode: string;
+    description: string;
+    itemType: string;
+    gstRate: GSTRate;
+    taxableAmount: number;
+    cgst: number;
+    sgst: number;
+    igst: number;
+    gstAmount: number;
+    total: number;
+}
+
+export interface TaxRateSummaryRow {
+    gstRate: GSTRate;
+    taxableAmount: number;
+    cgstRate: number;
+    cgst: number;
+    sgstRate: number;
+    sgst: number;
+    igstRate: number;
+    igst: number;
+    totalTax: number;
+}
+
+export interface PlaceOfSupply {
+    isIGST: boolean;
+    supplyType: string;
+    [key: string]: unknown;
+}
+
+export interface InvoiceInput {
+    sellerStateCode: string;
+    buyerStateCode: string;
+    gstType: GSTType;
+    items: RawLineItem[];
+    customerId?: string;
+    invoiceDate?: string;
+    dueDate?: string;
+    customerGstin?: string;
+}
+
+export interface ComputeInvoiceOptions {
+    skipValidation?: boolean;
+    includeAmountInWords?: boolean;
+    includeHSNSummary?: boolean;
+    includeTaxRateSummary?: boolean;
+}
+
+export type ComputeInvoiceResult =
+    | { valid: false; errors: string[] }
+    | {
+        valid: true;
+        errors: [];
+        placeOfSupply: PlaceOfSupplyResult;
+        isIGST: boolean;
+        supplyType: string;
+        items: ComputedLineItem[];
+        totals: InvoiceTotals;
+        hsnSummary: HSNSummaryRow[];
+        taxRateSummary: TaxRateSummaryRow[];
+        amountInWords: string;
+    };
+
+export interface NonGSTInvoiceItem {
+    name: string;
+    quantity: number;
+    rate: number;
+    discountPct?: number;
+    [key: string]: unknown;
+}
+
+export interface NonGSTComputedItem extends NonGSTInvoiceItem {
+    effectiveRate: number;
+    discountAmt: number;
+    taxableAmount: number;
+    gstAmount: 0;
+    cgst: 0;
+    sgst: 0;
+    igst: 0;
+    gstRate: 0;
+    lineTotal: number;
+}
+
+export interface NonGSTInvoiceResult {
+    items: NonGSTComputedItem[];
+    subtotal: number;
+    totalDiscount: number;
+    totalTax: 0;
+    totalCgst: 0;
+    totalSgst: 0;
+    totalIgst: 0;
+    grandTotal: number;
+    amountInWords: string;
+    supplyType: string;
+    isIGST: false;
+}
