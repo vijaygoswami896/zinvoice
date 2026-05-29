@@ -1,6 +1,6 @@
 // import { Request } from 'express';
 
-import mongoose, { Document, Model, Schema } from 'mongoose';
+import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 import { GstRateType, UNITS, UnitType, VALID_GST_RATES } from '../constants/products';
 import { PlaceOfSupplyResult } from '../gst/gstUtils';
 import { GSTRate, GSTType } from '../gst/gstConstants';
@@ -234,4 +234,72 @@ export interface NonGSTInvoiceResult {
     amountInWords: string;
     supplyType: string;
     isIGST: false;
+}
+
+export interface FinancialYearBounds {
+    from: Date;
+    to: Date;
+    label: string;
+}
+
+export interface StatusRow {
+    _id: string;
+    count: number;
+    totalValue: number;
+    totalTax: number;
+    totalCgst: number;
+    totalSgst: number;
+    totalIgst: number;
+}
+
+export interface LifetimeRow {
+    totalInvoices: number;
+    totalRevenue: number;
+    totalGST: number;
+}
+
+export interface MonthlyRevenueRow {
+    _id: { year: number; month: number };
+    revenue: number;
+    gstCollected: number;
+    invoiceCount: number;
+    paidRevenue: number;
+}
+
+export interface MonthlyRevenuePoint {
+    label: string;
+    month: number;
+    year: number;
+    revenue: number;
+    gstCollected: number;
+    paidRevenue: number;
+    invoiceCount: number;
+}
+
+export interface GSTSummaryResult {
+    totalCgst: number;
+    totalSgst: number;
+    totalIgst: number;
+    totalTax: number;
+    totalRevenue: number;
+    intraState: number;
+    interState: number;
+    financialYear: string;
+}
+
+export interface TopCustomerRow {
+    _id: Types.ObjectId;
+    customerName: string;
+    totalValue: number;
+    invoiceCount: number;
+}
+
+export interface EntityCounts {
+    customers: number;
+    products: number;
+    lowStock: number;
+}
+
+export interface DashboardQuery {
+    revenueMonths?: number;
 }

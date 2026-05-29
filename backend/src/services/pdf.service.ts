@@ -8,7 +8,7 @@ import Handlebars, {
 
 import puppeteer, { type Browser } from 'puppeteer';
 
-import logger from '../middleware/logger';
+import logger from '../middleware/logger.js';
 
 // ── Template loading ──────────────────────────────────────────────────────────
 
