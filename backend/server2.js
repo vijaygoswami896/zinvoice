@@ -12,7 +12,7 @@ const text = require('body-parser/lib/types/text');
 const app = express();
 const port = 5000;
 
-
+//checking where changes go
 app.use(bodyParser.json());
 app.use(cors());
 
