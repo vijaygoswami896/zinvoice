@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/useInvoices';
-import DeleteConfirmModal from '@components/customers/DeleteConfirmModal';
+import DeleteConfirmModal from '@components/DeleteConfirmModal';
 import { ROUTES } from '@constants';
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -10,17 +10,17 @@ import { ROUTES } from '@constants';
 const INR = new Intl.NumberFormat('en-IN', {
   style: 'currency', currency: 'INR', minimumFractionDigits: 2,
 });
-const fmt     = (n) => INR.format(n ?? 0);
+const fmt = (n) => INR.format(n ?? 0);
 const fmtDate = (d) => d
   ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
   : '—';
 
 const STATUS_BADGE = {
-  draft:     'badge-neutral',
-  sent:      'badge-info',
-  paid:      'badge-success',
+  draft: 'badge-neutral',
+  sent: 'badge-info',
+  paid: 'badge-success',
   cancelled: 'badge-danger',
-  overdue:   'badge-warning',
+  overdue: 'badge-warning',
 };
 
 // ── Address formatter ─────────────────────────────────────────────────────────
@@ -35,10 +35,10 @@ const formatAddress = (addr) => {
 // ── Status actions config ─────────────────────────────────────────────────────
 
 const STATUS_ACTIONS = {
-  draft:     [{ label: 'Mark as sent', next: 'sent' }, { label: 'Mark as paid', next: 'paid' }],
-  sent:      [{ label: 'Mark as paid', next: 'paid' }],
-  overdue:   [{ label: 'Mark as paid', next: 'paid' }],
-  paid:      [],
+  draft: [{ label: 'Mark as sent', next: 'sent' }, { label: 'Mark as paid', next: 'paid' }],
+  sent: [{ label: 'Mark as paid', next: 'paid' }],
+  overdue: [{ label: 'Mark as paid', next: 'paid' }],
+  paid: [],
   cancelled: [],
 };
 
@@ -63,8 +63,8 @@ const TotalRow = ({ label, value, grand, muted }) => (
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 const InvoiceDetailPage = () => {
-  const { id }    = useParams();
-  const navigate  = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [showCancelModal, setShowCancelModal] = useState(false);
 
   const { data: invoice, isLoading, isError } = useInvoice(id);
@@ -99,8 +99,8 @@ const InvoiceDetailPage = () => {
   }
 
   const statusActions = STATUS_ACTIONS[invoice.status] ?? [];
-  const billingAddr   = formatAddress(invoice.billingAddress);
-  const shippingAddr  = formatAddress(invoice.shippingAddress);
+  const billingAddr = formatAddress(invoice.billingAddress);
+  const shippingAddr = formatAddress(invoice.shippingAddress);
 
   const handleStatusChange = async (next) => {
     await statusMutation.mutateAsync({ id: invoice._id, status: next });
@@ -188,9 +188,9 @@ const InvoiceDetailPage = () => {
 
           {/* Invoice meta */}
           <div className="inv-detail__meta">
-            <InfoRow label="Invoice #"     value={invoice.invoiceNumber} mono />
-            <InfoRow label="Invoice date"  value={fmtDate(invoice.invoiceDate)} />
-            <InfoRow label="Due date"      value={fmtDate(invoice.dueDate)} />
+            <InfoRow label="Invoice #" value={invoice.invoiceNumber} mono />
+            <InfoRow label="Invoice date" value={fmtDate(invoice.invoiceDate)} />
+            <InfoRow label="Due date" value={fmtDate(invoice.dueDate)} />
             <InfoRow label="Financial year" value={invoice.financialYear} />
             <InfoRow label="Supply type"
               value={invoice.isIGST ? 'Inter-state (IGST)' : 'Intra-state (CGST + SGST)'} />
@@ -325,8 +325,8 @@ const InvoiceDetailPage = () => {
 const EditIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
   </svg>
 );
 

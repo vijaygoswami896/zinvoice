@@ -1,4 +1,5 @@
 import api from './axiosInstance';
+import { selectAccessToken, setCredentials, clearCredentials } from '@features/auth/authSlice'
 
 /**
  * setupInterceptors — wires auth-aware request/response interceptors.
@@ -11,17 +12,17 @@ import api from './axiosInstance';
  */
 export const setupInterceptors = (store) => {
     // Lazy imports to avoid circular dep at module load time
-    const getSelectors = () =>
-        import('@features/auth/authSlice').then((m) => ({
-            selectAccessToken: m.selectAccessToken,
-            setCredentials: m.setCredentials,
-            clearCredentials: m.clearCredentials,
-        }));
+    // const getSelectors = () =>
+    //     import('@features/auth/authSlice').then((m) => ({
+    //         selectAccessToken: m.selectAccessToken,
+    //         setCredentials: m.setCredentials,
+    //         clearCredentials: m.clearCredentials,
+    //     }));
 
     // ── Request: inject access token ────────────────────────────────────────────
     api.interceptors.request.use(
         async (config) => {
-            const { selectAccessToken } = await getSelectors();
+            // const { selectAccessToken } = await getSelectors();
             const token = selectAccessToken(store.getState());
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
@@ -41,7 +42,7 @@ export const setupInterceptors = (store) => {
     api.interceptors.response.use(
         (response) => response,
         async (error) => {
-            const { setCredentials, clearCredentials } = await getSelectors();
+            // const { setCredentials, clearCredentials } = await getSelectors();
             const original = error.config;
 
             const is401 = error.response?.status === 401;
