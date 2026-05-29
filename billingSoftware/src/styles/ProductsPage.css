@@ -1,0 +1,380 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Products Module CSS
+   Covers: page, toolbar, table, form, low-stock, drawer reuse
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Page ─────────────────────────────────────────────────────────────────── */
+.products-page { max-width: 1200px; }
+
+/* ── Toolbar ──────────────────────────────────────────────────────────────── */
+.ptable__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.ptable__search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+.ptable__search-icon {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  display: flex;
+}
+.ptable__search {
+  padding-left: 34px;
+  padding-right: 32px;
+}
+.ptable__search-clear {
+  position: absolute;
+  right: 8px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-size: 18px; line-height: 1;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+.ptable__search-clear:hover { color: var(--color-text-primary); }
+
+.ptable__filter {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.ptable__low-stock-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+.ptable__low-stock-filter input {
+  accent-color: var(--color-warning);
+  cursor: pointer;
+  width: 15px; height: 15px;
+}
+
+/* ── Loading / empty ──────────────────────────────────────────────────────── */
+.ptable__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+.ptable__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+}
+.ptable__empty-icon  { color: var(--color-text-tertiary); opacity: 0.45; }
+.ptable__empty-title { font-size: var(--text-base); font-weight: 600; color: var(--color-text-primary); }
+.ptable__empty-sub   { font-size: var(--text-sm);  color: var(--color-text-secondary); }
+
+/* ── Table ────────────────────────────────────────────────────────────────── */
+.ptable__scroll   { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ptable           { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.ptable thead tr  { border-bottom: 1px solid var(--color-border); }
+.ptable th {
+  padding: 11px 14px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-align: left;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ptable__sort-btn {
+  background: none; border: none;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer; padding: 0;
+  display: flex; align-items: center; gap: 4px;
+  transition: color var(--transition-fast);
+}
+.ptable__sort-btn:hover { color: var(--color-text-primary); }
+
+.ptable__row {
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background var(--transition-fast);
+}
+.ptable__row:last-child { border-bottom: none; }
+.ptable__row:hover      { background: var(--color-bg-overlay); }
+
+.ptable td {
+  padding: 12px 14px;
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+/* ── Cell types ───────────────────────────────────────────────────────────── */
+.ptable__name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  max-width: 240px;
+}
+.ptable__avatar {
+  width: 30px; height: 30px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.ptable__name-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+.ptable__name-text { font-weight: 500; }
+.ptable__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  max-width: 180px;
+}
+
+.ptable__hsn  { font-size: var(--text-xs); color: var(--color-text-secondary); letter-spacing: 0.04em; }
+.ptable__unit { font-size: var(--text-xs); color: var(--color-text-secondary); letter-spacing: 0.04em; }
+.ptable__gst  { font-size: var(--text-sm); color: var(--color-text-secondary); }
+
+.ptable__price {
+  font-weight: 600;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ptable__tax-incl {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-sans);
+  background: var(--color-bg-overlay);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  padding: 1px 4px;
+  letter-spacing: 0;
+}
+
+.ptable__stock {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ptable__stock--low { color: var(--color-warning); font-weight: 600; }
+.ptable__low-badge {
+  font-size: 12px;
+  cursor: default;
+}
+
+.ptable__actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+/* ── Type badges ──────────────────────────────────────────────────────────── */
+.ptable__badge-goods {
+  background: rgba(245,166,35,0.1);
+  color: var(--color-accent);
+}
+.ptable__badge-service {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* ── Pagination ───────────────────────────────────────────────────────────── */
+.ptable__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.ptable__pagination-info {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+}
+.ptable__pagination-btns { display: flex; align-items: center; gap: var(--space-2); }
+.ptable__pagination-page {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  min-width: 48px;
+  text-align: center;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Product Form
+───────────────────────────────────────────────────────────────────────────── */
+
+.pform__alert { margin-bottom: var(--space-5); }
+
+.pform__section {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.pform__section:last-of-type { border-bottom: none; margin-bottom: 0; }
+
+.pform__section-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-4);
+}
+
+/* ── Type toggle ──────────────────────────────────────────────────────────── */
+.pform__type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.pform__type-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.pform__type-option:hover {
+  border-color: var(--color-text-tertiary);
+  background: var(--color-bg-overlay);
+}
+.pform__type-option--active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-muted);
+}
+
+.pform__type-icon {
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-shrink: 0;
+}
+.pform__type-option--active .pform__type-icon { color: var(--color-accent); }
+
+.pform__type-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+.pform__type-desc {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────────────── */
+.pform__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-4); }
+.pform__grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* ── Price input with ₹ prefix ────────────────────────────────────────────── */
+.pform__input-prefix { position: relative; }
+.pform__prefix-symbol {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  z-index: 1;
+}
+.pform__price-input { padding-left: 28px; }
+
+/* ── Checkboxes ───────────────────────────────────────────────────────────── */
+.pform__checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border-subtle);
+  user-select: none;
+}
+.pform__checkbox-row:first-of-type { border-top: none; }
+
+.pform__checkbox {
+  width: 16px; height: 16px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.pform__checkbox-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+.pform__checkbox-hint {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  line-height: var(--leading-normal);
+}
+
+/* ── Actions ──────────────────────────────────────────────────────────────── */
+.pform__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .ptable__toolbar { flex-wrap: wrap; }
+  .ptable__search-wrap { min-width: 100%; order: -1; }
+  .ptable__filter { width: 100%; }
+  .ptable__low-stock-filter { width: 100%; }
+
+  .ptable th:nth-child(3),
+  .ptable td:nth-child(3),
+  .ptable th:nth-child(5),
+  .ptable td:nth-child(5),
+  .ptable th:nth-child(8),
+  .ptable td:nth-child(8) { display: none; }
+
+  .pform__grid   { grid-template-columns: 1fr; }
+  .pform__grid--3 { grid-template-columns: 1fr; }
+  .pform__type-toggle { grid-template-columns: 1fr; }
+}

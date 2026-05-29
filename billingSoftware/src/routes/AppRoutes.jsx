@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute, GuestRoute } from '@components/auth/RouteGuards';
 import AppLayout from '@components/layout/AppLayout';
 import PageLoader from '@components/common/PageLoader';
@@ -15,6 +15,10 @@ const RegisterPage = lazy(() => import('@pages/auth/RegisterPage'));
 
 // App — placeholders until modules are built
 const DashboardPage = lazy(() => import('@pages/dashboard/DashboadPage'));
+const ProductsPage = lazy(() => import('@pages/products/ProductsPage'));
+const InvoicesPage = lazy(() => import('@pages/invoices/InvoicesListPage'));
+const InvoiceNewPage = lazy(() => import('@pages/invoices/CreateInvoicePage'));
+const InvoiceDetailPage = lazy(() => import('@pages/invoices/InvoiceDetailPage'));
 
 // Error pages
 const ForbiddenPage = lazy(() => import('@pages/errors/ErrorPages'));
@@ -26,7 +30,7 @@ const AppRoutes = () => (
     <Suspense fallback={<PageLoader />}>
         <Routes>
             {/* Root → dashboard */}
-            {/* <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} /> */}
+            <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
             {/* Guest-only: redirect to /dashboard if already authenticated */}
             <Route element={<GuestRoute />}>
@@ -40,13 +44,13 @@ const AppRoutes = () => (
                     <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
                     <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
                     <Route path={ROUTES.CUSTOMERS} element={<CustomersPage />} />
+                    <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
+                    <Route path={ROUTES.INVOICES} element={<InvoicesPage />} />
+                    <Route path={ROUTES.INVOICE_NEW} element={<InvoiceNewPage />} />
+                    <Route path={ROUTES.INVOICE_DETAIL} element={<InvoiceDetailPage />} />
                     {/*
             Future modules — uncomment as you build them:
 
-            <Route path={ROUTES.INVOICES}        element={<InvoicesPage />} />
-            <Route path={ROUTES.INVOICE_NEW}     element={<InvoiceNewPage />} />
-            <Route path={ROUTES.INVOICE_DETAIL}  element={<InvoiceDetailPage />} />
-            <Route path={ROUTES.PRODUCTS}        element={<ProductsPage />} />
             <Route path={ROUTES.PAYMENTS}        element={<PaymentsPage />} />
             <Route path={ROUTES.REPORTS}         element={<ReportsPage />} />
             <Route path={ROUTES.SETTINGS}        element={<SettingsPage />} />
