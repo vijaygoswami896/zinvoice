@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const VALID_GST_RATES  = [0, 5, 12, 18, 28];
+export const VALID_GST_RATES = [0, 5, 12, 18, 28];
 export const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'cancelled', 'overdue'];
 
 // ── GST calculator — mirrors server/utils/gstCalculator.js exactly ────────────
@@ -13,22 +13,22 @@ const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
  * Called on every keystroke for live preview.
  */
 export const computeLineItem = (item, applyIGST = false) => {
-  const qty         = Number(item.quantity)    || 0;
-  const rate        = Number(item.rate)        || 0;
-  const gstRate     = Number(item.gstRate)     || 0;
-  const discount    = Number(item.discountPct) || 0;
+  const qty = Number(item.quantity) || 0;
+  const rate = Number(item.rate) || 0;
+  const gstRate = Number(item.gstRate) || 0;
+  const discount = Number(item.discountPct) || 0;
   const taxIncluded = Boolean(item.taxIncluded);
 
   const effectiveRate = discount > 0 ? rate * (1 - discount / 100) : rate;
-  const gstFraction   = gstRate / 100;
+  const gstFraction = gstRate / 100;
 
   let taxableAmount, lineTotal;
   if (taxIncluded) {
-    lineTotal     = round2(effectiveRate * qty);
+    lineTotal = round2(effectiveRate * qty);
     taxableAmount = round2(lineTotal / (1 + gstFraction));
   } else {
     taxableAmount = round2(effectiveRate * qty);
-    lineTotal     = round2(taxableAmount * (1 + gstFraction));
+    lineTotal = round2(taxableAmount * (1 + gstFraction));
   }
 
   const gstAmount = round2(lineTotal - taxableAmount);
@@ -43,23 +43,31 @@ export const computeLineItem = (item, applyIGST = false) => {
  * Aggregate line items into invoice totals.
  */
 export const computeInvoiceTotals = (items = [], applyIGST = false) => {
+  console.log("computeInvoiceTotals", items);
   let subtotal = 0, totalCgst = 0, totalSgst = 0, totalIgst = 0;
 
   for (const item of items) {
     if (!item || Number(item.quantity) <= 0 || Number(item.rate) < 0) continue;
     const r = computeLineItem(item, applyIGST);
-    subtotal  += r.taxableAmount;
+    subtotal += r.taxableAmount;
     totalCgst += r.cgst;
     totalSgst += r.sgst;
     totalIgst += r.igst;
   }
 
-  subtotal  = round2(subtotal);
+  subtotal = round2(subtotal);
   totalCgst = round2(totalCgst);
   totalSgst = round2(totalSgst);
   totalIgst = round2(totalIgst);
-  const totalTax   = round2(totalCgst + totalSgst + totalIgst);
+  const totalTax = round2(totalCgst + totalSgst + totalIgst);
   const grandTotal = round2(subtotal + totalTax);
+
+  console.log("subtotal: ", subtotal);
+  console.log("totalCgst: ", totalCgst);
+  console.log("totalSgst: ", totalSgst);
+  console.log("totalIgst: ", totalIgst);
+  console.log("totalTax: ", totalTax);
+  console.log("grandTotal: ", grandTotal);
 
   return { subtotal, totalCgst, totalSgst, totalIgst, totalTax, grandTotal };
 };
@@ -67,26 +75,26 @@ export const computeInvoiceTotals = (items = [], applyIGST = false) => {
 // ── Zod schemas ───────────────────────────────────────────────────────────────
 
 export const LineItemSchema = z.object({
-  productId:   z.string().nullable().optional(),
-  name:        z.string({ required_error: 'Item name is required' }).trim().min(1, 'Required').max(200),
+  productId: z.string().nullable().optional(),
+  name: z.string({ required_error: 'Item name is required' }).trim().min(1, 'Required').max(200),
   description: z.string().trim().max(500).optional().or(z.literal('')),
-  hsnSacCode:  z.string().trim().max(8).optional().or(z.literal('')),
-  unit:        z.string().default('PCS'),
-  itemType:    z.enum(['goods', 'service']).default('goods'),
-  quantity:    z.coerce.number().positive('Must be > 0'),
-  rate:        z.coerce.number().min(0, 'Cannot be negative'),
+  hsnSacCode: z.string().trim().max(8).optional().or(z.literal('')),
+  unit: z.string().default('PCS'),
+  itemType: z.enum(['goods', 'service']).default('goods'),
+  quantity: z.coerce.number().positive('Must be > 0'),
+  rate: z.coerce.number().min(0, 'Cannot be negative'),
   discountPct: z.coerce.number().min(0).max(100).default(0),
-  gstRate:     z.coerce.number().refine((v) => VALID_GST_RATES.includes(v), { message: 'Invalid GST rate' }),
+  gstRate: z.coerce.number().refine((v) => VALID_GST_RATES.includes(v), { message: 'Invalid GST rate' }),
   taxIncluded: z.boolean().default(false),
 });
 
 export const InvoiceFormSchema = z.object({
-  customerId:  z.string({ required_error: 'Customer is required' }).min(1, 'Select a customer'),
+  customerId: z.string({ required_error: 'Customer is required' }).min(1, 'Select a customer'),
   invoiceDate: z.string().min(1, 'Invoice date is required'),
-  dueDate:     z.string().optional().or(z.literal('')),
-  items:       z.array(LineItemSchema).min(1, 'Add at least one item'),
-  status:      z.enum(INVOICE_STATUSES).default('draft'),
-  notes:              z.string().trim().max(1000).optional().or(z.literal('')),
+  dueDate: z.string().optional().or(z.literal('')),
+  items: z.array(LineItemSchema).min(1, 'Add at least one item'),
+  status: z.enum(INVOICE_STATUSES).default('draft'),
+  notes: z.string().trim().max(1000).optional().or(z.literal('')),
   termsAndConditions: z.string().trim().max(2000).optional().or(z.literal('')),
-  internalNotes:      z.string().trim().max(1000).optional().or(z.literal('')),
+  internalNotes: z.string().trim().max(1000).optional().or(z.literal('')),
 });

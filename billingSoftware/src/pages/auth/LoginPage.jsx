@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import { ROUTES, APP_NAME } from '@constants';
+import "@styles/components.css"
 
 const LoginSchema = z.object({
     email: z.string({ required_error: 'Email is required' })

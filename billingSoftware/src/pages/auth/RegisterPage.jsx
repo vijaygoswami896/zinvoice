@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import { ROUTES, APP_NAME } from '@constants';
+import "@styles/components.css"
 
 const RegisterSchema = z.object({
     name: z.string().trim().min(2, 'At least 2 characters').max(80),

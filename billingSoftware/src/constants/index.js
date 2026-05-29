@@ -15,6 +15,7 @@ export const ROUTES = Object.freeze({
     INVOICES: '/invoices',
     INVOICE_NEW: '/invoices/new',
     INVOICE_DETAIL: '/invoices/:id',
+    INVOICE_EDIT: '/invoices/:id/edit',
     CUSTOMERS: '/customers',
     PRODUCTS: '/products',
     PAYMENTS: '/payments',

@@ -1,13 +1,13 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoice } from '@hooks/useInvoices';
-import InvoiceForm from '@components/invoices/InvoiceForm';
+import InvoiceForm from '@components/InvoiceForm';
 import { ROUTES } from '@constants';
 
 const EditInvoicePage = () => {
   usePageTitle('Edit Invoice', 'Invoices');
-  const navigate      = useNavigate();
-  const { id }        = useParams();
+  const navigate = useNavigate();
+  const { id } = useParams();
   const { data: invoice, isLoading, isError } = useInvoice(id);
   const updateMutation = useUpdateInvoice(id);
 

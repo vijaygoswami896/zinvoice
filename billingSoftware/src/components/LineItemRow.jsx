@@ -149,10 +149,10 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
       <div className="li-row__numbers">
         <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">Qty <span className="li-row__req">*</span></label>
-          <input type="number" step="0.001" min="0.001"
+          <input type="number" step="1" min="0"
             className={`form-input mono${errors?.quantity ? ' form-input--error' : ''}`}
             placeholder="1"
-            {...register(`${p}.quantity`)}
+            {...register(`${p}.quantity`, { valueAsNumber: true })}
           />
           {errors?.quantity && <p className="form-error">{errors.quantity.message}</p>}
         </div>
@@ -161,10 +161,11 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
           <label className="form-label">Rate (₹) <span className="li-row__req">*</span></label>
           <div className="li-row__rate-wrap">
             <span className="li-row__rupee" aria-hidden="true">₹</span>
-            <input type="number" step="0.01" min="0"
+            {/* <input type="number" step="0.01" min="0" */}
+            <input type="number" min="0"
               className={`form-input mono li-row__rate-input${errors?.rate ? ' form-input--error' : ''}`}
               placeholder="0.00"
-              {...register(`${p}.rate`)}
+              {...register(`${p}.rate`, { valueAsNumber: true })}
             />
           </div>
           {errors?.rate && <p className="form-error">{errors.rate.message}</p>}
@@ -174,7 +175,7 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
           <label className="form-label">Disc %</label>
           <input type="number" step="0.01" min="0" max="100"
             className="form-input mono" placeholder="0"
-            {...register(`${p}.discountPct`)} />
+            {...register(`${p}.discountPct`, { valueAsNumber: true })} />
         </div>
 
         <div className="form-group" style={{ margin: 0 }}>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { InvoiceFormSchema, computeInvoiceTotals, INVOICE_STATUSES } from '@schemas/invoice.schema.client';
@@ -85,7 +85,8 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
   }, [invoice, reset]);
 
   // ── Customer list for picker ────────────────────────────────────────────────
-  const { data: customerData } = useCustomers({ limit: 200, sortBy: 'name', sortDir: 'asc' });
+  // const { data: customerData } = useCustomers({ limit: 200, sortBy: 'name', sortDir: 'asc' });
+  const { data: customerData } = useCustomers({ sortBy: 'name', sortDir: 'asc' });
   const customers = customerData?.items ?? [];
 
   const selectedCustomerId = watch('customerId');
@@ -96,11 +97,16 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
   const applyIGST = selectedCustomer?.gstType === 'export';
 
   // ── Live totals ─────────────────────────────────────────────────────────────
-  const watchedItems = watch('items');
+  // const watchedItems = watch('items');
+  const watchedItems = useWatch({ control, name: 'items' });
   const totals = useMemo(
     () => computeInvoiceTotals(watchedItems ?? [], applyIGST),
     [watchedItems, applyIGST],
   );
+
+  useEffect(() => {
+    console.log('watchedItems==>', watchedItems)
+  }, [watchedItems])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="inv-form">
