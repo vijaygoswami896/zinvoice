@@ -185,8 +185,10 @@ const invoiceSchema = new Schema<IInvoice>(
         toJSON: {
             virtuals: true,
             transform: (_doc, ret) => {
-                delete ret.__v;
-                return ret;
+                const { __v, ...rest } = ret;
+                return rest;
+                // delete ret.__v;
+                // return ret;
             },
         },
     },

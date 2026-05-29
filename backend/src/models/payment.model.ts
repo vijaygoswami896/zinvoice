@@ -87,8 +87,10 @@ const paymentSchema = new Schema<IPaymentDocument>(
         timestamps: true,
         toJSON: {
             transform: (_doc, ret) => {
-                delete ret.__v;
-                return ret;
+                const { __v, ...rest } = ret;
+                return rest;
+                // delete ret.__v;
+                // return ret;
             },
         },
     },

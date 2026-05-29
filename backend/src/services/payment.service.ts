@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import { Payment } from '../models/payment.model';
+
+import { Payment } from '../models/payment.model.js';
 import AppError from '../utils/appError.js';
 import logger from '../middleware/logger.js';
 import type { RecordPaymentInput, PaymentListQuery } from '../schemas/payment.schema.server.js';
@@ -32,7 +33,7 @@ const deriveInvoiceStatus = (totalPaid: number, grandTotal: number, currentStatu
 
 export const recordPayment = async (businessId: string, dto: RecordPaymentInput) => {
     // const Invoice = getInvoice();
-    const { Invoice } = await import('../models/invoice.model');
+    const { Invoice } = await import('../models/invoice.model.js');
 
     const invoice = await Invoice.findOne({ _id: dto.invoiceId, ...baseFilter(businessId) });
     if (!invoice) throw new AppError('Invoice not found.', 404, 'NOT_FOUND');
@@ -99,7 +100,7 @@ export const listPayments = async (businessId: string, query: PaymentListQuery) 
 
 export const getPaymentsForInvoice = async (businessId: string, invoiceId: string) => {
     // const Invoice = getInvoice();
-    const { Invoice } = await import('../models/invoice.model');
+    const { Invoice } = await import('../models/invoice.model.js');
 
     const [invoice, payments] = await Promise.all([
         Invoice.findOne({ _id: invoiceId, ...baseFilter(businessId) }).select('grandTotal status invoiceNumber'),
@@ -128,7 +129,7 @@ export const getPaymentsForInvoice = async (businessId: string, invoiceId: strin
 
 export const deletePayment = async (businessId: string, paymentId: string, deletedBy: string) => {
     // const Invoice = getInvoice();
-    const { Invoice } = await import('../models/invoice.model');
+    const { Invoice } = await import('../models/invoice.model.js');
 
     const payment = await Payment.findOneAndUpdate(
         { _id: paymentId, ...baseFilter(businessId) },

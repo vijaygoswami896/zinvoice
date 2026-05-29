@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { UNITS, VALID_GST_RATES } from '../constants/products';
-import { emptyStringToUndefined, withDefault } from './shared.schema';
+
+import { UNITS, VALID_GST_RATES } from '../constants/products.js';
+import { emptyStringToUndefined, withDefault } from './shared.schema.js';
 
 // ── Body: create / update ─────────────────────────────────────────────────────
 

@@ -95,11 +95,13 @@ const userSchema = new Schema<IUser, IUserModel>(
         timestamps: true,
         toJSON: {
             transform(_doc, ret) {
-                delete ret.passwordHash;
-                delete ret.refreshTokens;
-                delete ret.deletedAt;
-                delete ret.__v;
-                return ret;
+                const { __v, passwordHash, refreshTokens, deletedAt, ...rest } = ret;
+                return rest;
+                // delete ret.passwordHash;
+                // delete ret.refreshTokens;
+                // delete ret.deletedAt;
+                // delete ret.__v;
+                // return ret;
             },
         },
     },

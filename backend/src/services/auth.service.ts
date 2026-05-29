@@ -92,7 +92,7 @@ const register = async ({ name, email, password, role }: RegisterParams): Promis
 };
 
 const login = async ({ email, password, userAgent, ip }: LoginParams) => {
-    const user = await User.findByEmailWithPassword(email);
+    const user = await User.findByEmailWithPassword(email) as InstanceType<typeof User> | null;;
 
     const DUMMY_HASH = '$2b$12$invalidhashpaddingtomatch.bcrypt.output.length.xxxxxxxxx';
 
@@ -268,7 +268,7 @@ const refresh = async ({ rawToken, userAgent, ip }: RefreshParams) => {
     const user = await User.findOne({
         'refreshTokens.tokenHash': tokenHash,
         deletedAt: null,
-    }).select('+refreshTokens');
+    }).select('+refreshTokens') as InstanceType<typeof User> | null;;
 
     if (!user) {
         logger.warn({ msg: 'Refresh token reuse or forgery detected', ip, userAgent });

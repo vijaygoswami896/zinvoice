@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { GstRateType, UNITS, UnitType, VALID_GST_RATES } from '../constants/products';
+
+import { GstRateType, UNITS, UnitType, VALID_GST_RATES } from '../constants/products.js';
 import { IProduct, ProductModel } from '../types';
 
 // ── Schema ────────────────────────────────────────────────────────────────────
