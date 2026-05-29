@@ -1,0 +1,3 @@
+declare const connectDB: () => Promise<void>;
+declare const disconnectDB: () => Promise<void>;
+export { connectDB, disconnectDB };
