@@ -7,6 +7,7 @@ import {
 } from '@features/auth/authSlice';
 import { ROUTES } from '@constants';
 import PageLoader from '../common/PageLoader'
+import "@styles/components.css"
 
 /**
  * ProtectedRoute — requires authentication.
@@ -51,7 +52,7 @@ export const GuestRoute = ({ redirectTo = ROUTES.DASHBOARD }) => {
     const isAuth = useSelector(selectIsAuth);
     const isInitialised = useSelector(selectIsInitialised);
 
-    if (!isInitialised) return null;
+    if (!isInitialised) return <PageLoader />;
 
     return isAuth ? <Navigate to={redirectTo} replace /> : <Outlet />;
 };

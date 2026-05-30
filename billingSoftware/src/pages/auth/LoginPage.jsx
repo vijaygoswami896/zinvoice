@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import { ROUTES, APP_NAME } from '@constants';
 import "@styles/components.css"
+import { useState } from 'react';
 
 const LoginSchema = z.object({
     email: z.string({ required_error: 'Email is required' })
@@ -16,6 +17,8 @@ const getError = (err) =>
     err?.response?.data?.error?.message || 'Invalid email or password.';
 
 const LoginPage = () => {
+    const [showPassword, setShowPassword] = useState(false);
+
     const { login, isLoggingIn, loginError } = useAuth();
     const location = useLocation();
     const fromProtected = !!location.state?.from;
@@ -60,12 +63,25 @@ const LoginPage = () => {
 
                     <div className="form-group">
                         <label htmlFor="password" className="form-label">Password</label>
-                        <input
-                            id="password" type="password" autoComplete="current-password"
-                            className={`form-input${errors.password ? ' form-input--error' : ''}`}
-                            disabled={isLoggingIn}
-                            {...register('password')}
-                        />
+                        <div className="input-wrapper">
+                            <input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                autoComplete="current-password"
+                                className={`form-input${errors.password ? ' form-input--error' : ''}`}
+                                disabled={isLoggingIn}
+                                {...register('password')}
+                            />
+                            <button
+                                type="button"
+                                className="input-icon-btn"
+                                onClick={() => setShowPassword(v => !v)}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                tabIndex={-1}
+                            >
+                                {showPassword ? '🙈' : '👁️'}
+                            </button>
+                        </div>
                         {errors.password && <p className="form-error">{errors.password.message}</p>}
                     </div>
 

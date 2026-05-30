@@ -11,7 +11,7 @@ export const loginApi = async (credentials) => {
 };
 
 export const refreshApi = async () => {
-    const { data } = await api.post('/auth/refresh');
+    const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
     return data.data;
 };
 

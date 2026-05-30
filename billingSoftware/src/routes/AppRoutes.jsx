@@ -6,6 +6,8 @@ import PageLoader from '@components/common/PageLoader';
 import { ROUTES } from '@constants';
 import SettingsPage from '@pages/settings/SettingsPage';
 import CustomersPage from '@pages/customers/CustomersPage';
+import "@styles/components.css"
+
 
 // ── Lazy page imports ─────────────────────────────────────────────────────────
 

@@ -729,10 +729,153 @@
 
   /* Detail action bar */
   .inv-detail__topbar { flex-direction: column; align-items: flex-start; }
+
+  /* adding later */
+  /* Hide customer GSTIN sub-line (keep name) */
+  .itable__gstin { display: none; }
+
+  /* Hide due date column (col 4) — already there */
+  /* Also hide customer column (col 2) on small screens */
+  .itable th:nth-child(2),
+  .itable td:nth-child(2) { display: none; }
+
+  /* Shrink action buttons — the main culprit */
+  .itable__mark-paid-btn {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  /* Prevent the actions cell from stretching */
+  .itable__actions {
+    gap: 2px;
+  }
 }
 
 @media (max-width: 480px) {
   .li-row__numbers { grid-template-columns: 1fr; }
   .inv-form__actions { flex-direction: column-reverse; }
   .inv-form__actions .btn { width: 100%; justify-content: center; }
+
+  /* adding extra for mobile */
+  /* Hide Mark as Paid entirely — still accessible inside the detail view */
+  .itable__mark-paid-btn { display: none; }
+
+  /* Tighten row padding */
+  .itable td { padding: 10px 8px; }
+  .itable th { padding: 8px; }
+}
+
+/* ── Mobile card list ─────────────────────────────────────────────────────── */
+
+.itable__cards { display: none; } /* hidden on desktop */
+.inv-detail__item-cards { display: none; } /* hidden on desktop */
+
+@media (max-width: 640px) {
+  .itable__scroll { display: none; } /* hide table */
+  .itable__cards  { display: flex; flex-direction: column; }
+
+  .itable__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border-subtle);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+  .itable__card:last-child { border-bottom: none; }
+  .itable__card:hover      { background: var(--color-bg-overlay); }
+
+  .itable__card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .itable__card-mid {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .itable__card-customer {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+  }
+  .itable__card-bot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--space-1);
+  }
+
+  /* Hide table, show cards */
+  .inv-detail__items-wrap  { display: none; }
+  .inv-detail__item-cards  { display: flex; flex-direction: column; }
+
+  .inv-detail__item-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .inv-detail__item-card:last-child { border-bottom: none; }
+
+  /* Top row: index + name + total */
+  .inv-detail__ic-top {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .inv-detail__ic-index {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-overlay);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+  }
+  .inv-detail__ic-name-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .inv-detail__ic-total {
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+  }
+
+  /* Mid row: pills for qty×rate, discount, HSN */
+  .inv-detail__ic-mid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding-left: 28px; /* align under name */
+  }
+  .inv-detail__ic-pill {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    background: var(--color-bg-overlay);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 2px 8px;
+  }
+
+  /* Bot row: tax breakdown */
+  .inv-detail__ic-tax {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding-left: 28px;
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+  }
+  .inv-detail__ic-tax .mono { color: var(--color-text-secondary); }
 }
