@@ -5,6 +5,7 @@ import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/use
 import DeleteConfirmModal from '@components/DeleteConfirmModal';
 import { ROUTES } from '@constants';
 import "@styles/InvoicesPage.css"
+import RecordPaymentModal from '@/components/payments/RecordPaymentModal';
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -67,8 +68,9 @@ const InvoiceDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
-  const { data: invoice, isLoading, isError } = useInvoice(id);
+  const { data: invoice, isLoading, isError, refetch } = useInvoice(id);
   const statusMutation = useUpdateInvoiceStatus();
   const deleteMutation = useDeleteInvoice();
 
@@ -129,6 +131,11 @@ const InvoiceDetailPage = () => {
         </div>
 
         <div className="inv-detail__topbar-actions">
+
+          <button className="btn btn-primary btn-sm" onClick={() => setPaymentOpen(true)}>
+            Record payment
+          </button>
+
           {/* Status change buttons */}
           {statusActions.map(({ label, next }) => (
             <button
@@ -359,6 +366,13 @@ const InvoiceDetailPage = () => {
           </div>
         )}
       </div>
+
+      <RecordPaymentModal
+        isOpen={paymentOpen}
+        invoice={invoice}
+        onClose={() => setPaymentOpen(false)}
+        onSuccess={() => { setPaymentOpen(false); refetch(); }}
+      />
 
       {/* Cancel confirmation */}
       <DeleteConfirmModal

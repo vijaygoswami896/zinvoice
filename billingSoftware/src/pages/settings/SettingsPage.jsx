@@ -50,7 +50,8 @@ const SettingsPage = () => {
   const [logoProgress, setLogoProgress] = useState(0);
   const [sigProgress, setSigProgress] = useState(0);
 
-  const { data: settings, isLoading, isError } = useSettings();
+  const { data: settingsData, isLoading, isError } = useSettings();
+  const { settings } = settingsData ?? {};
 
   const updateMutation = useUpdateSettings();
   const uploadLogoMutation = useUploadLogo();
@@ -85,7 +86,14 @@ const SettingsPage = () => {
 
   // Populate form once data loads
   useEffect(() => {
+
     if (settings) {
+      // const { settings } = settings;
+      console.log("settings==>", settings);
+      console.log("settings.businessName==>", settings.businessName);
+
+      // const { setting: { settings } } = yourData;
+
       reset({
         businessName: settings.businessName ?? '',
         legalName: settings.legalName ?? '',
