@@ -4,7 +4,7 @@
    DM Sans for UI, DM Mono for numerics. Designed for dense data environments.
 ───────────────────────────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap'); */
 
 /* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
@@ -12,20 +12,22 @@
   --color-bg:           #0f1117;
   --color-bg-elevated:  #161b25;
   --color-bg-overlay:   #1c2333;
+  --color-bg-subtle:    #13171f;
   --color-border:       #252d3d;
   --color-border-subtle:#1e2535;
-
+  
+  /* Text */
+  --color-text-primary:   #e8ecf3;
+  --color-text-secondary: #8895aa;
+  --color-text-tertiary:  #566478;
+  --color-text-inverse:   #0f1117;
+  
   /* Amber accent */
   --color-accent:       #f5a623;
   --color-accent-dim:   #c47d0e;
   --color-accent-glow:  rgba(245, 166, 35, 0.12);
   --color-accent-muted: rgba(245, 166, 35, 0.08);
 
-  /* Text */
-  --color-text-primary:   #e8ecf3;
-  --color-text-secondary: #8895aa;
-  --color-text-tertiary:  #566478;
-  --color-text-inverse:   #0f1117;
 
   /* Semantic */
   --color-success:      #34d399;
@@ -99,6 +101,77 @@
   --z-tooltip:  600;
 }
 
+/* 2. Explicit light theme via attribute */
+[data-theme="light"] {
+  --color-bg:           #f5f7fa;
+  --color-bg-elevated:  #ffffff;
+  --color-bg-overlay:   #edf0f5;
+  --color-bg-subtle:    #f0f2f6;
+  --color-border:       #dde2ec;
+  --color-border-subtle:#e8ecf3;
+
+  --color-text-primary:   #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-tertiary:  #9ca3af;
+  --color-text-inverse:   #f5f7fa;
+
+  /* Accent stays amber — just slightly richer */
+  --color-accent:       #d4870a;
+  --color-accent-dim:   #b36d08;
+  --color-accent-glow:  rgba(212, 135, 10, 0.10);
+  --color-accent-muted: rgba(212, 135, 10, 0.07);
+
+  /* Semantic foreground — adjusted for light surfaces */
+  --color-success:      #0f6e56;
+  --color-success-bg:   rgba(52, 211, 153, 0.10);
+  --color-warning:      #9a5f06;
+  --color-warning-bg:   rgba(251, 191, 36, 0.12);
+  --color-danger:       #c0392b;
+  --color-danger-bg:    rgba(248, 113, 113, 0.10);
+  --color-info:         #185fa5;
+  --color-info-bg:      rgba(96, 165, 250, 0.10);
+
+  /* Shadows must be light-aware */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08);
+}
+
+/* 3. OS-level light preference fallback (when no data-theme attribute is set) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-bg:           #f5f7fa;
+    --color-bg-elevated:  #ffffff;
+    --color-bg-overlay:   #edf0f5;
+    --color-bg-subtle:    #f0f2f6;
+    --color-border:       #dde2ec;
+    --color-border-subtle:#e8ecf3;
+
+    --color-text-primary:   #111827;
+    --color-text-secondary: #4b5563;
+    --color-text-tertiary:  #9ca3af;
+    --color-text-inverse:   #f5f7fa;
+
+    --color-accent:       #d4870a;
+    --color-accent-dim:   #b36d08;
+    --color-accent-glow:  rgba(212, 135, 10, 0.10);
+    --color-accent-muted: rgba(212, 135, 10, 0.07);
+
+    --color-success:      #0f6e56;
+    --color-success-bg:   rgba(52, 211, 153, 0.10);
+    --color-warning:      #9a5f06;
+    --color-warning-bg:   rgba(251, 191, 36, 0.12);
+    --color-danger:       #c0392b;
+    --color-danger-bg:    rgba(248, 113, 113, 0.10);
+    --color-info:         #185fa5;
+    --color-info-bg:      rgba(96, 165, 250, 0.10);
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    --shadow-lg:  0 12px 32px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08);
+  }
+}
+
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -135,8 +208,9 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   line-height: var(--leading-tight);
   color: var(--color-text-primary);
-  letter-spacing: -0.01em;
 }
+
+h1, h2, h3 { letter-spacing: -0.01em; }
 
 h1 { font-size: var(--text-2xl); }
 h2 { font-size: var(--text-xl); }
@@ -178,7 +252,7 @@ code, pre, .mono {
 
 /* ── Selection ─────────────────────────────────────────────────────────────── */
 ::selection {
-  background: var(--color-accent-glow);
+  background: rgba(245, 166, 35, 0.28);
   color: var(--color-text-primary);
 }
 

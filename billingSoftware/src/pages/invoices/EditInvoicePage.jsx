@@ -3,6 +3,7 @@ import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoice } from '@hooks/useInvoices';
 import InvoiceForm from '@components/InvoiceForm';
 import { ROUTES } from '@constants';
+import "@styles/InvoicesPage.css"
 
 const EditInvoicePage = () => {
   usePageTitle('Edit Invoice', 'Invoices');

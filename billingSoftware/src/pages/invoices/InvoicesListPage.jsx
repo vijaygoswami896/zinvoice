@@ -330,6 +330,58 @@ const InvoicesListPage = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Card list — mobile only */}
+            <div className="itable__cards">
+              {data.items.map((inv) => {
+                const overdue = isOverdue(inv);
+                return (
+                  <div
+                    key={inv._id}
+                    className="itable__card"
+                    onClick={() => navigate(`/invoices/${inv._id}`)}
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && navigate(`/invoices/${inv._id}`)}
+                  >
+                    <div className="itable__card-top">
+                      <span className="itable__inv-num mono">{inv.invoiceNumber}</span>
+                      <StatusBadge status={overdue ? 'overdue' : inv.status} />
+                    </div>
+                    <div className="itable__card-mid">
+                      <span className="itable__card-customer">{inv.customerName}</span>
+                      <span className="itable__amount mono">{fmtAmount(inv.grandTotal)}</span>
+                    </div>
+                    <div className="itable__card-bot">
+                      <span className="itable__inv-date">{fmtDate(inv.invoiceDate)}</span>
+                      <div className="itable__actions" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="btn btn-ghost btn-sm btn-icon"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv._id}/edit`); }}
+                          aria-label={`Edit ${inv.invoiceNumber}`}
+                          disabled={inv.status === 'paid' || inv.status === 'cancelled'}
+                        ><EditIcon /></button>
+
+                        {inv.status !== 'paid' && inv.status !== 'cancelled' && (
+                          <button
+                            className="itable__mark-paid-btn"
+                            onClick={(e) => handleMarkPaid(e, inv._id)}
+                            disabled={statusMutation.isPending}
+                          >Mark as Paid</button>
+                        )}
+
+                        <button
+                          className="btn btn-ghost btn-sm btn-icon"
+                          onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: inv._id, invoiceNumber: inv.invoiceNumber }); }}
+                          aria-label={`Cancel ${inv.invoiceNumber}`}
+                          style={{ color: 'var(--color-danger)' }}
+                          disabled={inv.status === 'cancelled'}
+                        ><TrashIcon /></button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
             <Pagination meta={data?.meta} page={page} onPage={setPage} />
           </>
         )}

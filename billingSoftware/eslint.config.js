@@ -34,8 +34,7 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
-      'no-unused-vars': ['error', { destructuredArrayIgnorePattern: '^_', ignoreRestSiblings: true }],
-      // 'no-unused-vars': ['error', { ignoreRestSiblings: true }],
+      'no-unused-vars': ['warn', { destructuredArrayIgnorePattern: '^_', ignoreRestSiblings: true }],
     },
   },
 ]

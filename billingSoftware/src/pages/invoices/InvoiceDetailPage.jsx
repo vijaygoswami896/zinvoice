@@ -4,6 +4,7 @@ import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/useInvoices';
 import DeleteConfirmModal from '@components/DeleteConfirmModal';
 import { ROUTES } from '@constants';
+import "@styles/InvoicesPage.css"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -263,6 +264,57 @@ const InvoiceDetailPage = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* ── Line items cards — mobile only ──────────────────────────────────── */}
+        <div className="inv-detail__item-cards">
+          {invoice.items.map((item, i) => (
+            <div key={item._id ?? i} className="inv-detail__item-card">
+
+              {/* Top: index + name + total */}
+              <div className="inv-detail__ic-top">
+                <span className="inv-detail__ic-index mono">{i + 1}</span>
+                <div className="inv-detail__ic-name-wrap">
+                  <span className="inv-detail__item-name">{item.name}</span>
+                  {item.description && (
+                    <span className="inv-detail__item-desc">{item.description}</span>
+                  )}
+                  {item.taxIncluded && (
+                    <span className="inv-detail__tax-incl-badge">Tax incl.</span>
+                  )}
+                </div>
+                <span className="inv-detail__ic-total mono">{fmt(item.lineTotal)}</span>
+              </div>
+
+              {/* Mid: qty × rate, discount */}
+              <div className="inv-detail__ic-mid">
+                <span className="inv-detail__ic-pill">
+                  {item.quantity} {item.unit} × {fmt(item.rate)}
+                </span>
+                {item.discountPct > 0 && (
+                  <span className="inv-detail__ic-pill">Disc {item.discountPct}%</span>
+                )}
+                {item.hsnSacCode && (
+                  <span className="inv-detail__ic-pill mono">HSN {item.hsnSacCode}</span>
+                )}
+              </div>
+
+              {/* Bot: tax breakdown */}
+              <div className="inv-detail__ic-tax">
+                <span>Taxable: <span className="mono">{fmt(item.taxableAmount)}</span></span>
+                <span>GST {item.gstRate}%</span>
+                {invoice.isIGST ? (
+                  <span>IGST: <span className="mono">{fmt(item.igst)}</span></span>
+                ) : (
+                  <>
+                    <span>CGST: <span className="mono">{fmt(item.cgst)}</span></span>
+                    <span>SGST: <span className="mono">{fmt(item.sgst)}</span></span>
+                  </>
+                )}
+              </div>
+
+            </div>
+          ))}
         </div>
 
         {/* ── Totals + Notes ──────────────────────────────────────────────────── */}

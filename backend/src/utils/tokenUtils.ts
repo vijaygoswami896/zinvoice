@@ -88,7 +88,7 @@ export const REFRESH_COOKIE_NAME = 'gst_rt';
 const REFRESH_COOKIE_OPTIONS = {
     httpOnly: true,
     secure: env.isProd,
-    sameSite: 'strict' as const,
+    sameSite: env.isProd ? 'none' as const : 'strict' as const,
     path: '/api/v1/auth/refresh',
 };
 
