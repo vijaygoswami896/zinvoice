@@ -14,7 +14,9 @@
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
       "@schemas/*": ["src/schemas/*"],
-      "@constants/*": ["src/constants/index/*"]
+      // "@constants/*": ["src/constants/index/*"]
+      "@constants": ["src/constants/index.ts"],
+      "@constants/*": ["src/constants/*"]
     }
   },
   "include": ["src"]

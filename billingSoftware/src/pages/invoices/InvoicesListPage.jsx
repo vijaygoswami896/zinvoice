@@ -303,9 +303,10 @@ const InvoicesListPage = () => {
                               className="itable__mark-paid-btn"
                               onClick={(e) => handleMarkPaid(e, inv._id)}
                               disabled={statusMutation.isPending}
-                              title="Mark as paid"
+                            // title="Mark as paid"
                             >
-                              ✓ Paid
+                              {/* ✓ Paid */}
+                              Mark as Paid
                             </button>
                           )}
 
