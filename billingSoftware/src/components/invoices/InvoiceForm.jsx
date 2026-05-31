@@ -2,9 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { InvoiceFormSchema, computeInvoiceTotals, INVOICE_STATUSES } from '@schemas/invoice.schema.client';
+import { InvoiceFormSchema } from '@schemas/invoice.schema.client';
+import { INVOICE_STATUSES } from '@constants';
+import { computeInvoiceTotals } from '@/utils/tax';
 import { useCustomers } from '@hooks/useCustomers';
-import LineItemRow from '@components/LineItemRow';
+import LineItemRow from '@/components/invoices/LineItemRow';
 import { ROUTES } from '@constants';
 
 const INR = new Intl.NumberFormat('en-IN', {

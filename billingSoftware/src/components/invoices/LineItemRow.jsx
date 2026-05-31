@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useProductSearch } from '@hooks/useProducts';
-import { GST_RATE_OPTIONS, FLAT_UNITS } from '@schemas/product.schema.client';
-import { computeLineItem } from '@schemas/invoice.schema.client';
+import { GST_RATE_OPTIONS, FLAT_UNITS } from '@constants';
+import { computeLineItem } from '@/utils/tax';
 
 const fmt = (n) =>
   new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n ?? 0);

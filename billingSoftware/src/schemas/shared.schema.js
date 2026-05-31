@@ -21,8 +21,13 @@ export const nameField = z
     .min(2, 'Name must be at least 2 characters')
     .max(100, 'Name cannot exceed 100 characters');
 
+// export const emailField = z
+//     .string({ error: 'Email is required' })
+//     .email('Please provide a valid email address')
+//     .toLowerCase()
+//     .trim();
+
 export const emailField = z
-    .string({ error: 'Email is required' })
     .email('Please provide a valid email address')
     .toLowerCase()
     .trim();

@@ -38,9 +38,12 @@ const createApp = () => {
         }),
     );
 
+    const allowedOrigins = [env.CLIENT_URL, 'http://localhost:4173', 'http://localhost:5173'];
+
     const corsOptions: cors.CorsOptions = {
         origin: (origin, callback) => {
-            if (!origin || origin === env.CLIENT_URL) {
+            // if (!origin || origin === env.CLIENT_URL) {
+            if (!origin || allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
                 callback(new Error(`CORS: origin '${origin}' not allowed`));

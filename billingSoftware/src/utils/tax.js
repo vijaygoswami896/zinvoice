@@ -1,0 +1,60 @@
+// ── GST calculator — mirrors server/utils/gstCalculator.js exactly ────────────
+// Must stay in sync. Any change here MUST be reflected server-side.
+
+const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+/**
+ * Compute tax breakdown for a single line item.
+ * Called on every keystroke for live preview.
+ */
+export const computeLineItem = (item, applyIGST = false) => {
+    const qty = Number(item.quantity) || 0;
+    const rate = Number(item.rate) || 0;
+    const gstRate = Number(item.gstRate) || 0;
+    const discount = Number(item.discountPct) || 0;
+    const taxIncluded = Boolean(item.taxIncluded);
+
+    const effectiveRate = discount > 0 ? rate * (1 - discount / 100) : rate;
+    const gstFraction = gstRate / 100;
+
+    let taxableAmount, lineTotal;
+    if (taxIncluded) {
+        lineTotal = round2(effectiveRate * qty);
+        taxableAmount = round2(lineTotal / (1 + gstFraction));
+    } else {
+        taxableAmount = round2(effectiveRate * qty);
+        lineTotal = round2(taxableAmount * (1 + gstFraction));
+    }
+
+    const gstAmount = round2(lineTotal - taxableAmount);
+    const cgst = applyIGST ? 0 : round2(gstAmount / 2);
+    const sgst = applyIGST ? 0 : round2(gstAmount / 2);
+    const igst = applyIGST ? gstAmount : 0;
+
+    return { taxableAmount, gstAmount, cgst, sgst, igst, lineTotal };
+};
+
+/**
+ * Aggregate line items into invoice totals.
+ */
+export const computeInvoiceTotals = (items = [], applyIGST = false) => {
+    let subtotal = 0, totalCgst = 0, totalSgst = 0, totalIgst = 0;
+
+    for (const item of items) {
+        if (!item || Number(item.quantity) <= 0 || Number(item.rate) < 0) continue;
+        const r = computeLineItem(item, applyIGST);
+        subtotal += r.taxableAmount;
+        totalCgst += r.cgst;
+        totalSgst += r.sgst;
+        totalIgst += r.igst;
+    }
+
+    subtotal = round2(subtotal);
+    totalCgst = round2(totalCgst);
+    totalSgst = round2(totalSgst);
+    totalIgst = round2(totalIgst);
+    const totalTax = round2(totalCgst + totalSgst + totalIgst);
+    const grandTotal = round2(subtotal + totalTax);
+
+    return { subtotal, totalCgst, totalSgst, totalIgst, totalTax, grandTotal };
+};

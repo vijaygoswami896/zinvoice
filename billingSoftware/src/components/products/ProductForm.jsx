@@ -2,11 +2,9 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-    ProductFormSchema,
-    PRODUCT_TYPES,
-    UNIT_GROUPS,
-    GST_RATE_OPTIONS,
+    ProductFormSchema
 } from '@schemas/product.schema.client';
+import { PRODUCT_TYPES, UNIT_GROUPS, GST_RATE_OPTIONS } from '@/constants';
 
 const getApiError = (err) =>
     err?.response?.data?.error?.message || 'Something went wrong. Please try again.';

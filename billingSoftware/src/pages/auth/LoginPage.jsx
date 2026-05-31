@@ -1,17 +1,11 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import { ROUTES, APP_NAME } from '@constants';
 import "@styles/components.css"
 import { useState } from 'react';
-
-const LoginSchema = z.object({
-    email: z.string({ required_error: 'Email is required' })
-        .email('Enter a valid email').toLowerCase().trim(),
-    password: z.string({ required_error: 'Password is required' }).min(1, 'Password is required'),
-});
+import { LoginSchema } from '@/schemas/auth.schema';
 
 const getError = (err) =>
     err?.response?.data?.error?.message || 'Invalid email or password.';
