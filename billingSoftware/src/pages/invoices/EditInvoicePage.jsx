@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoice } from '@hooks/useInvoices';
-import InvoiceForm from '@components/InvoiceForm';
+import InvoiceForm from '@/components/invoices/InvoiceForm';
 import { ROUTES } from '@constants';
 import "@styles/InvoicesPage.css"
 

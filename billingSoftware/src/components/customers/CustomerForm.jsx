@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CustomerFormSchema, INDIAN_STATES, GST_TYPE_OPTIONS } from '@schemas/customer.schema.client';
+import { CustomerFormSchema } from '@schemas/customer.schema.client';
+import { INDIAN_STATES, GST_TYPE_OPTIONS } from '@/constants';
 
 const getApiError = (err) =>
   err?.response?.data?.error?.message || 'Something went wrong. Please try again.';

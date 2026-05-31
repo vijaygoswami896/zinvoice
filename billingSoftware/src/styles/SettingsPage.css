@@ -147,28 +147,54 @@
 @media (max-width: 768px) {
   .settings-layout {
     grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 
+  /* Tabs become a centered row of icon-only pills */
   .settings-tabs {
     position: static;
     flex-direction: row;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: var(--space-1);
-    gap: 2px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    padding: var(--space-2);
+    gap: var(--space-2);
+    /* no overflow-x needed — all 5 pills fit */
   }
-  .settings-tabs::-webkit-scrollbar { display: none; }
 
   .settings-tab {
-    flex-shrink: 0;
+    /* Square pill: icon centered, no text */
+    flex-direction: column;
     justify-content: center;
-    padding: 0.5rem var(--space-3);
-    font-size: var(--text-xs);
+    align-items: center;
+    width: auto;
+    flex: 1;            /* distribute space equally across all 5 tabs */
+    padding: var(--space-2) var(--space-1);
+    gap: 4px;
+    text-align: center;
   }
-  .settings-tab-icon { display: none; }
+
+  /* Show icon larger on mobile */
+  .settings-tab-icon {
+    display: block;
+    font-size: 20px;
+  }
+
+  /* Hide label text — icon carries the meaning */
+  .settings-tab-label {
+    display: none;
+  }
+
+  /* Active pill gets a bottom border accent for extra clarity */
+  .settings-tab--active {
+    box-shadow: inset 0 -2px 0 var(--color-accent);
+  }
 
   .settings-grid {
     grid-template-columns: 1fr;
+  }
+
+  .settings-form {
+    padding: var(--space-4);
   }
 
   .settings-uploads {

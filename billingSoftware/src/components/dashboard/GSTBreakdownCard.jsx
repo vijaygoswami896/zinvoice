@@ -40,7 +40,13 @@ const GSTBreakdownCard = ({ gstSummary, loading = false }) => {
     );
   }
 
-  const { totalCgst = 0, totalSgst = 0, totalIgst = 0, totalTax = 0, financialYear = '' } = gstSummary ?? {};
+  const {
+    totalCgst = 0,
+    totalSgst = 0,
+    totalIgst = 0,
+    totalTax = 0,
+    financialYear = '',
+  } = gstSummary ?? {};
 
   const pieData = [
     { name: 'CGST', value: totalCgst },
@@ -67,9 +73,13 @@ const GSTBreakdownCard = ({ gstSummary, loading = false }) => {
 
       {hasData ? (
         <div className="gst-layout">
-          {/* Donut chart */}
-          <div className="gst-donut">
-            <ResponsiveContainer width={120} height={120}>
+          {/*
+            FIX: was `width={120}` (fixed px) which caused the chart to
+            overflow on mobile. Now wrapped in a sized div so
+            ResponsiveContainer can measure its parent and stay in bounds.
+          */}
+          <div className="gst-donut" style={{ width: 120, height: 120, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}

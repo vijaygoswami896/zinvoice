@@ -7,7 +7,7 @@ import {
 
 const fmtLakh = (n) => {
   if (n >= 10_00_000) return `₹${(n / 10_00_000).toFixed(1)}L`;
-  if (n >= 1_000)     return `₹${(n / 1_000).toFixed(1)}K`;
+  if (n >= 1_000) return `₹${(n / 1_000).toFixed(1)}K`;
   return `₹${n}`;
 };
 
@@ -77,8 +77,13 @@ const RevenueChart = ({ data = [], loading = false }) => {
         </div>
       ) : (
         <div className="chart-wrap">
+          {/*
+            FIX: minWidth: 0 on the wrapper ensures ResponsiveContainer
+            measures its parent correctly and doesn't blow out on mobile.
+            Right margin reduced to 4 so axis labels don't get clipped.
+          */}
           <ResponsiveContainer width="100%" height={240}>
-            <ComposedChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+            <ComposedChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
@@ -89,13 +94,16 @@ const RevenueChart = ({ data = [], loading = false }) => {
                 tick={{ fontSize: 10, fill: 'var(--color-text-tertiary)', fontFamily: 'var(--font-mono)' }}
                 axisLine={false}
                 tickLine={false}
+                // FIX: interval="preserveStartEnd" prevents label overlap on narrow screens
+                interval="preserveStartEnd"
               />
               <YAxis
                 tickFormatter={fmtLakh}
                 tick={{ fontSize: 10, fill: 'var(--color-text-tertiary)', fontFamily: 'var(--font-mono)' }}
                 axisLine={false}
                 tickLine={false}
-                width={52}
+                // FIX: reduced width saves 8px on every screen size
+                width={46}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(245,166,35,0.05)' }} />
 

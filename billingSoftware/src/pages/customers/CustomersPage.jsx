@@ -1,5 +1,8 @@
 import { useState, useCallback } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { FaRegEdit } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa6";
+import { IoCloseSharp } from "react-icons/io5";
+
 import { usePageTitle } from '@hooks/usePageTitle';
 import {
     useCustomers,
@@ -8,25 +11,10 @@ import {
     useDeleteCustomer,
     useCustomer,
 } from '@hooks/useCustomers';
-import CustomerForm from '@components/CustomerForm';
-import DeleteConfirmModal from '@components/DeleteConfirmModal';
+import CustomerForm from '@components/customers/CustomerForm';
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
+import { AVATAR_COLOR, GST_BADGE } from '@constants'
 import '@styles/CustomersPage.css';
-import { FaRegEdit } from "react-icons/fa";
-import { FaTrash } from "react-icons/fa6";
-import { IoCloseSharp } from "react-icons/io5";
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-const AVATAR_COLOR = {
-    B2B: { bg: '#B5D4F4', color: '#0C447C' },
-    B2C: { bg: '#FAC775', color: '#633806' },
-    export: { bg: '#9FE1CB', color: '#085041' },
-};
-
-const GST_BADGE = {
-    B2B: 'badge-info',
-    B2C: 'badge-neutral',
-    export: 'badge-warning',
-};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 //TODO: If possible, add one search button
@@ -255,7 +243,8 @@ const CustomersPage = () => {
                     </div>
                 ) : (
                     <>
-                        <div className="ctable__scroll">
+                        {/* Desktop table */}
+                        <div className="ctable__scroll ctable__desktop-only">
                             <table className="ctable" aria-label="Customers table">
                                 <thead>
                                     <tr>
@@ -341,6 +330,47 @@ const CustomersPage = () => {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile cards */}
+                        <div className="ctable__mobile-cards">
+                            {data?.items?.length === 0 ? (
+                                <EmptyState search={search} onClear={handleClearSearch} />
+                            ) : (
+                                data?.items?.map((c) => (
+                                    <div key={c._id} className="ccard">
+                                        <div className="ccard__top">
+                                            <span className="ctable__avatar"
+                                                style={{ background: AVATAR_COLOR[c.gstType]?.bg, color: AVATAR_COLOR[c.gstType]?.color }}>
+                                                {c.name[0].toUpperCase()}
+                                            </span>
+                                            <div className="ccard__name-wrap">
+                                                <span className="ccard__name">{c.name}</span>
+                                                <span className={`badge ${GST_BADGE[c.gstType] || 'badge-neutral'}`}>{c.gstType}</span>
+                                            </div>
+                                            <div className="ctable__actions">
+                                                <button className="btn btn-ghost btn-sm btn-icon"
+                                                    onClick={() => setDrawer(c._id)} aria-label={`Edit ${c.name}`} title="Edit">
+                                                    <FaRegEdit />
+                                                </button>
+                                                <button className="btn btn-ghost btn-sm btn-icon"
+                                                    onClick={() => setDeleteTarget({ id: c._id, name: c.name })}
+                                                    aria-label={`Delete ${c.name}`} title="Delete"
+                                                    style={{ color: 'var(--color-danger)' }}>
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {c.gstin && <div className="ccard__row"><span className="ccard__label">GSTIN</span><span className="mono">{c.gstin}</span></div>}
+                                        {c.email && <div className="ccard__row"><span className="ccard__label">Email</span><span>{c.email}</span></div>}
+                                        {c.phone && <div className="ccard__row"><span className="ccard__label">Phone</span><span>{c.phone}</span></div>}
+                                        {c.billingAddress?.state && <div className="ccard__row"><span className="ccard__label">State</span><span>{c.billingAddress.state}</span></div>}
+                                        <div className="ccard__row"><span className="ccard__label">Added</span>
+                                            <span className="text-muted">{new Date(c.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
 
                         <Pagination meta={data?.meta} page={page} onPage={setPage} />

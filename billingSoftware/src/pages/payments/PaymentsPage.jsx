@@ -1,29 +1,13 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { usePayments, useDeletePayment } from '@hooks/usePayments';
-import RecordPaymentModal from '@components/payments/RecordPaymentModal';
-import DeleteConfirmModal from '@components/DeleteConfirmModal';
-import { PAYMENT_MODE_OPTIONS, PAYMENT_STATUS_BADGE, PAYMENT_STATUS_LABEL, derivePaymentStatus } from '@schemas/payment.schema.client';
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
+import { PAYMENT_MODE_OPTIONS } from '@/constants';
+import { fmt, fmtDate } from "@utils/index"
 import '@styles/PaymentsPage.css';
 
-// ── Formatters ────────────────────────────────────────────────────────────────
-
-const INR = new Intl.NumberFormat('en-IN', {
-  style: 'currency', currency: 'INR', minimumFractionDigits: 2,
-});
-const fmt = (n) => INR.format(n ?? 0);
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-
+// ── Formatters ───────────────────────────────────────────────────────────────
 const MODE_LABEL = Object.fromEntries(PAYMENT_MODE_OPTIONS.map(({ value, label }) => [value, label]));
-
-const useDebounce = (fn, delay = 350) => {
-  const timer = useRef(null);
-  return useCallback((...args) => {
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => fn(...args), delay);
-  }, [fn]);
-};
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -67,8 +51,7 @@ const PaymentsPage = () => {
   const [modeFilter, setModeFilter] = useState('');
   const [sortBy, setSortBy] = useState('paymentDate');
   const [sortDir, setSortDir] = useState('desc');
-  const [recordOpen, setRecordOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null); // { id }
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const queryParams = {
     page, limit: 25,
@@ -104,11 +87,6 @@ const PaymentsPage = () => {
               : 'All recorded payments'}
           </p>
         </div>
-        {/* <div className="page-actions">
-          <button className="btn btn-primary" onClick={() => setRecordOpen(true)}>
-            + Record payment
-          </button>
-        </div> */}
       </div>
 
       {/* Toolbar */}
@@ -134,7 +112,8 @@ const PaymentsPage = () => {
           <div className="payments-loading"><span className="spinner spinner-lg" /></div>
         ) : (
           <>
-            <div className="payments-scroll">
+            {/* Desktop table */}
+            <div className="payments-scroll payments-desktop-only">
               <table className="payments-table" aria-label="Payments">
                 <thead>
                   <tr>
@@ -197,20 +176,48 @@ const PaymentsPage = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile cards */}
+            <div className="payments-mobile-cards">
+              {!data?.items?.length ? (
+                <EmptyState />
+              ) : data.items.map((p) => (
+                <div key={p._id} className="pycard">
+                  <div className="pycard__top">
+                    <div className="pycard__main">
+                      <span className="pycard__invoice mono">{p.invoiceNumber}</span>
+                      <span className="pycard__customer">{p.customerName || '—'}</span>
+                    </div>
+                    <div className="pycard__right">
+                      <span className="pycard__amount mono">{fmt(p.amount)}</span>
+                      <button
+                        className="btn btn-ghost btn-sm btn-icon"
+                        onClick={() => setDeleteTarget({ id: p._id })}
+                        aria-label="Delete payment"
+                        style={{ color: 'var(--color-danger)' }}
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pycard__meta">
+                    <span className="pycard__date">{fmtDate(p.paymentDate)}</span>
+                    <span className="badge badge-neutral" style={{ textTransform: 'capitalize' }}>
+                      {MODE_LABEL[p.mode] ?? p.mode}
+                    </span>
+                    {p.reference && (
+                      <span className="pycard__ref mono">{p.reference}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <Pagination meta={data?.meta} page={page} onPage={setPage} />
           </>
         )}
       </div>
-
-      {/* Record payment modal — no pre-selected invoice when opened from this page */}
-      {/* {recordOpen && (
-        <RecordPaymentModal
-          isOpen={recordOpen}
-          invoice={null}
-          onClose={() => setRecordOpen(false)}
-          onSuccess={() => setRecordOpen(false)}
-        />
-      )} */}
 
       {/* Delete confirmation */}
       <DeleteConfirmModal

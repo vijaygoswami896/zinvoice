@@ -406,6 +406,58 @@
   margin-top: var(--space-2);
 }
 
+/* ── Mobile/Desktop visibility ───────────────────────────────────────────────── */
+.ctable__mobile-cards { display: none; }
+.ctable__desktop-only { display: block; }
+
+/* ── Customer card (mobile) ──────────────────────────────────────────────────── */
+.ccard {
+  padding: var(--space-4);
+  border-bottom: 0.5px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ccard:last-child { border-bottom: none; }
+
+.ccard__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+.ccard__name-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.ccard__name {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ccard__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  gap: var(--space-3);
+}
+.ccard__label {
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .ctable__toolbar { flex-wrap: wrap; }
@@ -416,8 +468,12 @@
 
   .cform__grid { grid-template-columns: 1fr; }
 
-  .ctable th:nth-child(3),
+  /* .ctable th:nth-child(3),
   .ctable td:nth-child(3),
   .ctable th:nth-child(5),
-  .ctable td:nth-child(5) { display: none; }
+  .ctable td:nth-child(5) { display: none; } */
+
+  /* Switch table → cards */
+  .ctable__desktop-only { display: none; }
+  .ctable__mobile-cards { display: block; }
 }

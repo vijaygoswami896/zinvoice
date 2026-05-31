@@ -4,18 +4,13 @@ import {
   useProducts, useCreateProduct, useUpdateProduct,
   useDeleteProduct, useProduct,
 } from '@hooks/useProducts';
-import ProductForm from '@components/ProductForm';
-import DeleteConfirmModal from '@components/DeleteConfirmModal';
-import { GST_RATE_OPTIONS } from '@schemas/product.schema.client';
+import ProductForm from '@/components/products/ProductForm';
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
+import { GST_RATE_OPTIONS } from '@/constants';
 import '@styles/ProductsPage.css';
+import { fmt } from '@/utils';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-const fmtCurrency = (n) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(n);
-
-// const fmtDate = (d) =>
-//   new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
 const useDebounce = (fn, delay = 350) => {
   const timer = useRef(null);
@@ -259,7 +254,7 @@ const ProductsPage = () => {
           <div className="ptable__loading"><span className="spinner spinner-lg" /></div>
         ) : (
           <>
-            <div className="ptable__scroll">
+            <div className="ptable__scroll ptable__desktop-only">
               <table className="ptable" aria-label="Products table">
                 <thead>
                   <tr>
@@ -313,7 +308,7 @@ const ProductsPage = () => {
                         {p.hsnSacCode || <span className="text-tertiary">—</span>}
                       </td>
                       <td className="mono ptable__price">
-                        {fmtCurrency(p.price)}
+                        {fmt(p.price)}
                         {p.taxIncluded && (
                           <span className="ptable__tax-incl" title="Tax inclusive">incl.</span>
                         )}
@@ -344,6 +339,114 @@ const ProductsPage = () => {
                 </tbody>
               </table>
             </div>
+
+            <div className="ptable__mobile-cards">
+              {!data?.items?.length ? (
+                <EmptyState search={search} onClear={handleClearSearch} />
+              ) : data.items.map((p) => (
+                <div key={p._id} className="pcard">
+                  <div className="pcard__top">
+                    <span className="ptable__avatar"
+                      style={{
+                        background: p.type === 'goods' ? 'rgba(245,166,35,0.1)' : 'rgba(96,165,250,0.1)',
+                        color: p.type === 'goods' ? 'var(--color-accent)' : 'var(--color-info)'
+                      }}>
+                      {p.type === 'goods' ? '📦' : '⚙️'}
+                    </span>
+                    <div className="pcard__name-wrap">
+                      <span className="pcard__name">{p.name}</span>
+                      <TypeBadge type={p.type} />
+                    </div>
+                    <div className="ptable__actions">
+                      <button className="btn btn-ghost btn-sm btn-icon"
+                        onClick={() => setDrawer(p._id)}
+                        aria-label={`Edit ${p.name}`} title="Edit">
+                        <EditIcon />
+                      </button>
+                      <button className="btn btn-ghost btn-sm btn-icon"
+                        onClick={() => setDeleteTarget({ id: p._id, name: p.name })}
+                        aria-label={`Delete ${p.name}`} title="Delete"
+                        style={{ color: 'var(--color-danger)' }}>
+                        <TrashIcon />
+                      </button>
+                    </div>
+                  </div>
+
+                  {p.description && <p className="pcard__desc">{p.description}</p>}
+
+                  {/* <div className="pcard__grid">
+                    <div className="pcard__cell">
+                      <span className="pcard__label">Price</span>
+                      <span className="pcard__value mono">
+                        {fmtCurrency(p.price)}
+                        {p.taxIncluded && <span className="ptable__tax-incl">incl.</span>}
+                      </span>
+                    </div>
+                    <div className="pcard__cell">
+                      <span className="pcard__label">GST</span>
+                      <span className="pcard__value mono">{p.gstRate}%</span>
+                    </div>
+                    <div className="pcard__cell">
+                      <span className="pcard__label">Unit</span>
+                      <span className="pcard__value mono">{p.unit}</span>
+                    </div>
+                    <div className="pcard__cell">
+                      <span className="pcard__label">Stock</span>
+                      <span className="pcard__value"><StockCell product={p} /></span>
+                    </div>
+                    {p.hsnSacCode && (
+                      <div className="pcard__cell">
+                        <span className="pcard__label">HSN/SAC</span>
+                        <span className="pcard__value mono">{p.hsnSacCode}</span>
+                      </div>
+                    )}
+                    <div className="pcard__cell">
+                      <span className="pcard__label">Status</span>
+                      <span className={`badge ${p.isActive ? 'badge-success' : 'badge-neutral'}`}>
+                        {p.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div> */}
+
+                  <div className="pcard__grid">
+                    <div className="pcard__cell pcard__cell--price">
+                      <span className="pcard__label">Price</span>
+                      <span className="pcard__value mono">
+                        {fmt(p.price)}
+                        {p.taxIncluded && <span className="ptable__tax-incl">incl.</span>}
+                      </span>
+                    </div>
+                    <div className="pcard__cell">
+                      <span className="pcard__label">GST</span>
+                      <span className="pcard__value mono">{p.gstRate}%</span>
+                    </div>
+                    <div className="pcard__cell">
+                      <span className="pcard__label">Unit</span>
+                      <span className="pcard__value mono">{p.unit}</span>
+                    </div>
+                    <div className="pcard__cell">
+                      <span className="pcard__label">Stock</span>
+                      <span className="pcard__value"><StockCell product={p} /></span>
+                    </div>
+                    {p.hsnSacCode && (
+                      <div className="pcard__cell">
+                        <span className="pcard__label">HSN/SAC</span>
+                        <span className="pcard__value mono">{p.hsnSacCode}</span>
+                      </div>
+                    )}
+                    <div className="pcard__cell pcard__cell--status">
+                      <span className="pcard__label">Status</span>
+                      <span className={`badge ${p.isActive ? 'badge-success' : 'badge-neutral'}`}>
+                        {p.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
+
+
+                </div>
+              ))}
+            </div>
+
             <Pagination meta={data?.meta} page={page} onPage={setPage} />
           </>
         )}

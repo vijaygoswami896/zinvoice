@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RecordPaymentSchema, PAYMENT_MODE_OPTIONS, REFERENCE_LABEL, derivePaymentStatus, PAYMENT_STATUS_BADGE, PAYMENT_STATUS_LABEL } from '@schemas/payment.schema.client';
+import { RecordPaymentSchema, derivePaymentStatus } from '@schemas/payment.schema.client';
+import { PAYMENT_MODE_OPTIONS, REFERENCE_LABEL, PAYMENT_STATUS_BADGE, PAYMENT_STATUS_LABEL } from '@constants'
 import { useRecordPayment, useDeletePayment, useInvoicePayments } from '@hooks/usePayments';
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -71,7 +72,7 @@ const RecordPaymentModal = ({ isOpen, invoice, onClose, onSuccess }) => {
   const { payments = [], summary = {} } = paymentData ?? {};
   const { totalPaid = 0, invoiceTotal = invoice?.grandTotal ?? 0, balance = 0 } = summary;
 
-  const watchedMode = useForm({ resolver: zodResolver(RecordPaymentSchema) }).watch?.('mode');
+  // const watchedMode = useForm({ resolver: zodResolver(RecordPaymentSchema) }).watch?.('mode');
 
   const {
     register, handleSubmit, watch, reset,

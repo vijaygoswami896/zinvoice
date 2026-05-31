@@ -10,8 +10,9 @@ import {
   useDeleteLogo,
   useDeleteSignature,
 } from '@hooks/useSettings';
-import { SettingsFormSchema, INDIAN_STATES } from '@schemas/settings.schema.client';
+import { SettingsFormSchema } from '@schemas/settings.schema.client';
 import ImageUpload from '@components/settings/ImageUpload';
+import { INDIAN_STATES } from '@/constants';
 import '@styles/SettingsPage.css';
 
 // ── Section tab config ────────────────────────────────────────────────────────
@@ -213,16 +214,30 @@ const SettingsPage = () => {
         {/* Tab sidebar */}
         <nav className="settings-tabs" aria-label="Settings sections">
           {TABS.map((tab) => (
+            // <button
+            //   key={tab.id}
+            //   type="button"
+            //   className={`settings-tab ${activeTab === tab.id ? 'settings-tab--active' : ''}`}
+            //   onClick={() => setActiveTab(tab.id)}
+            //   aria-current={activeTab === tab.id ? 'page' : undefined}
+            // >
+            //   <span className="settings-tab-icon" aria-hidden="true">{tab.icon}</span>
+            //   <span>{tab.label}</span>
+            // </button>
+
             <button
               key={tab.id}
               type="button"
               className={`settings-tab ${activeTab === tab.id ? 'settings-tab--active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
+              aria-label={tab.label}
               aria-current={activeTab === tab.id ? 'page' : undefined}
+              title={tab.label}
             >
               <span className="settings-tab-icon" aria-hidden="true">{tab.icon}</span>
-              <span>{tab.label}</span>
+              <span className="settings-tab-label">{tab.label}</span>
             </button>
+
           ))}
         </nav>
 

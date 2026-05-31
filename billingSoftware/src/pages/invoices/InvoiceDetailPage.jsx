@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/useInvoices';
-import DeleteConfirmModal from '@components/DeleteConfirmModal';
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
 import { ROUTES } from '@constants';
 import "@styles/InvoicesPage.css"
 import RecordPaymentModal from '@/components/payments/RecordPaymentModal';

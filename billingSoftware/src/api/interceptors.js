@@ -11,13 +11,6 @@ import { selectAccessToken, setCredentials, clearCredentials } from '@features/a
  * @param {import('@reduxjs/toolkit').EnhancedStore} store
  */
 export const setupInterceptors = (store) => {
-    // Lazy imports to avoid circular dep at module load time
-    // const getSelectors = () =>
-    //     import('@features/auth/authSlice').then((m) => ({
-    //         selectAccessToken: m.selectAccessToken,
-    //         setCredentials: m.setCredentials,
-    //         clearCredentials: m.clearCredentials,
-    //     }));
 
     // ── Request: inject access token ────────────────────────────────────────────
     api.interceptors.request.use(

@@ -8,14 +8,8 @@ import GSTBreakdownCard from '@components/dashboard/GSTBreakdownCard';
 import RecentInvoicesTable from '@components/dashboard/RecentInvoicesTable';
 import TopCustomersCard from '@components/dashboard/TopCustomersCard';
 import { ROUTES } from '@constants';
+import { fmt } from '@utils/index'
 import '@styles/DashboardPage.css';
-
-// ── Formatters ────────────────────────────────────────────────────────────────
-
-const INR = new Intl.NumberFormat('en-IN', {
-    style: 'currency', currency: 'INR', maximumFractionDigits: 0,
-});
-const fmt = (n) => INR.format(n ?? 0);
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 

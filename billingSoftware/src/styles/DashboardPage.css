@@ -4,7 +4,14 @@
 ───────────────────────────────────────────────────────────────────────────── */
 
 /* ── Page ─────────────────────────────────────────────────────────────────── */
-.dashboard-page { max-width: 1200px; }
+.dashboard-page {
+  max-width: 1200px;
+  /* FIX: prevent any child from causing horizontal scroll */
+  overflow-x: hidden;
+  /* FIX: ensure it never exceeds viewport width */
+  width: 100%;
+  box-sizing: border-box;
+}
 
 .dashboard-updated {
   color: var(--color-text-tertiary);
@@ -35,6 +42,9 @@
   align-items: flex-start;
   gap: var(--space-4);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  /* FIX: prevent card from overflowing its grid cell */
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .stat-card--clickable {
@@ -80,6 +90,10 @@
   font-family: var(--font-mono);
   letter-spacing: -0.02em;
   line-height: 1.2;
+  /* FIX: long rupee values must not overflow the card */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stat-card__sub {
@@ -125,12 +139,15 @@
   gap: var(--space-4);
   margin-bottom: var(--space-5);
   align-items: start;
+  /* FIX: never overflow its container */
+  min-width: 0;
 }
 
 .dashboard-charts__main {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-width: 0; /* FIX: allow flex child to shrink */
 }
 
 /* Range selector above chart */
@@ -138,6 +155,8 @@
   display: flex;
   gap: var(--space-1);
   align-self: flex-end;
+  /* FIX: wrap on very small screens instead of overflowing */
+  flex-wrap: wrap;
 }
 
 .dashboard-range-btn {
@@ -169,6 +188,9 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
+  /* FIX: cards must never exceed their grid column */
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .dashboard-card--full { /* used on recent invoices to span full width */ }
@@ -178,6 +200,9 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-4);
+  /* FIX: header contents must not push card wider */
+  min-width: 0;
+  gap: var(--space-2);
 }
 
 .dashboard-card__title {
@@ -185,6 +210,11 @@
   font-weight: 600;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
+  /* FIX: title shrinks, button stays visible */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dashboard-card__badge {
@@ -195,6 +225,8 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .dashboard-card__legend {
@@ -203,6 +235,7 @@
   gap: var(--space-2);
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
+  flex-shrink: 0;
 }
 
 .legend-dot {
@@ -214,7 +247,11 @@
 .legend-label { margin-right: var(--space-2); }
 
 /* ── Chart area ───────────────────────────────────────────────────────────── */
-.chart-wrap { width: 100%; }
+.chart-wrap {
+  width: 100%;
+  /* FIX: ResponsiveContainer needs a bounded parent to size correctly */
+  overflow: hidden;
+}
 
 .chart-skeleton {
   height: 240px;
@@ -288,6 +325,10 @@
   font-family: var(--font-mono);
   color: var(--color-text-primary);
   letter-spacing: -0.02em;
+  /* FIX: long rupee values must not overflow */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .gst-total__label {
   font-size: var(--text-xs);
@@ -303,13 +344,18 @@
   gap: var(--space-4);
 }
 
-.gst-donut { flex-shrink: 0; }
+.gst-donut {
+  flex-shrink: 0;
+  /* FIX: on mobile the donut container must not overflow */
+  overflow: hidden;
+}
 
 .gst-rows {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-width: 0; /* FIX: allow flex child to shrink */
 }
 
 .gst-row {
@@ -322,6 +368,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  min-width: 0; /* FIX */
 }
 .gst-row__dot {
   width: 8px;
@@ -340,12 +387,19 @@
   display: block;
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
+  /* FIX: long sublabel text should truncate, not push layout */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
 }
 .gst-row__val {
   font-size: var(--text-sm);
   font-weight: 600;
   font-family: var(--font-mono);
   color: var(--color-text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ── Bottom row ───────────────────────────────────────────────────────────── */
@@ -354,10 +408,18 @@
   grid-template-columns: 1fr 300px;
   gap: var(--space-4);
   align-items: start;
+  /* FIX: never overflow its container */
+  min-width: 0;
 }
 
 /* ── Recent invoices table ────────────────────────────────────────────────── */
-.recent-table-wrap { overflow-x: auto; }
+.recent-table-wrap {
+  overflow-x: auto;
+  /* FIX: smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* FIX: constrain to card width, not page width */
+  max-width: 100%;
+}
 
 .recent-table {
   width: 100%;
@@ -462,6 +524,10 @@
   font-weight: 500;
   color: var(--color-text-primary);
   min-width: 0;
+  /* FIX: long names must truncate, not push layout */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .top-customer-row__right {
@@ -475,6 +541,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .top-customer-row__count {
@@ -513,12 +580,24 @@
   .stat-card__value {
     font-size: var(--text-lg);
   }
+
+  /* FIX: hide Date, Due columns to prevent table overflow on mid-mobile */
   .recent-table th:nth-child(3),
   .recent-table td:nth-child(3),
   .recent-table th:nth-child(4),
   .recent-table td:nth-child(4) {
     display: none;
   }
+
+  /* FIX: tighten card padding on mobile */
+  .dashboard-card {
+    padding: var(--space-4);
+  }
+  .stat-card {
+    padding: var(--space-4);
+  }
+
+  /* FIX: GST donut goes below total instead of beside rows */
   .gst-layout {
     flex-direction: column;
     align-items: flex-start;
@@ -528,5 +607,33 @@
 @media (max-width: 480px) {
   .dashboard-stats {
     grid-template-columns: 1fr;
+  }
+
+  /* FIX: on smallest screens also hide Status column — only # / Customer / Amount remain */
+  .recent-table th:nth-child(5),
+  .recent-table td:nth-child(5) {
+    display: none;
+  }
+
+  /* FIX: tighten customer column further */
+  .recent-table__customer {
+    max-width: 120px;
+  }
+
+  /* FIX: reduce stat card icon size to give value more room */
+  .stat-card__icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* FIX: stat value fits comfortably at base font size */
+  .stat-card__value {
+    font-size: var(--text-base);
+  }
+
+  /* FIX: range buttons must stay within card width */
+  .dashboard-range-selector {
+    align-self: stretch;
+    justify-content: flex-end;
   }
 }
