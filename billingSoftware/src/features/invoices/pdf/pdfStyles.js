@@ -6,20 +6,20 @@ import { StyleSheet, Font } from '@react-pdf/renderer';
 
 // ── Shared tokens ─────────────────────────────────────────────────────────────
 const TOKEN = {
-  black:       '#1a1a1a',
-  darkGray:    '#333333',
-  midGray:     '#555555',
-  lightGray:   '#888888',
+  black: '#1a1a1a',
+  darkGray: '#333333',
+  midGray: '#555555',
+  lightGray: '#888888',
   borderLight: '#dddddd',
-  borderMid:   '#bbbbbb',
-  bgSubtle:    '#f5f5f5',
-  bgHeader:    '#f0f0f0',
-  white:       '#ffffff',
+  borderMid: '#bbbbbb',
+  bgSubtle: '#f5f5f5',
+  bgHeader: '#f0f0f0',
+  white: '#ffffff',
 
   // Modern template accent
-  accent:      '#1a5276',
+  accent: '#1a5276',
   accentLight: '#d6e4f0',
-  accentMid:   '#2e86c1',
+  accentMid: '#2e86c1',
 };
 
 // ── Classic template (mirrors your Word screenshot) ───────────────────────────
@@ -28,18 +28,53 @@ export const classicStyles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontSize: 9,
     color: TOKEN.black,
-    paddingTop: 30,
+    // paddingTop: 30,
+    paddingTop: 95,      // ← was 30; increased to clear the fixed header
     paddingBottom: 40,
     paddingHorizontal: 36,
     backgroundColor: TOKEN.white,
   },
 
-  // Header
-  headerRow: {
+  // Add this new style:
+  headerFixed: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingTop: 30,
+    paddingHorizontal: 36,
+    backgroundColor: TOKEN.white,
+  },
+
+  // row 1
+  headerRow1: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 4,
+    fontWeight: 'bold'
+  },
+
+  contactLine: {
+    fontSize: 8,
+    color: TOKEN.midGray,
+    // textAlign: 'right',
+    // textAlign: 'center',
+    // marginTop: 1,
+  },
+
+  //row 2
+  // Header
+  // headerRow: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   alignItems: 'flex-start',
+  //   marginBottom: 4,
+  // },
+  headerRow: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 3,
+    marginBottom: 3,
   },
   logoBox: {
     width: 70,
@@ -50,10 +85,14 @@ export const classicStyles = StyleSheet.create({
     height: 70,
     objectFit: 'contain',
   },
+  // headerRight: {
+  //   alignItems: 'flex-end',
+  //   flex: 1,
+  //   paddingLeft: 8,
+  // },
   headerRight: {
-    alignItems: 'flex-end',
-    flex: 1,
-    paddingLeft: 8,
+    alignItems: 'center',
+    paddingLeft: 0,
   },
   businessName: {
     fontSize: 16,
@@ -71,18 +110,21 @@ export const classicStyles = StyleSheet.create({
   businessAddress: {
     fontSize: 8,
     color: TOKEN.midGray,
-    textAlign: 'right',
+    // textAlign: 'right',
+    textAlign: 'center',
   },
-  contactLine: {
-    fontSize: 8,
-    color: TOKEN.midGray,
-    textAlign: 'right',
-    marginTop: 1,
-  },
+  // contactLine: {
+  //   fontSize: 8,
+  //   color: TOKEN.midGray,
+  //   textAlign: 'right',
+  //   // textAlign: 'center',
+  //   marginTop: 1,
+  // },
   gstinLine: {
     fontSize: 8,
     color: TOKEN.darkGray,
-    textAlign: 'right',
+    // textAlign: 'right',
+    textAlign: 'center',
     marginTop: 2,
     fontFamily: 'Helvetica-Bold',
   },
@@ -159,10 +201,13 @@ export const classicStyles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: TOKEN.bgHeader,
+    // backgroundColor: TOKEN.bgHeader,
+    backgroundColor: '#e8e8e8',  // darker so it's actually visible
     borderTopWidth: 0.5,
+    borderTopColor: '#bbbbbb',      // ← separate instead of borderColor
     borderBottomWidth: 0.5,
-    borderColor: TOKEN.borderMid,
+    borderBottomColor: '#bbbbbb',   // ← separate instead of borderColor
+    // borderColor: TOKEN.borderMid,
     paddingVertical: 4,
   },
   tableRow: {
@@ -182,24 +227,32 @@ export const classicStyles = StyleSheet.create({
   },
 
   // Column widths — must sum to 100%
-  colSn:     { width: '5%',  paddingHorizontal: 2 },
-  colDesc:   { width: '28%', paddingHorizontal: 2 },
-  colHsn:    { width: '10%', paddingHorizontal: 2 },
-  colQty:    { width: '7%',  paddingHorizontal: 2 },
-  colUnit:   { width: '6%',  paddingHorizontal: 2 },
-  colRate:   { width: '9%',  paddingHorizontal: 2 },
-  colTaxable:{ width: '10%', paddingHorizontal: 2 },
-  colGst:    { width: '6%',  paddingHorizontal: 2 },
-  colCgst:   { width: '7%',  paddingHorizontal: 2 },
-  colSgst:   { width: '7%',  paddingHorizontal: 2 },
-  colIgst:   { width: '7%',  paddingHorizontal: 2 },
-  colTotal:  { width: '9%',  paddingHorizontal: 2 },
+  colSn: { width: '5%', paddingHorizontal: 2 },
+  colDesc: { width: '28%', paddingHorizontal: 2 },
+  colHsn: { width: '10%', paddingHorizontal: 2 },
+  colQty: { width: '7%', paddingHorizontal: 2 },
+  colUnit: { width: '6%', paddingHorizontal: 2 },
+  colRate: { width: '9%', paddingHorizontal: 2 },
+  colTaxable: { width: '10%', paddingHorizontal: 2 },
+  colGst: { width: '6%', paddingHorizontal: 2 },
+  colCgst: { width: '7%', paddingHorizontal: 2 },
+  colSgst: { width: '7%', paddingHorizontal: 2 },
+  colIgst: { width: '7%', paddingHorizontal: 2 },
+  colTotal: { width: '9%', paddingHorizontal: 2 },
 
   // IGST-only column widths (fewer columns — redistribute space)
-  colDescIgst:   { width: '30%', paddingHorizontal: 2 },
-  colTaxableIgst:{ width: '12%', paddingHorizontal: 2 },
-  colIgstOnly:   { width: '10%', paddingHorizontal: 2 },
-  colTotalIgst:  { width: '11%', paddingHorizontal: 2 },
+  colDescIgst: { width: '30%', paddingHorizontal: 2 },
+  colTaxableIgst: { width: '12%', paddingHorizontal: 2 },
+  colIgstOnly: { width: '10%', paddingHorizontal: 2 },
+  colTotalIgst: { width: '11%', paddingHorizontal: 2 },
+
+  // No-GST column widths (6 columns = 100%, no HSN)
+  colSnNoGst: { width: '5%', paddingHorizontal: 2 },
+  colDescNoGst: { width: '49%', paddingHorizontal: 2 },
+  colQtyNoGst: { width: '10%', paddingHorizontal: 2 },
+  colUnitNoGst: { width: '10%', paddingLeft: 6, paddingRight: 2 },
+  colRateNoGst: { width: '13%', paddingHorizontal: 2 },
+  colTotalNoGst: { width: '13%', paddingHorizontal: 2 },
 
   cellText: {
     fontSize: 8,
@@ -214,6 +267,11 @@ export const classicStyles = StyleSheet.create({
     fontSize: 8,
     color: TOKEN.darkGray,
     textAlign: 'right',
+  },
+  cellTextCenter: {
+    fontSize: 8,
+    color: TOKEN.darkGray,
+    textAlign: 'center',
   },
   cellTextRightBold: {
     fontSize: 8,
@@ -231,6 +289,12 @@ export const classicStyles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
     color: TOKEN.darkGray,
     textAlign: 'right',
+  },
+  headerCellCenter: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    color: TOKEN.darkGray,
+    textAlign: 'center',
   },
 
   // Totals block
@@ -542,23 +606,23 @@ export const modernStyles = StyleSheet.create({
     minHeight: 20,
   },
 
-  colSn:     { width: '5%',  paddingHorizontal: 2 },
-  colDesc:   { width: '28%', paddingHorizontal: 2 },
-  colHsn:    { width: '10%', paddingHorizontal: 2 },
-  colQty:    { width: '7%',  paddingHorizontal: 2 },
-  colUnit:   { width: '6%',  paddingHorizontal: 2 },
-  colRate:   { width: '9%',  paddingHorizontal: 2 },
-  colTaxable:{ width: '10%', paddingHorizontal: 2 },
-  colGst:    { width: '6%',  paddingHorizontal: 2 },
-  colCgst:   { width: '7%',  paddingHorizontal: 2 },
-  colSgst:   { width: '7%',  paddingHorizontal: 2 },
-  colIgst:   { width: '7%',  paddingHorizontal: 2 },
-  colTotal:  { width: '9%',  paddingHorizontal: 2 },
+  colSn: { width: '5%', paddingHorizontal: 2 },
+  colDesc: { width: '28%', paddingHorizontal: 2 },
+  colHsn: { width: '10%', paddingHorizontal: 2 },
+  colQty: { width: '7%', paddingHorizontal: 2 },
+  colUnit: { width: '6%', paddingHorizontal: 2 },
+  colRate: { width: '9%', paddingHorizontal: 2 },
+  colTaxable: { width: '10%', paddingHorizontal: 2 },
+  colGst: { width: '6%', paddingHorizontal: 2 },
+  colCgst: { width: '7%', paddingHorizontal: 2 },
+  colSgst: { width: '7%', paddingHorizontal: 2 },
+  colIgst: { width: '7%', paddingHorizontal: 2 },
+  colTotal: { width: '9%', paddingHorizontal: 2 },
 
-  colDescIgst:   { width: '30%', paddingHorizontal: 2 },
-  colTaxableIgst:{ width: '12%', paddingHorizontal: 2 },
-  colIgstOnly:   { width: '10%', paddingHorizontal: 2 },
-  colTotalIgst:  { width: '11%', paddingHorizontal: 2 },
+  colDescIgst: { width: '30%', paddingHorizontal: 2 },
+  colTaxableIgst: { width: '12%', paddingHorizontal: 2 },
+  colIgstOnly: { width: '10%', paddingHorizontal: 2 },
+  colTotalIgst: { width: '11%', paddingHorizontal: 2 },
 
   headerCellText: {
     fontSize: 8,

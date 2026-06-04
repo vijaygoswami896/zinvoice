@@ -92,15 +92,16 @@ export const amountInWords = (amount) => {
  * Each non-empty part becomes its own line in the PDF.
  */
 export const formatAddressLines = (address) => {
+
   if (!address) return [];
   const { line1, line2, city, state, pincode, country } = address;
   const lines = [];
   if (line1) lines.push(line1);
   if (line2) lines.push(line2);
-  const cityState = [city, state].filter(Boolean).join(', ');
-  if (cityState) lines.push(cityState);
-  const pinCountry = [pincode, country].filter(Boolean).join(' - ');
-  if (pinCountry) lines.push(pinCountry);
+  // const cityState = [city, state].filter(Boolean).join(', ');
+  // if (cityState) lines.push(cityState);
+  // const pinCountry = [pincode, country].filter(Boolean).join(' - ');
+  // if (pinCountry) lines.push(pinCountry);
   return lines;
 };
 
@@ -118,7 +119,7 @@ export const buildFileUrl = (relativePath) => {
   if (!relativePath) return null;
   // If it's already an absolute URL, return as-is
   if (relativePath.startsWith('http')) return relativePath;
-  const base = import.meta.env.VITE_API_BASE_URL ?? '';
+  const base = import.meta.env.VITE_API_STATIC_URL ?? '';
   return `${base}${relativePath}`;
 };
 

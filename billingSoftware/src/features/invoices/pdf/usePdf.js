@@ -1,48 +1,53 @@
 import { useState, useCallback } from 'react';
 import { pdf } from '@react-pdf/renderer';
-import InvoicePDF from './InvoicePDF';
 
 /**
  * usePdf
  *
- * Generates and optionally downloads an invoice PDF entirely in the browser.
- * No backend call. No Puppeteer. Works on free Render.
+ * Accepts a pre-created React-PDF document element and generates a Blob.
+ * No JSX here — JSX stays in the caller (.jsx files).
+ *
+ * Usage in a .jsx file:
+ *   import { createElement } from 'react';
+ *   import InvoicePDF from './InvoicePDF';
+ *
+ *   const { generating, error, generatePdf } = usePdf();
+ *
+ *   // pass the document element, not JSX — this file is plain .js
+ *   await generatePdf({
+ *     document: createElement(InvoicePDF, { invoice, settings }),
+ *     fileName: `Invoice-${invoice.invoiceNumber}.pdf`,
+ *     mode: 'download',   // 'download' | 'preview'
+ *   });
  *
  * Returns:
- *   generating  — boolean, true while the blob is being built
+ *   generating  — boolean
  *   error       — Error | null
- *   generatePdf — async fn({ invoice, settings, mode })
- *                   mode: 'download' (default) | 'preview'
- *                   returns the Blob so the caller can open it in a modal if needed
+ *   generatePdf — async fn({ document, fileName, mode }) → Blob | null
  */
 const usePdf = () => {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
 
-  const generatePdf = useCallback(async ({ invoice, settings, mode = 'download' }) => {
+  const generatePdf = useCallback(async ({ document: docElement, fileName = 'invoice.pdf', mode = 'download' }) => {
     setGenerating(true);
     setError(null);
 
     try {
-      // Build the PDF blob in-browser
-      const blob = await pdf(
-        <InvoicePDF invoice={invoice} settings={settings} />
-      ).toBlob();
+      const blob = await pdf(docElement).toBlob();
 
       if (mode === 'download') {
-        // Trigger a browser download
         const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = window.document.createElement('a');
         link.href = url;
-        link.download = `Invoice-${invoice?.invoiceNumber ?? 'draft'}.pdf`;
-        document.body.appendChild(link);
+        link.download = fileName;
+        window.document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
-        // Give the browser a moment before revoking
+        window.document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(url), 10_000);
       }
 
-      return blob; // caller can use this for preview (objectURL in a modal)
+      return blob;
     } catch (err) {
       console.error('[usePdf] PDF generation failed:', err);
       setError(err);

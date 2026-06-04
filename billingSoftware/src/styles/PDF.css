@@ -1,0 +1,303 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   pdf.css
+   Covers: InvoiceActions, PdfPreviewModal, TemplatePickerSection
+
+   Import this in InvoiceActions.jsx (or your page-level CSS):
+     import '@features/invoices/pdf/pdf.css';
+
+   NOTE: .btn, .btn-primary, .btn-secondary, .btn-ghost are assumed to already
+   exist in your components.css from Phase 4. Only add them here if they don't.
+
+   NOTE: .settings-section, .settings-section-title, .settings-section-desc
+   are assumed to already exist in your SettingsPage.css from Phase 5.
+   Only add them here if they don't.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Invoice actions bar ─────────────────────────────────────────────────── */
+
+.invoice-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.invoice-actions a {
+  /* PDFDownloadLink renders an <a> — strip its underline */
+  text-decoration: none;
+}
+
+/* ── Modal shell ─────────────────────────────────────────────────────────── */
+/*
+   These are generic modal classes. If your project already has a modal system
+   (e.g. from DeleteConfirmModal in Phase 6), replace these with your existing
+   class names inside PdfPreviewModal.jsx instead of duplicating CSS.
+*/
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.modal-container {
+  background: var(--surface-color, #ffffff);
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(100vh - 32px);
+  width: 100%;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin: 0;
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── PDF preview modal (extends .modal-container) ───────────────────────── */
+
+.pdf-preview-modal {
+  width: 90vw;
+  max-width: 920px;
+  height: 90vh;
+}
+
+.pdf-preview-body {
+  flex: 1;
+  min-height: 0;          /* critical — lets the iframe fill remaining height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle, #f3f4f6);
+}
+
+.pdf-preview-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.pdf-preview-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted, #6b7280);
+  font-size: 14px;
+}
+
+.pdf-preview-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted, #6b7280);
+  font-size: 14px;
+  text-align: center;
+  padding: 24px;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────────────────── */
+
+.loader-spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border-color, #e5e7eb);
+  border-top-color: var(--primary-color, #1a5276);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Template picker ─────────────────────────────────────────────────────── */
+
+.template-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.template-picker-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px;
+  border: 1.5px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  background: var(--surface-color, #ffffff);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.template-picker-card:hover:not(:disabled) {
+  border-color: var(--primary-color, #1a5276);
+}
+
+.template-picker-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.template-picker-card--active {
+  border-color: var(--primary-color, #1a5276);
+  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.12);
+}
+
+.template-picker-preview {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.template-picker-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+}
+
+.template-picker-desc {
+  font-size: 12px;
+  color: var(--text-muted, #6b7280);
+  line-height: 1.5;
+}
+
+.template-picker-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--primary-color, #1a5276);
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Settings section helpers (add only if not already in SettingsPage.css) ─ */
+/*
+   Uncomment these if your SettingsPage doesn't already define them:
+
+.settings-section {
+  margin-bottom: 32px;
+}
+.settings-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin: 0 0 4px;
+}
+.settings-section-desc {
+  font-size: 13px;
+  color: var(--text-muted, #6b7280);
+  margin: 0 0 12px;
+}
+*/
+
+.settings-saving-hint {
+  font-size: 12px;
+  color: var(--text-muted, #6b7280);
+  margin-top: 8px;
+}
+
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  margin-top: 16px;
+}
+.settings-toggle-label { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+.settings-toggle-desc  { font-size: 12px; color: var(--text-muted, #6b7280); margin: 0; }
+
+.toggle-btn {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  border: none;
+  background: var(--border-color, #d1d5db);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-btn--on { background: var(--primary-color, #1a5276); }
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  display: block;
+}
+.toggle-btn--on .toggle-thumb { transform: translateX(20px); }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .pdf-preview-modal {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .template-picker-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .invoice-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .invoice-actions .btn,
+  .invoice-actions a {
+    width: 100%;
+    text-align: center;
+  }
+}

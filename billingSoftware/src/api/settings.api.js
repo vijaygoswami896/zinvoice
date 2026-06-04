@@ -5,7 +5,10 @@ const unwrap = (r) => r.data.data;
 export const settingsApi = {
   /** GET /settings — fetch current settings */
   getSettings: () =>
-    api.get('/settings').then(unwrap),
+    api.get('/settings').then((tempData) => {
+      console.log("tmpData==> ", tempData);
+      return tempData
+    }).then(unwrap),
 
   /** PUT /settings — update settings (JSON body) */
   updateSettings: (payload) =>

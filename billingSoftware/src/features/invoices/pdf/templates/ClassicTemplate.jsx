@@ -1,75 +1,83 @@
 import React from 'react';
-import {
-  Page, View, Text, Image, Document,
-} from '@react-pdf/renderer';
-import { classicStyles as S } from './pdfStyles';
+import { Page, View, Text, Image, Document } from '@react-pdf/renderer';
+
+import { classicStyles as S } from '../pdfStyles';
 import {
   fmtCurrency, fmtNum, fmtDate,
   amountInWords, formatAddressLines,
   buildFileUrl, supplyTypeLabel,
-} from './pdfUtils';
+} from '../pdfUtils';
 
 // ── Shared sub-components ─────────────────────────────────────────────────────
 
-const Divider      = () => <View style={S.divider} />;
-const ThinDivider  = () => <View style={S.thinDivider} />;
+const Divider = () => <View style={S.divider} />;
+const ThinDivider = () => <View style={S.thinDivider} />;
 
 // ── Table header — switches between CGST/SGST and IGST column sets ────────────
-const TableHeader = ({ isIGST }) => (
+const TableHeader = ({ isIGST, showGst }) => (
   <View style={S.tableHeader}>
-    <View style={S.colSn}>
+    <View style={showGst ? S.colSn : S.colSnNoGst}>
       <Text style={S.headerCellText}>S.N.</Text>
     </View>
-    <View style={isIGST ? S.colDescIgst : S.colDesc}>
+    <View style={showGst ? (isIGST ? S.colDescIgst : S.colDesc) : S.colDescNoGst}>
       <Text style={S.headerCellText}>Description</Text>
     </View>
-    <View style={S.colHsn}>
-      <Text style={S.headerCellText}>HSN/SAC</Text>
-    </View>
-    <View style={S.colQty}>
-      <Text style={S.headerCellRight}>Qty.</Text>
-    </View>
-    <View style={S.colUnit}>
-      <Text style={S.headerCellText}>Unit</Text>
-    </View>
-    <View style={S.colRate}>
-      <Text style={S.headerCellRight}>Rate (₹)</Text>
-    </View>
-    <View style={isIGST ? S.colTaxableIgst : S.colTaxable}>
-      <Text style={S.headerCellRight}>Taxable</Text>
-    </View>
-    <View style={S.colGst}>
-      <Text style={S.headerCellRight}>GST%</Text>
-    </View>
-    {isIGST ? (
-      <View style={S.colIgstOnly}>
-        <Text style={S.headerCellRight}>IGST (₹)</Text>
-      </View>
-    ) : (
+
+    {showGst && (
       <>
-        <View style={S.colCgst}>
-          <Text style={S.headerCellRight}>CGST (₹)</Text>
-        </View>
-        <View style={S.colSgst}>
-          <Text style={S.headerCellRight}>SGST (₹)</Text>
+        <View style={S.colHsn}>
+          <Text style={S.headerCellText}>HSN/SAC</Text>
         </View>
       </>
     )}
-    <View style={isIGST ? S.colTotalIgst : S.colTotal}>
-      <Text style={S.headerCellRight}>Total (₹)</Text>
+
+    <View style={showGst ? S.colQty : S.colQtyNoGst}>
+      <Text style={S.headerCellRight}>Qty.</Text>
     </View>
+    <View style={showGst ? S.colUnit : S.colUnitNoGst}>
+      <Text style={S.headerCellCenter}>Unit</Text>
+    </View>
+    <View style={showGst ? S.colRate : S.colRateNoGst}>
+      <Text style={S.headerCellRight}>Rate (₹)</Text>
+    </View>
+    <View style={showGst ? (isIGST ? S.colTaxableIgst : S.colTaxable) : S.colTotalNoGst}>
+      {/* <Text style={S.headerCellRight}> Taxable</Text> */}
+      <Text style={S.headerCellRight}> {showGst ? 'Taxable' : 'Total'}</Text>
+    </View>
+
+    {showGst && (
+      <>
+        <View style={S.colGst}>
+          <Text style={S.headerCellRight}>GST%</Text>
+        </View>
+
+        {/* <View style={S.colGst}><Text style={S.headerCellRight}>GST%</Text></View> */}
+        {isIGST ? (
+          <View style={S.colIgstOnly}><Text style={S.headerCellRight}>IGST (₹)</Text></View>
+        ) : (
+          <>
+            <View style={S.colCgst}><Text style={S.headerCellRight}>CGST (₹)</Text></View>
+            <View style={S.colSgst}><Text style={S.headerCellRight}>SGST (₹)</Text></View>
+          </>
+        )}
+        <View style={isIGST ? S.colTotalIgst : S.colTotal}>
+          <Text style={S.headerCellRight}>Total (₹)</Text>
+        </View>
+      </>
+    )}
+
   </View>
 );
 
 // ── Single line item row ──────────────────────────────────────────────────────
-const LineRow = ({ item, index, isIGST }) => {
+const LineRow = ({ item, index, isIGST, showGst }) => {
   const rowStyle = index % 2 === 0 ? S.tableRow : S.tableRowAlt;
   return (
     <View style={rowStyle} wrap={false}>
-      <View style={S.colSn}>
+      <View style={showGst ? S.colSn : S.colSnNoGst}>
         <Text style={S.cellText}>{index + 1}.</Text>
       </View>
-      <View style={isIGST ? S.colDescIgst : S.colDesc}>
+      <View style={!showGst ? S.colDescNoGst : isIGST ? S.colDescIgst : S.colDesc}>
         <Text style={S.cellTextBold}>{item.name || ''}</Text>
         {!!item.description && (
           <Text style={[S.cellText, { fontSize: 7, marginTop: 1 }]}>
@@ -77,49 +85,117 @@ const LineRow = ({ item, index, isIGST }) => {
           </Text>
         )}
       </View>
-      <View style={S.colHsn}>
-        <Text style={S.cellText}>{item.hsnSacCode || '-'}</Text>
-      </View>
-      <View style={S.colQty}>
-        <Text style={S.cellTextRight}>{fmtNum(item.quantity)}</Text>
-      </View>
-      <View style={S.colUnit}>
-        <Text style={S.cellText}>{item.unit || 'PCS'}</Text>
-      </View>
-      <View style={S.colRate}>
-        <Text style={S.cellTextRight}>{fmtNum(item.rate)}</Text>
-      </View>
-      <View style={isIGST ? S.colTaxableIgst : S.colTaxable}>
-        <Text style={S.cellTextRight}>{fmtNum(item.taxableAmount)}</Text>
-      </View>
-      <View style={S.colGst}>
-        <Text style={S.cellTextRight}>{item.gstRate}%</Text>
-      </View>
-      {isIGST ? (
-        <View style={S.colIgstOnly}>
-          <Text style={S.cellTextRight}>{fmtNum(item.igst)}</Text>
-        </View>
-      ) : (
+
+      {showGst && (
         <>
-          <View style={S.colCgst}>
-            <Text style={S.cellTextRight}>{fmtNum(item.cgst)}</Text>
-          </View>
-          <View style={S.colSgst}>
-            <Text style={S.cellTextRight}>{fmtNum(item.sgst)}</Text>
+          <View style={S.colHsn}>
+            <Text style={S.cellText}>{item.hsnSacCode || '-'}</Text>
           </View>
         </>
       )}
-      <View style={isIGST ? S.colTotalIgst : S.colTotal}>
-        <Text style={S.cellTextRightBold}>{fmtNum(item.lineTotal)}</Text>
+
+      <View style={showGst ? S.colQty : S.colQtyNoGst}>
+        <Text style={S.cellTextRight}>{fmtNum(item.quantity)}</Text>
       </View>
+      <View style={showGst ? S.colUnit : S.colUnitNoGst}>
+        <Text style={S.cellTextCenter}>{item.unit || 'PCS'}</Text>
+      </View>
+      <View style={showGst ? S.colRate : S.colRateNoGst}>
+        <Text style={S.cellTextRight}>{fmtNum(item.rate)}</Text>
+      </View>
+      <View style={!showGst ? S.colTotalNoGst : isIGST ? S.colTaxableIgst : S.colTaxable}>
+        <Text style={S.cellTextRight}>{fmtNum(item.taxableAmount)}</Text>
+      </View>
+
+      {showGst && (
+        <>
+          <View style={S.colGst}>
+            <Text style={S.cellTextRight}>{item.gstRate}%</Text>
+          </View>
+          {isIGST ? (
+            <View style={S.colIgstOnly}>
+              <Text style={S.cellTextRight}>{fmtNum(item.igst)}</Text>
+            </View>
+          ) : (
+            <>
+              <View style={S.colCgst}>
+                <Text style={S.cellTextRight}>{fmtNum(item.cgst)}</Text>
+              </View>
+              <View style={S.colSgst}>
+                <Text style={S.cellTextRight}>{fmtNum(item.sgst)}</Text>
+              </View>
+            </>
+          )}
+          <View style={isIGST ? S.colTotalIgst : S.colTotal}>
+            <Text style={S.cellTextRightBold}>{fmtNum(item.lineTotal)}</Text>
+          </View>
+        </>
+      )}
     </View>
+
+    // <View style={rowStyle} wrap={false}>
+    //   <View style={S.colSn}>
+    //     <Text style={S.cellText}>{index + 1}.</Text>
+    //   </View>
+    //   <View style={isIGST ? S.colDescIgst : S.colDesc}>
+    //     <Text style={S.cellTextBold}>{item.name || ''}</Text>
+    //     {!!item.description && (
+    //       <Text style={[S.cellText, { fontSize: 7, marginTop: 1 }]}>
+    //         {item.description}
+    //       </Text>
+    //     )}
+    //   </View>
+    //   <View style={S.colHsn}>
+    //     <Text style={S.cellText}>{item.hsnSacCode || '-'}</Text>
+    //   </View>
+    //   <View style={S.colQty}>
+    //     <Text style={S.cellTextRight}>{fmtNum(item.quantity)}</Text>
+    //   </View>
+    //   <View style={S.colUnit}>
+    //     <Text style={S.cellText}>{item.unit || 'PCS'}</Text>
+    //   </View>
+    //   <View style={S.colRate}>
+    //     <Text style={S.cellTextRight}>{fmtNum(item.rate)}</Text>
+    //   </View>
+    //   <View style={isIGST ? S.colTaxableIgst : S.colTaxable}>
+    //     <Text style={S.cellTextRight}>{fmtNum(item.taxableAmount)}</Text>
+    //   </View>
+
+    //   {showGst && (
+    //     <>
+
+    //       <View style={S.colGst}>
+    //         <Text style={S.cellTextRight}>{item.gstRate}%</Text>
+    //       </View>
+    //       {isIGST ? (
+    //         <View style={S.colIgstOnly}>
+    //           <Text style={S.cellTextRight}>{fmtNum(item.igst)}</Text>
+    //         </View>
+    //       ) : (
+    //         <>
+    //           <View style={S.colCgst}>
+    //             <Text style={S.cellTextRight}>{fmtNum(item.cgst)}</Text>
+    //           </View>
+    //           <View style={S.colSgst}>
+    //             <Text style={S.cellTextRight}>{fmtNum(item.sgst)}</Text>
+    //           </View>
+    //         </>
+    //       )}
+    //       <View style={isIGST ? S.colTotalIgst : S.colTotal}>
+    //         <Text style={S.cellTextRightBold}>{fmtNum(item.lineTotal)}</Text>
+    //       </View>
+    //     </>
+    //   )}
+
+    // </View>
   );
 };
 
 // ── Totals block ──────────────────────────────────────────────────────────────
-const TotalsBlock = ({ invoice }) => {
+const TotalsBlock = ({ invoice, showGst }) => {
   const { subtotal, totalCgst, totalSgst, totalIgst, totalTax, grandTotal, isIGST } = invoice;
   return (
+    showGst &&
     <View style={S.totalsSection}>
       <View style={S.totalsTable}>
         <View style={S.totalsRow}>
@@ -218,22 +294,43 @@ const Footer = ({ settings }) => {
 // ── Main document ─────────────────────────────────────────────────────────────
 const ClassicTemplate = ({ invoice, settings }) => {
   const logoUrl = buildFileUrl(settings?.logo?.url);
+  // const showGst = settings?.showGstBreakdown ?? false;
+  const showGst = false;
   const addressLines = formatAddressLines(invoice?.billingAddress);
   const addr = settings?.address ?? {};
+  // const sellerAddressParts = [addr.line1, addr.line2]
+  //   .filter(Boolean).join(', ');
   const sellerAddressParts = [addr.line1, addr.line2, addr.city, addr.state, addr.pincode]
     .filter(Boolean).join(', ');
+
+  const showDueDate = false;
 
   return (
     <Document>
       <Page size="A4" style={S.page}>
 
+        {/* Normal header — page 1 only, in flow */}
+        {/* <View style={S.headerFixed} fixed> */}
+        {/* Header Row 1 */}
+        <View style={S.headerRow1} >
+          {settings?.email && (
+            <Text style={S.contactLine}>Email : {settings.email}</Text>
+          )}
+
+          {settings?.phone && (
+            <Text style={S.contactLine}>Mobile : {settings.phone}</Text>
+          )}
+        </View>
+
         {/* ── Header ── */}
         <View style={S.headerRow}>
-          {logoUrl ? (
+          {/* {logoUrl ? (
             <Image style={S.logo} src={logoUrl} />
           ) : (
             <View style={S.logoBox} />
-          )}
+          )} */}
+
+
           <View style={S.headerRight}>
             <Text style={S.businessName}>{settings?.businessName ?? ''}</Text>
             {settings?.legalName && settings.legalName !== settings.businessName && (
@@ -243,12 +340,12 @@ const ClassicTemplate = ({ invoice, settings }) => {
             {sellerAddressParts ? (
               <Text style={S.businessAddress}>{sellerAddressParts}</Text>
             ) : null}
-            {settings?.phone && (
+            {/* {settings?.phone && (
               <Text style={S.contactLine}>Mobile : {settings.phone}</Text>
-            )}
-            {settings?.email && (
+            )} */}
+            {/* {settings?.email && (
               <Text style={S.contactLine}>{settings.email}</Text>
-            )}
+            )} */}
             {settings?.gstin && (
               <Text style={S.gstinLine}>GSTIN: {settings.gstin}</Text>
             )}
@@ -256,6 +353,8 @@ const ClassicTemplate = ({ invoice, settings }) => {
         </View>
 
         <Divider />
+        {/* </View> */}
+
 
         {/* ── Bill title ── */}
         <Text style={S.billTitle}>Labour + Material Bill</Text>
@@ -282,14 +381,19 @@ const ClassicTemplate = ({ invoice, settings }) => {
             <Text style={S.invoiceNumberLine}>
               Invoice # {invoice?.invoiceNumber ?? ''}
             </Text>
-            {invoice?.dueDate && (
+            {showDueDate &&
+              invoice?.dueDate && (
+                <Text style={S.invoiceNumberLine}>
+                  Due : {fmtDate(invoice.dueDate)}
+                </Text>
+              )
+            }
+
+            {showGst &&
               <Text style={S.invoiceNumberLine}>
-                Due : {fmtDate(invoice.dueDate)}
+                Supply : {supplyTypeLabel(invoice?.isIGST)}
               </Text>
-            )}
-            <Text style={S.invoiceNumberLine}>
-              Supply : {supplyTypeLabel(invoice?.isIGST)}
-            </Text>
+            }
           </View>
         </View>
 
@@ -297,13 +401,52 @@ const ClassicTemplate = ({ invoice, settings }) => {
 
         {/* ── Line items table ── */}
         <View style={S.table}>
-          <TableHeader isIGST={invoice?.isIGST} />
+          <TableHeader isIGST={invoice?.isIGST} showGst={showGst} />
           {(invoice?.items ?? []).map((item, i) => (
-            <LineRow key={item._id ?? i} item={item} index={i} isIGST={invoice?.isIGST} />
+            <LineRow key={item._id ?? i} item={item} index={i} isIGST={invoice?.isIGST} showGst={showGst} />
           ))}
 
           {/* Table footer — total row */}
           <View style={[S.tableRow, { backgroundColor: '#efefef' }]}>
+            <View style={showGst ? S.colSn : S.colSnNoGst}><Text style={S.cellText} /></View>
+            <View style={!showGst ? S.colDescNoGst : invoice?.isIGST ? S.colDescIgst : S.colDesc}>
+              <Text style={S.cellTextBold}>Total</Text>
+            </View>
+
+            {showGst &&
+              <View style={S.colHsn}><Text /></View>
+            }
+
+            <View style={showGst ? S.colQty : S.colQtyNoGst}><Text /></View>
+            <View style={showGst ? S.colUnit : S.colUnitNoGst}><Text /></View>
+            <View style={showGst ? S.colRate : S.colRateNoGst}><Text /></View>
+            <View style={!showGst ? S.colTotalNoGst : invoice?.isIGST ? S.colTaxableIgst : S.colTaxable}>
+              <Text style={S.cellTextRightBold}>{fmtNum(invoice?.subtotal)}</Text>
+            </View>
+
+            {showGst && <>
+              <View style={S.colGst}><Text /></View>
+              {invoice?.isIGST ? (
+                <View style={S.colIgstOnly}>
+                  <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalIgst)}</Text>
+                </View>
+              ) : (
+                <>
+                  <View style={S.colCgst}>
+                    <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalCgst)}</Text>
+                  </View>
+                  <View style={S.colSgst}>
+                    <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalSgst)}</Text>
+                  </View>
+                </>
+              )}
+              <View style={invoice?.isIGST ? S.colTotalIgst : S.colTotal}>
+                <Text style={S.cellTextRightBold}>{fmtNum(invoice?.grandTotal)}</Text>
+              </View>
+            </>}
+          </View>
+
+          {/* <View style={[S.tableRow, { backgroundColor: '#efefef' }]}>
             <View style={S.colSn}><Text style={S.cellText} /></View>
             <View style={invoice?.isIGST ? S.colDescIgst : S.colDesc}>
               <Text style={S.cellTextBold}>Total</Text>
@@ -315,29 +458,34 @@ const ClassicTemplate = ({ invoice, settings }) => {
             <View style={invoice?.isIGST ? S.colTaxableIgst : S.colTaxable}>
               <Text style={S.cellTextRightBold}>{fmtNum(invoice?.subtotal)}</Text>
             </View>
-            <View style={S.colGst}><Text /></View>
-            {invoice?.isIGST ? (
-              <View style={S.colIgstOnly}>
-                <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalIgst)}</Text>
+
+            {showGst && <>
+              <View style={S.colGst}><Text /></View>
+              {invoice?.isIGST ? (
+                <View style={S.colIgstOnly}>
+                  <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalIgst)}</Text>
+                </View>
+              ) : (
+                <>
+                  <View style={S.colCgst}>
+                    <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalCgst)}</Text>
+                  </View>
+                  <View style={S.colSgst}>
+                    <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalSgst)}</Text>
+                  </View>
+                </>
+              )}
+
+              <View style={invoice?.isIGST ? S.colTotalIgst : S.colTotal}>
+                <Text style={S.cellTextRightBold}>{fmtNum(invoice?.grandTotal)}</Text>
               </View>
-            ) : (
-              <>
-                <View style={S.colCgst}>
-                  <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalCgst)}</Text>
-                </View>
-                <View style={S.colSgst}>
-                  <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalSgst)}</Text>
-                </View>
-              </>
-            )}
-            <View style={invoice?.isIGST ? S.colTotalIgst : S.colTotal}>
-              <Text style={S.cellTextRightBold}>{fmtNum(invoice?.grandTotal)}</Text>
-            </View>
-          </View>
+            </>}
+
+          </View> */}
         </View>
 
         {/* ── Totals summary ── */}
-        <TotalsBlock invoice={invoice} />
+        <TotalsBlock invoice={invoice} showGst={showGst} />
 
         {/* ── Amount in words ── */}
         <Text style={S.amountWords}>

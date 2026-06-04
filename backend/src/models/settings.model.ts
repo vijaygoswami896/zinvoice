@@ -52,6 +52,8 @@ interface ISettings extends Document {
   signature?: IUploadedFile | null;
   createdAt: Date;
   updatedAt: Date;
+  invoiceTemplate?: 'classic' | 'modern';
+  showGstBreakdown?: boolean;
 }
 
 // ── Sub-schemas ───────────────────────────────────────────────────────────────
@@ -122,6 +124,15 @@ const settingsSchema = new Schema<ISettings>(
 
     logo: { type: uploadedFileSchema, default: null },
     signature: { type: uploadedFileSchema, default: null },
+    invoiceTemplate: {
+      type: String,
+      enum: {
+        values: ['classic', 'modern'],
+        message: 'Invoice template must be classic or modern',
+      },
+      default: 'classic',
+    },
+    showGstBreakdown: { type: Boolean, default: true },
   },
   {
     timestamps: true,

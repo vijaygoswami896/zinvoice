@@ -104,7 +104,10 @@ export const SettingsFormSchema = z.object({
     .max(10, 'Max 10 characters')
     .regex(/^[A-Z0-9-]+$/, 'Only letters, numbers and hyphens')
     .default('INV'),
+
   invoiceNotes: optStr(1000, 'Max 1000 characters'),
   invoiceTerms: optStr(2000, 'Max 2000 characters'),
   defaultDueDays: z.coerce.number().int().min(0).max(365).default(30),
+  invoiceTemplate: z.enum(['classic', 'modern']).default('classic'),
+  showGstBreakdown: z.boolean().default(true),
 });

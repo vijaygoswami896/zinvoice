@@ -1,63 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, createElement } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import InvoicePDF from './pdf/InvoicePDF';
-import PdfPreviewModal from './pdf/PdfPreviewModal';
-import { useSettings } from '@features/settings/useSettings';
+import InvoicePDF from '../pdf/InvoicePDF';
+import usePdf from '../pdf/usePdf';
+import { useSettings } from '@hooks/useSettings';
+import PageLoader from '@/components/common/PageLoader';
+// import '@styles/PDF.css'
 
 /**
  * InvoiceActions
  *
- * Renders the Download and Preview buttons on InvoiceDetailPage.
- * All PDF work happens in the browser — no /api/pdf calls.
+ * Two buttons:
+ *   1. Download PDF  — uses PDFDownloadLink (react-pdf built-in, zero extra state)
+ *   2. Open in Tab   — generates blob, creates object URL, opens new tab
  *
  * Props:
  *   invoice — full invoice object
  */
+const OpenInTabButton = ({ invoice, settings }) => {
+  // console.log('OpenInTabButton==> ', invoice);
+  const { generating, generatePdf } = usePdf();
+  const [opened, setOpened] = useState(false);
+
+  const handleOpen = async () => {
+    const blob = await generatePdf({
+      document: createElement(InvoicePDF, { invoice, settings }),
+      fileName: `Invoice-${invoice?.invoiceNumber ?? 'draft'}.pdf`,
+      mode: 'preview',
+    });
+
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setOpened(true);
+      // Revoke after 2 min — enough time for the tab to load
+      setTimeout(() => URL.revokeObjectURL(url), 120_000);
+    }
+  };
+
+  return (
+    <button
+      className="btn btn-secondary"
+      onClick={handleOpen}
+      disabled={generating}
+      title="Open invoice PDF in a new tab"
+    >
+      {generating ? 'Generating…' : opened ? 'Open Again' : 'Preview PDF'}
+    </button>
+  );
+};
+
 const InvoiceActions = ({ invoice }) => {
-  const { data: settings } = useSettings();
-  const [showPreview, setShowPreview] = useState(false);
+  const { data: settingsData, isFetching } = useSettings();
+  console.log('settingsData==> ', settingsData);
+
+  if (isFetching) {
+    return <PageLoader />
+  }
+
+  const { settings } = settingsData;
+  // console.log('settings==> ', settings);
 
   if (!invoice || !settings) return null;
 
   const fileName = `Invoice-${invoice.invoiceNumber ?? 'draft'}.pdf`;
-  const document  = <InvoicePDF invoice={invoice} settings={settings} />;
+  const docElement = createElement(InvoicePDF, { invoice, settings });
+
 
   return (
-    <>
-      <div className="invoice-actions">
+    <div className="invoice-actions">
 
-        {/* ── Download button (react-pdf built-in link) ── */}
-        <PDFDownloadLink document={document} fileName={fileName}>
-          {({ loading }) => (
-            <button
-              className="btn btn-primary"
-              disabled={loading}
-              title="Download invoice as PDF"
-            >
-              {loading ? 'Preparing…' : 'Download PDF'}
-            </button>
-          )}
-        </PDFDownloadLink>
+      {/* Download — react-pdf handles the blob internally */}
+      <PDFDownloadLink document={docElement} fileName={fileName}>
+        {({ loading }) => (
+          <button
+            className="btn btn-primary"
+            disabled={loading}
+            title="Download invoice as PDF"
+          >
+            {loading ? 'Preparing…' : 'Download PDF'}
+          </button>
+        )}
+      </PDFDownloadLink>
 
-        {/* ── Preview button ── */}
-        <button
-          className="btn btn-secondary"
-          onClick={() => setShowPreview(true)}
-          title="Preview invoice PDF"
-        >
-          Preview PDF
-        </button>
-      </div>
+      {/* Open in new tab */}
+      <OpenInTabButton invoice={invoice} settings={settings} />
 
-      {/* ── Preview modal ── */}
-      {showPreview && (
-        <PdfPreviewModal
-          invoice={invoice}
-          settings={settings}
-          onClose={() => setShowPreview(false)}
-        />
-      )}
-    </>
+    </div>
   );
 };
 

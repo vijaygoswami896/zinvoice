@@ -6,6 +6,7 @@ import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
 import { ROUTES } from '@constants';
 import "@styles/InvoicesPage.css"
 import RecordPaymentModal from '@/components/payments/RecordPaymentModal';
+import InvoiceActions from '@/features/invoices/pdf/InvoiceActions';
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -135,6 +136,8 @@ const InvoiceDetailPage = () => {
         </div>
 
         <div className="inv-detail__topbar-actions">
+
+          <InvoiceActions invoice={invoice} />
 
           <button className="btn btn-primary btn-sm" onClick={() => setPaymentOpen(true)}>
             Record payment

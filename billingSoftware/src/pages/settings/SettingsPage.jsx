@@ -14,6 +14,7 @@ import { SettingsFormSchema } from '@schemas/settings.schema.client';
 import ImageUpload from '@components/settings/ImageUpload';
 import { INDIAN_STATES } from '@/constants';
 import '@styles/SettingsPage.css';
+import TemplatePickerSection from '@/features/settings/TemplatePickerSection';
 
 // ── Section tab config ────────────────────────────────────────────────────────
 
@@ -425,6 +426,8 @@ const SettingsPage = () => {
                   <span className="settings-prefix-preview">-2026-0001</span>
                 </div>
               </Field>
+
+              <TemplatePickerSection />
 
               <Field label="Default payment due (days)" error={errors.defaultDueDays}>
                 <input

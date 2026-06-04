@@ -1,5 +1,6 @@
-import React from 'react';
-import { useSettings, useUpdateSettings } from '@features/settings/useSettings';
+import { useSettings, useUpdateSettings } from '@hooks/useSettings';
+import '@styles/PDF.css'
+
 
 /**
  * TemplatePickerSection
@@ -35,6 +36,10 @@ const TemplatePickerSection = () => {
     updateSettings({ invoiceTemplate: key });
   };
 
+  const handleToggleGst = () => {
+    updateSettings({ showGstBreakdown: !settings?.showGstBreakdown });
+  };
+
   return (
     <div className="settings-section">
       <h3 className="settings-section-title">Invoice Template</h3>
@@ -65,6 +70,25 @@ const TemplatePickerSection = () => {
             </button>
           );
         })}
+
+        <div className="settings-toggle-row">
+          <div>
+            <p className="settings-toggle-label">Show GST Breakdown</p>
+            <p className="settings-toggle-desc">
+              Display CGST / SGST / IGST columns on invoice PDF
+            </p>
+          </div>
+          <button
+            className={`toggle-btn ${settings?.showGstBreakdown ? 'toggle-btn--on' : ''}`}
+            onClick={handleToggleGst}
+            disabled={isPending}
+            type="button"
+            role="switch"
+            aria-checked={settings?.showGstBreakdown}
+          >
+            <span className="toggle-thumb" />
+          </button>
+        </div>
       </div>
 
       {isPending && (

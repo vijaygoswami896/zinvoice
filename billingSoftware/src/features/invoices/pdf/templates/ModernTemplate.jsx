@@ -2,12 +2,13 @@ import React from 'react';
 import {
   Page, View, Text, Image, Document,
 } from '@react-pdf/renderer';
-import { modernStyles as S } from './pdfStyles';
+
+import { modernStyles as S } from '../pdfStyles';
 import {
   fmtCurrency, fmtNum, fmtDate,
   amountInWords, formatAddressLines,
   buildFileUrl, supplyTypeLabel,
-} from './pdfUtils';
+} from '../pdfUtils';
 
 // ── Table header ──────────────────────────────────────────────────────────────
 const TableHeader = ({ isIGST }) => (

@@ -1,39 +1,48 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createElement } from 'react';
 import usePdf from './usePdf';
+import InvoicePDF from './InvoicePDF';
 
 /**
  * PdfPreviewModal
  *
- * Opens an <iframe> preview of the generated PDF blob.
- * No backend. The blob URL lives only for the duration the modal is open.
- *
  * Props:
  *   invoice   — invoice object
  *   settings  — settings object from useSettings()
- *   onClose   — fn() called when the modal should close
+ *   onClose   — fn() called when modal should close
  */
 const PdfPreviewModal = ({ invoice, settings, onClose }) => {
   const { generating, error, generatePdf } = usePdf();
   const [blobUrl, setBlobUrl] = useState(null);
 
+  // Build the document element once — no JSX needed in usePdf
+  const getDocElement = useCallback(
+    () => createElement(InvoicePDF, { invoice, settings }),
+    [invoice, settings],
+  );
+
   const generate = useCallback(async () => {
-    const blob = await generatePdf({ invoice, settings, mode: 'preview' });
-    if (blob) {
-      setBlobUrl(URL.createObjectURL(blob));
-    }
-  }, [invoice, settings, generatePdf]);
+    const blob = await generatePdf({
+      document: getDocElement(),
+      fileName: `Invoice-${invoice?.invoiceNumber ?? 'draft'}.pdf`,
+      mode: 'preview',
+    });
+    if (blob) setBlobUrl(URL.createObjectURL(blob));
+  }, [generatePdf, getDocElement, invoice?.invoiceNumber]);
 
   useEffect(() => {
     generate();
     return () => {
-      // Clean up blob URL when modal unmounts
       if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDownload = async () => {
-    await generatePdf({ invoice, settings, mode: 'download' });
+    await generatePdf({
+      document: getDocElement(),
+      fileName: `Invoice-${invoice?.invoiceNumber ?? 'draft'}.pdf`,
+      mode: 'download',
+    });
   };
 
   return (
@@ -65,7 +74,6 @@ const PdfPreviewModal = ({ invoice, settings, onClose }) => {
               <p>Generating PDF…</p>
             </div>
           )}
-
           {error && (
             <div className="pdf-preview-error">
               <p>Failed to generate PDF. Please try again.</p>
@@ -74,7 +82,6 @@ const PdfPreviewModal = ({ invoice, settings, onClose }) => {
               </button>
             </div>
           )}
-
           {blobUrl && (
             <iframe
               src={blobUrl}
