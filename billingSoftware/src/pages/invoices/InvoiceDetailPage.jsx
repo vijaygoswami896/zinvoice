@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/useInvoices';
@@ -75,6 +75,10 @@ const InvoiceDetailPage = () => {
   const deleteMutation = useDeleteInvoice();
 
   usePageTitle(invoice?.invoiceNumber ?? 'Invoice', 'Invoices');
+
+  useEffect(() => {
+    console.log('paymentOpen==> ', paymentOpen);
+  }, [paymentOpen])
 
   if (isLoading) {
     return (
