@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/useInvoices';
@@ -137,7 +137,10 @@ const InvoiceDetailPage = () => {
 
         <div className="inv-detail__topbar-actions">
 
-          <InvoiceActions invoice={invoice} />
+          {/* <InvoiceActions invoice={invoice} /> */}
+          <Suspense fallback={<span className="spinner spinner-sm" />}>
+            <InvoiceActions invoice={invoice} />
+          </Suspense>
 
           <button className="btn btn-primary btn-sm" onClick={() => setPaymentOpen(true)}>
             Record payment

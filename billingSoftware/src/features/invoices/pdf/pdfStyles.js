@@ -1,4 +1,8 @@
 import { StyleSheet, Font } from '@react-pdf/renderer';
+import RobotoRegular from '@assets/fonts/Roboto-Regular.ttf';
+import RobotoBold from '@assets/fonts/Roboto-Bold.ttf';
+import RobotoItalic from '@assets/fonts/Roboto-Italic.ttf';
+import RobotoBoldItalic from '@assets/fonts/Roboto-BoldItalic.ttf';
 
 // ── Font registration ─────────────────────────────────────────────────────────
 // Using built-in Helvetica — no external font fetch needed.
@@ -22,26 +26,28 @@ const TOKEN = {
   accentMid: '#2e86c1',
 };
 
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    { src: RobotoRegular, fontWeight: 'normal', fontStyle: 'normal' },
+    { src: RobotoBold, fontWeight: 'bold', fontStyle: 'normal' },
+    { src: RobotoItalic, fontWeight: 'normal', fontStyle: 'italic' },
+    { src: RobotoBoldItalic, fontWeight: 'bold', fontStyle: 'italic' },
+  ],
+});
+
 // ── Classic template (mirrors your Word screenshot) ───────────────────────────
 export const classicStyles = StyleSheet.create({
   page: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Roboto',
     fontSize: 9,
     color: TOKEN.black,
-    // paddingTop: 30,
-    paddingTop: 95,      // ← was 30; increased to clear the fixed header
-    paddingBottom: 40,
-    paddingHorizontal: 36,
-    backgroundColor: TOKEN.white,
-  },
-
-  // Add this new style:
-  headerFixed: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
     paddingTop: 30,
+    // paddingTop: 20,
+    // paddingTop: 95,      // ← was 30; increased to clear the fixed header
+    paddingBottom: 50,
+    // paddingBottom: 30,
+    // paddingHorizontal: 25,
     paddingHorizontal: 36,
     backgroundColor: TOKEN.white,
   },
@@ -62,14 +68,6 @@ export const classicStyles = StyleSheet.create({
     // marginTop: 1,
   },
 
-  //row 2
-  // Header
-  // headerRow: {
-  //   flexDirection: 'row',
-  //   justifyContent: 'space-between',
-  //   alignItems: 'flex-start',
-  //   marginBottom: 4,
-  // },
   headerRow: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -85,18 +83,14 @@ export const classicStyles = StyleSheet.create({
     height: 70,
     objectFit: 'contain',
   },
-  // headerRight: {
-  //   alignItems: 'flex-end',
-  //   flex: 1,
-  //   paddingLeft: 8,
-  // },
   headerRight: {
     alignItems: 'center',
     paddingLeft: 0,
   },
   businessName: {
     fontSize: 16,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: '#1a3a6b',
     marginBottom: 2,
   },
@@ -126,7 +120,9 @@ export const classicStyles = StyleSheet.create({
     // textAlign: 'right',
     textAlign: 'center',
     marginTop: 2,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
   },
 
   // Divider
@@ -144,7 +140,9 @@ export const classicStyles = StyleSheet.create({
   // Bill title
   billTitle: {
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     textAlign: 'center',
     textDecoration: 'underline',
     marginBottom: 6,
@@ -167,7 +165,9 @@ export const classicStyles = StyleSheet.create({
   },
   customerName: {
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.black,
   },
   customerSub: {
@@ -201,14 +201,16 @@ export const classicStyles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: 'row',
-    // backgroundColor: TOKEN.bgHeader,
-    backgroundColor: '#e8e8e8',  // darker so it's actually visible
+    backgroundColor: TOKEN.bgHeader,
+    // backgroundColor: '#e8e8e8',  // darker so it's actually visible
     borderTopWidth: 0.5,
     borderTopColor: '#bbbbbb',      // ← separate instead of borderColor
     borderBottomWidth: 0.5,
     borderBottomColor: '#bbbbbb',   // ← separate instead of borderColor
     // borderColor: TOKEN.borderMid,
     paddingVertical: 4,
+    minHeight: 20,        // ← add this
+    alignItems: 'center',    // ← add this
   },
   tableRow: {
     flexDirection: 'row',
@@ -216,6 +218,7 @@ export const classicStyles = StyleSheet.create({
     borderBottomColor: TOKEN.borderLight,
     paddingVertical: 3,
     minHeight: 18,
+    alignItems: 'center',    // ← add this
   },
   tableRowAlt: {
     flexDirection: 'row',
@@ -224,6 +227,7 @@ export const classicStyles = StyleSheet.create({
     paddingVertical: 3,
     backgroundColor: TOKEN.bgSubtle,
     minHeight: 18,
+    alignItems: 'center',    // ← add this
   },
 
   // Column widths — must sum to 100%
@@ -260,7 +264,9 @@ export const classicStyles = StyleSheet.create({
   },
   cellTextBold: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.black,
   },
   cellTextRight: {
@@ -275,25 +281,36 @@ export const classicStyles = StyleSheet.create({
   },
   cellTextRightBold: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.black,
     textAlign: 'right',
   },
   headerCellText: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: TOKEN.darkGray,
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
+    // color: TOKEN.darkGray,
+    color: '#1a1a1a',    // was TOKEN.darkGray — make it black
   },
   headerCellRight: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: TOKEN.darkGray,
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
+    // color: TOKEN.darkGray,
+    color: '#1a1a1a',    // was TOKEN.darkGray — make it black
     textAlign: 'right',
   },
   headerCellCenter: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: TOKEN.darkGray,
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
+    // color: TOKEN.darkGray,
+    color: '#1a1a1a',    // was TOKEN.darkGray — make it black
     textAlign: 'center',
   },
 
@@ -332,12 +349,16 @@ export const classicStyles = StyleSheet.create({
   },
   totalsLabelBold: {
     fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.black,
   },
   totalsValueBold: {
     fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.black,
     textAlign: 'right',
   },
@@ -347,20 +368,36 @@ export const classicStyles = StyleSheet.create({
     marginTop: 6,
     fontSize: 8,
     color: TOKEN.darkGray,
+    fontFamily: 'Roboto',
     fontStyle: 'italic',
   },
   amountWordsBold: {
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     fontStyle: 'normal',
   },
 
   // Notes / Terms
   notesSection: {
-    marginTop: 8,
+    marginTop: 16,
+    borderTopWidth: 0.5,
+    borderTopColor: TOKEN.borderLight,
+    paddingTop: 8,
+
+    // marginTop: 16,
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // alignItems: 'flex-end',
+    // borderTopWidth: 0.5,
+    // borderTopColor: TOKEN.borderLight,
+    // paddingTop: 8,
   },
   notesLabel: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.midGray,
     marginBottom: 2,
   },
@@ -384,7 +421,9 @@ export const classicStyles = StyleSheet.create({
   },
   bankLabel: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.midGray,
     marginBottom: 3,
   },
@@ -399,7 +438,9 @@ export const classicStyles = StyleSheet.create({
   },
   bankValue: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.darkGray,
   },
   signatureBlock: {
@@ -424,14 +465,25 @@ export const classicStyles = StyleSheet.create({
   },
   signatureNameBold: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
+    // fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
     color: TOKEN.black,
   },
+  // pageNumber: {
+  //   fontSize: 7,
+  //   color: TOKEN.lightGray,
+  //   textAlign: 'center',
+  //   marginTop: 6,
+  // },
   pageNumber: {
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
     fontSize: 7,
     color: TOKEN.lightGray,
     textAlign: 'center',
-    marginTop: 6,
   },
 });
 

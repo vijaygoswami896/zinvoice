@@ -8,7 +8,6 @@ import SettingsPage from '@pages/settings/SettingsPage';
 import CustomersPage from '@pages/customers/CustomersPage';
 import "@styles/components.css"
 
-
 // ── Lazy page imports ─────────────────────────────────────────────────────────
 
 // Auth

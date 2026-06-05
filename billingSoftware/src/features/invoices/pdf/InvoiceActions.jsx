@@ -53,8 +53,16 @@ const InvoiceActions = ({ invoice }) => {
   const { data: settingsData, isFetching } = useSettings();
   console.log('settingsData==> ', settingsData);
 
+  // if (isFetching) {
+  //   return <PageLoader />
+  // }
+
   if (isFetching) {
-    return <PageLoader />
+    return (
+      <div className="invoice-actions">
+        <button className="btn btn-primary" disabled>Preparing…</button>
+      </div>
+    );
   }
 
   const { settings } = settingsData;

@@ -15,7 +15,7 @@ const ThinDivider = () => <View style={S.thinDivider} />;
 
 // ── Table header — switches between CGST/SGST and IGST column sets ────────────
 const TableHeader = ({ isIGST, showGst }) => (
-  <View style={S.tableHeader}>
+  <View style={S.tableHeader} fixed>
     <View style={showGst ? S.colSn : S.colSnNoGst}>
       <Text style={S.headerCellText}>S.N.</Text>
     </View>
@@ -41,8 +41,7 @@ const TableHeader = ({ isIGST, showGst }) => (
       <Text style={S.headerCellRight}>Rate (₹)</Text>
     </View>
     <View style={showGst ? (isIGST ? S.colTaxableIgst : S.colTaxable) : S.colTotalNoGst}>
-      {/* <Text style={S.headerCellRight}> Taxable</Text> */}
-      <Text style={S.headerCellRight}> {showGst ? 'Taxable' : 'Total'}</Text>
+      <Text style={S.headerCellRight}> {showGst ? 'Taxable (₹)' : 'Total (₹)'}</Text>
     </View>
 
     {showGst && (
@@ -51,7 +50,6 @@ const TableHeader = ({ isIGST, showGst }) => (
           <Text style={S.headerCellRight}>GST%</Text>
         </View>
 
-        {/* <View style={S.colGst}><Text style={S.headerCellRight}>GST%</Text></View> */}
         {isIGST ? (
           <View style={S.colIgstOnly}><Text style={S.headerCellRight}>IGST (₹)</Text></View>
         ) : (
@@ -78,7 +76,7 @@ const LineRow = ({ item, index, isIGST, showGst }) => {
         <Text style={S.cellText}>{index + 1}.</Text>
       </View>
       <View style={!showGst ? S.colDescNoGst : isIGST ? S.colDescIgst : S.colDesc}>
-        <Text style={S.cellTextBold}>{item.name || ''}</Text>
+        <Text style={S.cellText}>{item.name || ''}</Text>
         {!!item.description && (
           <Text style={[S.cellText, { fontSize: 7, marginTop: 1 }]}>
             {item.description}
@@ -132,62 +130,6 @@ const LineRow = ({ item, index, isIGST, showGst }) => {
         </>
       )}
     </View>
-
-    // <View style={rowStyle} wrap={false}>
-    //   <View style={S.colSn}>
-    //     <Text style={S.cellText}>{index + 1}.</Text>
-    //   </View>
-    //   <View style={isIGST ? S.colDescIgst : S.colDesc}>
-    //     <Text style={S.cellTextBold}>{item.name || ''}</Text>
-    //     {!!item.description && (
-    //       <Text style={[S.cellText, { fontSize: 7, marginTop: 1 }]}>
-    //         {item.description}
-    //       </Text>
-    //     )}
-    //   </View>
-    //   <View style={S.colHsn}>
-    //     <Text style={S.cellText}>{item.hsnSacCode || '-'}</Text>
-    //   </View>
-    //   <View style={S.colQty}>
-    //     <Text style={S.cellTextRight}>{fmtNum(item.quantity)}</Text>
-    //   </View>
-    //   <View style={S.colUnit}>
-    //     <Text style={S.cellText}>{item.unit || 'PCS'}</Text>
-    //   </View>
-    //   <View style={S.colRate}>
-    //     <Text style={S.cellTextRight}>{fmtNum(item.rate)}</Text>
-    //   </View>
-    //   <View style={isIGST ? S.colTaxableIgst : S.colTaxable}>
-    //     <Text style={S.cellTextRight}>{fmtNum(item.taxableAmount)}</Text>
-    //   </View>
-
-    //   {showGst && (
-    //     <>
-
-    //       <View style={S.colGst}>
-    //         <Text style={S.cellTextRight}>{item.gstRate}%</Text>
-    //       </View>
-    //       {isIGST ? (
-    //         <View style={S.colIgstOnly}>
-    //           <Text style={S.cellTextRight}>{fmtNum(item.igst)}</Text>
-    //         </View>
-    //       ) : (
-    //         <>
-    //           <View style={S.colCgst}>
-    //             <Text style={S.cellTextRight}>{fmtNum(item.cgst)}</Text>
-    //           </View>
-    //           <View style={S.colSgst}>
-    //             <Text style={S.cellTextRight}>{fmtNum(item.sgst)}</Text>
-    //           </View>
-    //         </>
-    //       )}
-    //       <View style={isIGST ? S.colTotalIgst : S.colTotal}>
-    //         <Text style={S.cellTextRightBold}>{fmtNum(item.lineTotal)}</Text>
-    //       </View>
-    //     </>
-    //   )}
-
-    // </View>
   );
 };
 
@@ -294,8 +236,8 @@ const Footer = ({ settings }) => {
 // ── Main document ─────────────────────────────────────────────────────────────
 const ClassicTemplate = ({ invoice, settings }) => {
   const logoUrl = buildFileUrl(settings?.logo?.url);
-  // const showGst = settings?.showGstBreakdown ?? false;
-  const showGst = false;
+  const showGst = settings?.showGstBreakdown ?? false;
+  // const showGst = false;
   const addressLines = formatAddressLines(invoice?.billingAddress);
   const addr = settings?.address ?? {};
   // const sellerAddressParts = [addr.line1, addr.line2]
@@ -314,11 +256,11 @@ const ClassicTemplate = ({ invoice, settings }) => {
         {/* Header Row 1 */}
         <View style={S.headerRow1} >
           {settings?.email && (
-            <Text style={S.contactLine}>Email : {settings.email}</Text>
+            <Text style={S.contactLine}>Email: {settings.email}</Text>
           )}
 
           {settings?.phone && (
-            <Text style={S.contactLine}>Mobile : {settings.phone}</Text>
+            <Text style={S.contactLine}>Mobile: {settings.phone}</Text>
           )}
         </View>
 
@@ -355,10 +297,6 @@ const ClassicTemplate = ({ invoice, settings }) => {
         <Divider />
         {/* </View> */}
 
-
-        {/* ── Bill title ── */}
-        <Text style={S.billTitle}>Labour + Material Bill</Text>
-
         {/* ── To / Date row ── */}
         <View style={S.metaRow}>
           <View style={S.toBlock}>
@@ -371,7 +309,7 @@ const ClassicTemplate = ({ invoice, settings }) => {
               <Text key={i} style={S.customerSub}>{line}</Text>
             ))}
             {invoice?.customerPhone ? (
-              <Text style={S.customerSub}>Ph: {invoice.customerPhone}</Text>
+              <Text style={S.customerSub}>Mobile: {invoice.customerPhone}</Text>
             ) : null}
           </View>
           <View style={S.dateBlock}>
@@ -397,9 +335,13 @@ const ClassicTemplate = ({ invoice, settings }) => {
           </View>
         </View>
 
-        <ThinDivider />
+        {/* ── Bill title ── */}
+        <Text style={S.billTitle}>Labour + Material Bill</Text>
+
+        {/* <ThinDivider /> */}
 
         {/* ── Line items table ── */}
+        {/* <View style={S.table} minPresenceAhead={60}> */}
         <View style={S.table}>
           <TableHeader isIGST={invoice?.isIGST} showGst={showGst} />
           {(invoice?.items ?? []).map((item, i) => (
@@ -407,7 +349,7 @@ const ClassicTemplate = ({ invoice, settings }) => {
           ))}
 
           {/* Table footer — total row */}
-          <View style={[S.tableRow, { backgroundColor: '#efefef' }]}>
+          <View style={[S.tableRow, { backgroundColor: '#efefef', alignItems: 'center' }]}>
             <View style={showGst ? S.colSn : S.colSnNoGst}><Text style={S.cellText} /></View>
             <View style={!showGst ? S.colDescNoGst : invoice?.isIGST ? S.colDescIgst : S.colDesc}>
               <Text style={S.cellTextBold}>Total</Text>
@@ -446,75 +388,42 @@ const ClassicTemplate = ({ invoice, settings }) => {
             </>}
           </View>
 
-          {/* <View style={[S.tableRow, { backgroundColor: '#efefef' }]}>
-            <View style={S.colSn}><Text style={S.cellText} /></View>
-            <View style={invoice?.isIGST ? S.colDescIgst : S.colDesc}>
-              <Text style={S.cellTextBold}>Total</Text>
-            </View>
-            <View style={S.colHsn}><Text /></View>
-            <View style={S.colQty}><Text /></View>
-            <View style={S.colUnit}><Text /></View>
-            <View style={S.colRate}><Text /></View>
-            <View style={invoice?.isIGST ? S.colTaxableIgst : S.colTaxable}>
-              <Text style={S.cellTextRightBold}>{fmtNum(invoice?.subtotal)}</Text>
-            </View>
-
-            {showGst && <>
-              <View style={S.colGst}><Text /></View>
-              {invoice?.isIGST ? (
-                <View style={S.colIgstOnly}>
-                  <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalIgst)}</Text>
-                </View>
-              ) : (
-                <>
-                  <View style={S.colCgst}>
-                    <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalCgst)}</Text>
-                  </View>
-                  <View style={S.colSgst}>
-                    <Text style={S.cellTextRightBold}>{fmtNum(invoice?.totalSgst)}</Text>
-                  </View>
-                </>
-              )}
-
-              <View style={invoice?.isIGST ? S.colTotalIgst : S.colTotal}>
-                <Text style={S.cellTextRightBold}>{fmtNum(invoice?.grandTotal)}</Text>
-              </View>
-            </>}
-
-          </View> */}
         </View>
 
-        {/* ── Totals summary ── */}
-        <TotalsBlock invoice={invoice} showGst={showGst} />
+        <View wrap={false}>
+          {/* ── Totals summary ── */}
+          <TotalsBlock invoice={invoice} showGst={showGst} />
 
-        {/* ── Amount in words ── */}
-        <Text style={S.amountWords}>
-          Amount in words:{' '}
-          <Text style={S.amountWordsBold}>
-            {amountInWords(invoice?.grandTotal)}
+          {/* ── Amount in words ── */}
+          <Text style={S.amountWords}>
+            Amount in words:{' '}
+            <Text style={S.amountWordsBold}>
+              {amountInWords(invoice?.grandTotal)}
+            </Text>
           </Text>
-        </Text>
 
-        {/* ── Notes / Terms ── */}
-        {(invoice?.notes || settings?.invoiceNotes) && (
-          <View style={S.notesSection}>
-            <Text style={S.notesLabel}>Notes:</Text>
-            <Text style={S.notesText}>
-              {invoice?.notes || settings?.invoiceNotes}
-            </Text>
-          </View>
-        )}
-        {(invoice?.termsAndConditions || settings?.invoiceTerms) && (
-          <View style={S.notesSection}>
-            <Text style={S.notesLabel}>Terms &amp; Conditions:</Text>
-            <Text style={S.notesText}>
-              {invoice?.termsAndConditions || settings?.invoiceTerms}
-            </Text>
-          </View>
-        )}
+          {/* ── Notes / Terms ── */}
+          {(invoice?.notes || settings?.invoiceNotes) && (
+            <View style={S.notesSection}>
+              <Text style={S.notesLabel}>Notes:</Text>
+              <Text style={S.notesText}>
+                {invoice?.notes || settings?.invoiceNotes}
+              </Text>
+            </View>
+          )}
 
-        {/* ── Footer ── */}
-        <Footer settings={settings} />
+          {(invoice?.termsAndConditions || settings?.invoiceTerms) && (
+            <View style={S.notesSection}>
+              <Text style={S.notesLabel}>Terms &amp; Conditions:</Text>
+              <Text style={S.notesText}>
+                {invoice?.termsAndConditions || settings?.invoiceTerms}
+              </Text>
+            </View>
+          )}
+
+          {/* ── Footer ── */}
+          <Footer settings={settings} />
+        </View>
 
         {/* ── Page number ── */}
         <Text
