@@ -7,22 +7,31 @@ import { queryClient } from '@app/queryClient';
 import { setupInterceptors } from '@api/interceptors';
 import AuthInitialiser from '@components/auth/AuthInitialiser';
 import AppRoutes from '@routes/AppRoutes';
+// import { useEffect } from 'react';
 
 // Wire auth-aware Axios interceptors once the store exists
 setupInterceptors(store);
 
-const App = () => (
-  <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {/* Silently restores session from httpOnly cookie on page load */}
-        <AuthInitialiser />
-        <AppRoutes />
-      </BrowserRouter>
-      {/* {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />} */}
-    </QueryClientProvider>
-  </Provider>
-);
+const App = () => {
+
+  // useEffect(() => {
+  //   // Prefetch heavy react-pdf chunk after app shell loads
+  //   import('@/features/invoices/pdf/InvoiceActions');
+  // }, []);
+
+  return (
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          {/* Silently restores session from httpOnly cookie on page load */}
+          <AuthInitialiser />
+          <AppRoutes />
+        </BrowserRouter>
+        {/* {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />} */}
+      </QueryClientProvider>
+    </Provider>
+  )
+};
 
 export default App;
 

@@ -48,8 +48,8 @@ const EmptyState = ({ search, onClear }) => (
 // ── Pagination bar ────────────────────────────────────────────────────────────
 
 const Pagination = ({ meta, page, onPage }) => {
-    console.log("### META", meta)
-    console.log("### PAGE", page)
+    // console.log("### META", meta)
+    // console.log("### PAGE", page)
     // if (!meta || meta.totalPages <= 1) return null;
     return (
         <div className="ctable__pagination">

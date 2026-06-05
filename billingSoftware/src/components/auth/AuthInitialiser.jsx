@@ -28,7 +28,7 @@ const AuthInitialiser = () => {
     useEffect(() => {
         if (attempted.current) return;
         attempted.current = true;
-        console.log("trying to refresh.......");
+        // console.log("trying to refresh.......");
         const silentRefresh = async () => {
             try {
                 const { user, accessToken } = await refreshApi();

@@ -20,7 +20,7 @@ const authenticate = (req: Request, _res: Response, next: NextFunction): void =>
 
     try {
         const payload = verifyAccessToken(token);
-        console.log('payload: ', payload)
+        // console.log('payload: ', payload)
 
         req.user = {
             id: payload.sub,

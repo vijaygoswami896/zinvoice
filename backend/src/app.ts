@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import mongoSanitize from 'express-mongo-sanitize';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 
 import env from './config/env.js';
 import requestLogger from './middleware/requestLogger.js';
@@ -69,7 +70,7 @@ const createApp = () => {
 
     app.use('/api', apiLimiter);
     app.use('/api/v1', routes);
-    // app.use('/uploads', express.static(path.join(process.cwd(), 'storage/uploads')));
+    app.use('/uploads', express.static(path.join(process.cwd(), 'storage/uploads')));
 
     app.use(notFoundHandler);
     app.use(errorHandler);

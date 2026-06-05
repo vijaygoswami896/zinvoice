@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/useInvoices';
@@ -6,6 +6,7 @@ import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
 import { ROUTES } from '@constants';
 import "@styles/InvoicesPage.css"
 import RecordPaymentModal from '@/components/payments/RecordPaymentModal';
+import InvoiceActions from '@/features/invoices/pdf/InvoiceActions';
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -76,6 +77,10 @@ const InvoiceDetailPage = () => {
 
   usePageTitle(invoice?.invoiceNumber ?? 'Invoice', 'Invoices');
 
+  // useEffect(() => {
+  //   console.log('paymentOpen==> ', paymentOpen);
+  // }, [paymentOpen])
+
   if (isLoading) {
     return (
       <div className="invoices-page">
@@ -131,6 +136,11 @@ const InvoiceDetailPage = () => {
         </div>
 
         <div className="inv-detail__topbar-actions">
+
+          {/* <InvoiceActions invoice={invoice} /> */}
+          <Suspense fallback={<span className="spinner spinner-sm" />}>
+            <InvoiceActions invoice={invoice} />
+          </Suspense>
 
           <button className="btn btn-primary btn-sm" onClick={() => setPaymentOpen(true)}>
             Record payment

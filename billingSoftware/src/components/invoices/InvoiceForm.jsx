@@ -106,9 +106,9 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
     [watchedItems, applyIGST],
   );
 
-  useEffect(() => {
-    console.log('watchedItems==>', watchedItems)
-  }, [watchedItems])
+  // useEffect(() => {
+  //   console.log('watchedItems==>', watchedItems)
+  // }, [watchedItems])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="inv-form">

@@ -118,11 +118,6 @@ export const BusinessBaseSchema = z.object({
 export const BusinessSchema = BusinessBaseSchema.extend({
     legalName: z.string().trim().max(150).optional().or(z.literal('')),
     pan: panField,
-    // gstRegistrationType: z.enum(['regular', 'composition', 'unregistered']).default('unregistered'),
-    // gstRegistrationType: z.enum(['regular', 'composition', 'unregistered'], {
-    //     required_error: 'GST registration type is required',
-    //     invalid_type_error: 'Must be regular, composition, or unregistered',
-    // }),
     address: AddressSchema.optional(),
     bankDetails: BankDetailsSchema.optional(),
     invoicePrefix: z.string().trim().toUpperCase().min(1).max(10)
@@ -130,30 +125,8 @@ export const BusinessSchema = BusinessBaseSchema.extend({
     invoiceNotes: z.string().trim().max(1000).optional().or(z.literal('')),
     invoiceTerms: z.string().trim().max(2000).optional().or(z.literal('')),
     defaultDueDays: z.coerce.number().int().min(0).max(365).default(30).optional(),
+    tagLine: z.string().optional(),
 });
-
-// export const BusinessSchema = z.object({
-//     businessName: z.string().trim().min(2, 'At least 2 characters').max(150, 'Max 150 characters'),
-//     legalName: z.string().trim().max(150).optional().or(z.literal('')),
-//     businessEmail: emailField.optional().or(z.literal('')),
-//     businessPhone: indianMobileField,
-//     businessGstin: gstinField,
-//     pan: panField,
-//     gstRegistrationType: z
-//         .enum(['regular', 'composition', 'unregistered']),
-//     // .default('unregistered'),
-//     address: AddressSchema.optional(),
-//     bankDetails: BankDetailsSchema.optional(),
-//     invoicePrefix: z
-//         .string().trim().toUpperCase()
-//         .min(1).max(10)
-//         .regex(/^[A-Z0-9\-]+$/, 'Only letters, numbers and hyphens allowed')
-//         .default('INV')
-//         .optional(),
-//     invoiceNotes: z.string().trim().max(1000).optional().or(z.literal('')),
-//     invoiceTerms: z.string().trim().max(2000).optional().or(z.literal('')),
-//     defaultDueDays: z.coerce.number().int().min(0).max(365).default(30).optional(),
-// });
 
 export type AddressInput = z.infer<typeof AddressSchema>;
 export type BankDetailsInput = z.infer<typeof BankDetailsSchema>;

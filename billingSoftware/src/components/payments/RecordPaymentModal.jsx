@@ -1,9 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+
 import { RecordPaymentSchema, derivePaymentStatus } from '@schemas/payment.schema.client';
 import { PAYMENT_MODE_OPTIONS, REFERENCE_LABEL, PAYMENT_STATUS_BADGE, PAYMENT_STATUS_LABEL } from '@constants'
 import { useRecordPayment, useDeletePayment, useInvoicePayments } from '@hooks/usePayments';
+import { createPortal } from 'react-dom';
+import '@styles/PaymentsPage.css';
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -60,6 +63,8 @@ const PaymentProgress = ({ totalPaid, invoiceTotal }) => {
  * @param {Function} [props.onSuccess] - Called after a payment is recorded
  */
 const RecordPaymentModal = ({ isOpen, invoice, onClose, onSuccess }) => {
+  // console.log('RecordPaymentModal render, isOpen:', isOpen); // add this
+
   const firstInputRef = useRef(null);
 
   const recordMutation = useRecordPayment();
@@ -124,10 +129,14 @@ const RecordPaymentModal = ({ isOpen, invoice, onClose, onSuccess }) => {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (!historyLoading)
-      console.log("paymentData==>", paymentData)
-  }, [paymentData, historyLoading])
+  // useEffect(() => {
+  //   if (!historyLoading)
+  //     console.log("paymentData==>", paymentData)
+  // }, [paymentData, historyLoading])
+
+  // useEffect(() => {
+  //   console.log("invoice==>", invoice)
+  // }, [invoice])
 
   if (!isOpen) return null;
 

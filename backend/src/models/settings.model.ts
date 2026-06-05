@@ -1,23 +1,6 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 import { INDIAN_STATE_CODES, INDIAN_STATES } from '../constants/india.js';
 
-// const INDIAN_STATE_CODES: string[] = [
-//   '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
-//   '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-//   '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-//   '31', '32', '33', '34', '35', '36', '37', '38', '97', '99',
-// ];
-
-// const INDIAN_STATES: string[] = [
-//   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-//   'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
-//   'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
-//   'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
-//   'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
-//   'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
-//   'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
-// ];
-
 // ── Interfaces ────────────────────────────────────────────────────────────────
 
 interface IAddress {
@@ -51,6 +34,7 @@ interface ISettings extends Document {
   businessId: mongoose.Types.ObjectId;
   businessName: string;
   legalName?: string;
+  tagLine?: string;
   gstin?: string;
   pan?: string;
   registrationDate?: Date;
@@ -69,6 +53,8 @@ interface ISettings extends Document {
   signature?: IUploadedFile | null;
   createdAt: Date;
   updatedAt: Date;
+  invoiceTemplate?: 'classic' | 'modern';
+  showGstBreakdown?: boolean;
 }
 
 // ── Sub-schemas ───────────────────────────────────────────────────────────────
@@ -116,6 +102,7 @@ const settingsSchema = new Schema<ISettings>(
 
     businessName: { type: String, required: [true, 'Business name is required'], trim: true, minlength: [2, 'Business name must be at least 2 characters'], maxlength: [150, 'Business name must not exceed 150 characters'] },
     legalName: { type: String, trim: true, maxlength: [150, 'Legal name must not exceed 150 characters'] },
+    tagLine: { type: String, trim: true, maxlength: [150, 'Tag line must not exceed 150 characters'] },
 
     gstin: { type: String, trim: true, uppercase: true, match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GSTIN format (e.g. 27AAPFU0939F1ZV)'] },
     pan: { type: String, trim: true, uppercase: true, match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN format (e.g. AAPFU0939F)'] },
@@ -139,6 +126,15 @@ const settingsSchema = new Schema<ISettings>(
 
     logo: { type: uploadedFileSchema, default: null },
     signature: { type: uploadedFileSchema, default: null },
+    invoiceTemplate: {
+      type: String,
+      enum: {
+        values: ['classic', 'modern'],
+        message: 'Invoice template must be classic or modern',
+      },
+      default: 'classic',
+    },
+    showGstBreakdown: { type: Boolean, default: true },
   },
   {
     timestamps: true,
