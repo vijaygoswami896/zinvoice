@@ -58,9 +58,9 @@ const login = asyncHandler(async (req: Request, res: Response) => {
 
 const refreshToken = asyncHandler(async (req: Request, res: Response) => {
     const rawToken = getRefreshTokenFromCookie(req);
-    console.log('##############rawToken: ', rawToken);
+    // console.log('##############rawToken: ', rawToken);
     const { userAgent, ip } = getClientMeta(req);
-    console.log('##############userAgent,ip', userAgent, ip)
+    // console.log('##############userAgent,ip', userAgent, ip)
 
     const { accessToken, rawRefreshToken, user } = await authService.refresh({ rawToken, userAgent, ip });
 

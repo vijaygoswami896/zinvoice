@@ -14,7 +14,7 @@ export const paymentsApi = {
 
   /** GET /payments/invoice/:invoiceId — payments + summary for one invoice */
   getByInvoice: (invoiceId) => {
-    console.log('invoiceId==>', invoiceId);
+    // console.log('invoiceId==>', invoiceId);
     return api.get(`/payments/invoice/${invoiceId}`).then(unwrapOne);
   },
 

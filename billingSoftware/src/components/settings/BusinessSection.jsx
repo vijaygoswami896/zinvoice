@@ -1,6 +1,5 @@
 import { useFormContext } from 'react-hook-form';
 import { Field } from '@components/settings/Field';
-import { INDIAN_STATES } from '@/constants';
 
 const BusinessSection = () => {
     const { register, formState: { errors } } = useFormContext();
@@ -22,6 +21,11 @@ const BusinessSection = () => {
                 <Field label="Legal name" error={errors.legalName} hint="If different from display name">
                     <input type="text" className="form-input" placeholder="Acme Private Limited"
                         {...register('legalName')} />
+                </Field>
+
+                <Field label="Tag Line" error={errors.tagLine} hint="Type your tag line">
+                    <input type="text" className="form-input" placeholder="your business tag line"
+                        {...register('tagLine')} />
                 </Field>
 
                 <Field label="GSTIN" error={errors.gstin} hint="15-character GST Identification Number">

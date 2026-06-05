@@ -91,8 +91,8 @@ const SettingsPage = () => {
 
     if (settings) {
       // const { settings } = settings;
-      console.log("settings==>", settings);
-      console.log("settings.businessName==>", settings.businessName);
+      // console.log("settings==>", settings);
+      // console.log("settings.businessName==>", settings.businessName);
 
       // const { setting: { settings } } = yourData;
 

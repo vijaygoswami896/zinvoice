@@ -16,6 +16,7 @@ export const SettingsFormSchema = z.object({
     .min(2, 'At least 2 characters')
     .max(150, 'Max 150 characters'),
   legalName: optStr(150, 'Max 150 characters'),
+  tagLine: z.string().optional(),
   gstin: gstinField,
   pan: panField,
   gstRegistrationType: z.enum(['regular', 'composition', 'unregistered']).default('regular'),

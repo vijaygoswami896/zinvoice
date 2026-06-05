@@ -237,11 +237,8 @@ const Footer = ({ settings }) => {
 const ClassicTemplate = ({ invoice, settings }) => {
   const logoUrl = buildFileUrl(settings?.logo?.url);
   const showGst = settings?.showGstBreakdown ?? false;
-  // const showGst = false;
   const addressLines = formatAddressLines(invoice?.billingAddress);
   const addr = settings?.address ?? {};
-  // const sellerAddressParts = [addr.line1, addr.line2]
-  //   .filter(Boolean).join(', ');
   const sellerAddressParts = [addr.line1, addr.line2, addr.city, addr.state, addr.pincode]
     .filter(Boolean).join(', ');
 
@@ -251,8 +248,6 @@ const ClassicTemplate = ({ invoice, settings }) => {
     <Document>
       <Page size="A4" style={S.page}>
 
-        {/* Normal header — page 1 only, in flow */}
-        {/* <View style={S.headerFixed} fixed> */}
         {/* Header Row 1 */}
         <View style={S.headerRow1} >
           {settings?.email && (
@@ -278,7 +273,11 @@ const ClassicTemplate = ({ invoice, settings }) => {
             {settings?.legalName && settings.legalName !== settings.businessName && (
               <Text style={S.businessTagline}>{settings.legalName}</Text>
             )}
-            <Text style={S.businessTagline}>All Types of Electrical &amp; Cabling Works</Text>
+            {/* <Text style={S.businessTagline}>All Types of Electrical &amp; Cabling Works</Text> */}
+            {settings?.tagLine && (
+              <Text style={S.businessTagline}>{settings.tagLine}</Text>
+            )}
+
             {sellerAddressParts ? (
               <Text style={S.businessAddress}>{sellerAddressParts}</Text>
             ) : null}
@@ -336,7 +335,7 @@ const ClassicTemplate = ({ invoice, settings }) => {
         </View>
 
         {/* ── Bill title ── */}
-        <Text style={S.billTitle}>Labour + Material Bill</Text>
+        <Text style={S.billTitle}>{settings?.gstin ? 'Tax Invoice' : 'Invoice'}</Text>
 
         {/* <ThinDivider /> */}
 

@@ -77,9 +77,9 @@ const InvoiceDetailPage = () => {
 
   usePageTitle(invoice?.invoiceNumber ?? 'Invoice', 'Invoices');
 
-  useEffect(() => {
-    console.log('paymentOpen==> ', paymentOpen);
-  }, [paymentOpen])
+  // useEffect(() => {
+  //   console.log('paymentOpen==> ', paymentOpen);
+  // }, [paymentOpen])
 
   if (isLoading) {
     return (

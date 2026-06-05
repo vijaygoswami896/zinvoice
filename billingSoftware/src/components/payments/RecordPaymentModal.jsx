@@ -63,7 +63,7 @@ const PaymentProgress = ({ totalPaid, invoiceTotal }) => {
  * @param {Function} [props.onSuccess] - Called after a payment is recorded
  */
 const RecordPaymentModal = ({ isOpen, invoice, onClose, onSuccess }) => {
-  console.log('RecordPaymentModal render, isOpen:', isOpen); // add this
+  // console.log('RecordPaymentModal render, isOpen:', isOpen); // add this
 
   const firstInputRef = useRef(null);
 
@@ -129,14 +129,14 @@ const RecordPaymentModal = ({ isOpen, invoice, onClose, onSuccess }) => {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (!historyLoading)
-      console.log("paymentData==>", paymentData)
-  }, [paymentData, historyLoading])
+  // useEffect(() => {
+  //   if (!historyLoading)
+  //     console.log("paymentData==>", paymentData)
+  // }, [paymentData, historyLoading])
 
-  useEffect(() => {
-    console.log("invoice==>", invoice)
-  }, [invoice])
+  // useEffect(() => {
+  //   console.log("invoice==>", invoice)
+  // }, [invoice])
 
   if (!isOpen) return null;
 

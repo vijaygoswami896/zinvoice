@@ -51,7 +51,7 @@ const OpenInTabButton = ({ invoice, settings }) => {
 
 const InvoiceActions = ({ invoice }) => {
   const { data: settingsData, isFetching } = useSettings();
-  console.log('settingsData==> ', settingsData);
+  // console.log('settingsData==> ', settingsData);
 
   // if (isFetching) {
   //   return <PageLoader />

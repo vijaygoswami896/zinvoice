@@ -6,7 +6,7 @@ export const settingsApi = {
   /** GET /settings — fetch current settings */
   getSettings: () =>
     api.get('/settings').then((tempData) => {
-      console.log("tmpData==> ", tempData);
+      // console.log("tmpData==> ", tempData);
       return tempData
     }).then(unwrap),
 

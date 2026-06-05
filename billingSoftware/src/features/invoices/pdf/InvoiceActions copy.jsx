@@ -16,8 +16,8 @@ import { useSettings } from '@hooks/useSettings';
  */
 const InvoiceActions = ({ invoice }) => {
   const { data: settings } = useSettings();
-  console.log("settings: ", settings);
-  console.log("invoice: ", invoice);
+  // console.log("settings: ", settings);
+  // console.log("invoice: ", invoice);
 
   const [showPreview, setShowPreview] = useState(false);
 

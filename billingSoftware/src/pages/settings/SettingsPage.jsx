@@ -63,6 +63,7 @@ const SettingsPage = () => {
       reset({
         businessName: settings.businessName ?? '',
         legalName: settings.legalName ?? '',
+        tagLine: settings.tagLine ?? '',
         gstin: settings.gstin ?? '',
         pan: settings.pan ?? '',
         gstRegistrationType: settings.gstRegistrationType ?? 'regular',

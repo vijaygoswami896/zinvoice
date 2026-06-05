@@ -71,7 +71,8 @@ export const classicStyles = StyleSheet.create({
   headerRow: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: 3,
+    // marginTop: 3,
+    marginTop: 15,
     marginBottom: 3,
   },
   logoBox: {

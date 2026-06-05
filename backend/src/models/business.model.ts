@@ -3,10 +3,6 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 export interface IBusiness extends Document {
     _id: mongoose.Types.ObjectId;
     name: string;
-    // gstin?: string;
-    // email?: string;
-    // phone?: string;
-    // address?: string;
     owner: mongoose.Types.ObjectId;
     isActive: boolean;
     deletedAt: Date | null;
@@ -22,28 +18,6 @@ const businessSchema = new Schema<IBusiness>(
             trim: true,
             maxlength: [150, 'Max 150 characters'],
         },
-        // gstin: {
-        //     type: String,
-        //     trim: true,
-        //     uppercase: true,
-        //     match: [
-        //         /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
-        //         'Invalid GSTIN format',
-        //     ],
-        // },
-        // email: {
-        //     type: String,
-        //     trim: true,
-        //     lowercase: true,
-        // },
-        // phone: {
-        //     type: String,
-        //     trim: true,
-        // },
-        // address: {
-        //     type: String,
-        //     trim: true,
-        // },
         owner: {
             type: Schema.Types.ObjectId,
             ref: 'User',
