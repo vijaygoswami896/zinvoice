@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FaTrash } from 'react-icons/fa6';
 
 import { RecordPaymentSchema, derivePaymentStatus } from '@schemas/payment.schema.client';
 import { PAYMENT_MODE_OPTIONS, REFERENCE_LABEL, PAYMENT_STATUS_BADGE, PAYMENT_STATUS_LABEL } from '@constants'
 import { useRecordPayment, useDeletePayment, useInvoicePayments } from '@hooks/usePayments';
-import { createPortal } from 'react-dom';
 import '@styles/PaymentsPage.css';
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -344,7 +344,7 @@ const RecordPaymentModal = ({ isOpen, invoice, onClose, onSuccess }) => {
                           aria-label="Delete payment"
                           style={{ color: 'var(--color-danger)' }}
                         >
-                          <TrashIcon />
+                          <FaTrash />
                         </button>
                       </td>
                     </tr>

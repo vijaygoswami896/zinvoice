@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useProductSearch } from '@hooks/useProducts';
 import { GST_RATE_OPTIONS, FLAT_UNITS } from '@constants';
 import { computeLineItem } from '@/utils/tax';
+import DeleteConfirmModal from '../common/DeleteConfirmModal';
+import { FaTrash } from 'react-icons/fa6';
 
 const fmt = (n) =>
   new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n ?? 0);
@@ -19,6 +21,8 @@ const fmt = (n) =>
 const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, applyIGST, canRemove }) => {
   const [query, setQuery] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const dropdownRef = useRef(null);
   const p = `items.${index}`; // RHF field prefix
 
@@ -70,12 +74,37 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
       {/* Row index + remove */}
       <div className="li-row__top">
         <span className="li-row__index">{index + 1}</span>
-        {canRemove && (
+
+        {/* {canRemove && (
           <button type="button" className="btn btn-ghost btn-sm li-row__remove"
             onClick={onRemove} aria-label={`Remove item ${index + 1}`}>
             <TrashIcon />
           </button>
+        )} */}
+
+        {canRemove && (
+          <>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm li-row__remove"
+              onClick={() => setShowConfirm(true)}
+              aria-label={`Remove item ${index + 1}`}
+            >
+              {/* <TrashIcon /> */}
+              <FaTrash />
+            </button>
+
+            <DeleteConfirmModal
+              isOpen={showConfirm}
+              title="Remove item?"
+              description={`Item ${index + 1} will be removed from this invoice.`}
+              confirmLabel="Remove"
+              onConfirm={() => { onRemove(); setShowConfirm(false); }}
+              onCancel={() => setShowConfirm(false)}
+            />
+          </>
         )}
+
       </div>
 
       {/* Name / product search */}
@@ -232,12 +261,12 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
 // Helper needed in component (not imported from schema to keep component self-contained)
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
-const TrashIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
-    <path d="M10 11v6M14 11v6M9 6V4h6v2" />
-  </svg>
-);
+// const TrashIcon = () => (
+//   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+//     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+//     <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
+//     <path d="M10 11v6M14 11v6M9 6V4h6v2" />
+//   </svg>
+// );
 
 export default LineItemRow;

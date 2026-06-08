@@ -9,6 +9,7 @@ import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
 import { GST_RATE_OPTIONS } from '@/constants';
 import '@styles/ProductsPage.css';
 import { fmt } from '@/utils';
+import { FaTrash } from 'react-icons/fa6';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -331,7 +332,7 @@ const ProductsPage = () => {
                           onClick={() => setDeleteTarget({ id: p._id, name: p.name })}
                           aria-label={`Delete ${p.name}`} title="Delete"
                           style={{ color: 'var(--color-danger)' }}>
-                          <TrashIcon />
+                          <FaTrash />
                         </button>
                       </td>
                     </tr>
@@ -367,7 +368,7 @@ const ProductsPage = () => {
                         onClick={() => setDeleteTarget({ id: p._id, name: p.name })}
                         aria-label={`Delete ${p.name}`} title="Delete"
                         style={{ color: 'var(--color-danger)' }}>
-                        <TrashIcon />
+                        <FaTrash />
                       </button>
                     </div>
                   </div>
@@ -505,13 +506,13 @@ const EditIcon = () => (
     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
   </svg>
 );
-const TrashIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
-    <path d="M10 11v6M14 11v6M9 6V4h6v2" />
-  </svg>
-);
+// const TrashIcon = () => (
+//   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+//     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+//     <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
+//     <path d="M10 11v6M14 11v6M9 6V4h6v2" />
+//   </svg>
+// );
 const CloseIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
     strokeWidth="2" strokeLinecap="round">
