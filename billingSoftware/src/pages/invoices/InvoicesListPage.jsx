@@ -115,6 +115,7 @@ const InvoicesListPage = () => {
   };
 
   const { data, isLoading, isError, isFetching } = useInvoices(queryParams);
+  // console.log("invoices==>", data)
   const deleteMutation = useDeleteInvoice();
   const statusMutation = useUpdateInvoiceStatus();
 

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { emailField } from './shared.schema';
+import { INDIAN_STATES } from '@/constants';
 
 const optStr = (max) =>
   z.string().trim().max(max, `Max ${max} characters`).optional().or(z.literal(''));
@@ -9,6 +10,7 @@ const AddressSchema = z.object({
   line2: optStr(200),
   city: optStr(100),
   state: z.string().optional(),
+  // state: z.enum(INDIAN_STATES).optional(),
   pincode: z.string().regex(/^\d{6}$/, 'Must be 6 digits').optional().or(z.literal('')),
   country: z.string().trim().default('India').optional(),
 });
@@ -31,15 +33,7 @@ export const CustomerFormSchema = z.object({
 
   gstType: z.enum(['B2B', 'B2C', 'export']).default('B2C'),
 
-  email: emailField,
-
-  // email: z
-  //   .string().email({ error: 'Invalid email' }).trim().transform(s => s.toLowerCase())
-  //   .optional().or(z.literal('')),
-
-  // email: z
-  //   .string().email('Invalid email').toLowerCase().trim()
-  //   .optional().or(z.literal('')),
+  email: emailField.optional().or(z.literal('')),
 
   phone: z
     .string()

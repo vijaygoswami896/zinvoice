@@ -6,14 +6,6 @@ export const ProductFormSchema = z.object({
 
   type: z.enum(['goods', 'service'], { error: 'Type is required' }),
 
-  // name: z
-  //   .string({ required_error: 'Product name is required' })
-  //   .trim()
-  //   .min(2, 'At least 2 characters')
-  //   .max(200, 'Max 200 characters'),
-
-  // type: z.enum(['goods', 'service'], { required_error: 'Type is required' }),
-
   hsnSacCode: z
     .string().trim()
     .regex(/^\d{4,8}$/, 'Must be 4 to 8 digits (e.g. 9983)')
@@ -25,16 +17,6 @@ export const ProductFormSchema = z.object({
 
   gstRate: z.coerce.number({ error: 'GST rate is required' })
     .refine((v) => GST_RATES.includes(v), { error: 'Invalid GST rate' }),
-
-  // price: z.coerce
-  //   .number({ required_error: 'Price is required', invalid_type_error: 'Must be a number' })
-  //   .min(0, 'Cannot be negative'),
-
-  // unit: z.enum(UNIT_VALUES, { required_error: 'Unit is required' }),
-
-  // gstRate: z.coerce
-  //   .number({ required_error: 'GST rate is required' })
-  //   .refine((v) => VALID_GST_RATES.includes(v), { message: 'Invalid GST rate' }),
 
   taxIncluded: z.boolean().default(false),
 

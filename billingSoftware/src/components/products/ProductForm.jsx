@@ -25,7 +25,7 @@ const Field = ({ label, error, hint, children, required }) => (
 
 const DEFAULTS = {
     name: '', type: 'goods', hsnSacCode: '', price: '',
-    unit: 'PCS', gstRate: 18, taxIncluded: false,
+    unit: 'PCS', gstRate: 0, taxIncluded: false,
     inventoryEnabled: false, stockQuantity: 0, lowStockThreshold: 10,
     description: '', isActive: true,
 };
@@ -289,8 +289,8 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, submit
                     disabled={isSubmitting || (isEdit && !isDirty)}
                 >
                     {isSubmitting
-                        ? <><span className="spinner spinner-sm" /> {isEdit ? 'Saving…' : 'Creating…'}</>
-                        : isEdit ? 'Save changes' : 'Create product'}
+                        ? <><span className="spinner spinner-sm" /> {isEdit ? 'Updating…' : 'Creating…'}</>
+                        : isEdit ? 'Update' : 'Create'}
                 </button>
             </div>
         </form>
