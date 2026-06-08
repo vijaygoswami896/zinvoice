@@ -10,7 +10,7 @@
 //                 name={name}
 //                 value={value}
 //                 onChange={onChange}
-//                 className={`p-2 rounded-lg border border-blue-950 focus:outline-none`}
+//                 className={`p-2 rounded-lg border border-blue-950 focus:outline-hidden`}
 //             />
 //         </div>
 //     )

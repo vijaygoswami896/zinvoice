@@ -106,7 +106,7 @@
 //                         <tbody className=''>
 //                             {products.map((item, index) => (
 //                                 <tr key={index}>
-//                                     <td className='!text-left custom-cell w-2/5'>{item.name}</td>
+//                                     <td className='text-left! custom-cell w-2/5'>{item.name}</td>
 //                                     <td className='custom-cell'>{item.quantity}</td>
 //                                     <td className='custom-cell'>{item.unit}</td>
 //                                     <td className='custom-cell'>{item.rate}</td>
@@ -149,11 +149,11 @@
 //                         <p className='text-center text-gray-400 py-8'>No products added yet.</p>
 //                     ) : (
 //                         products.map((item, index) => (
-//                             <div key={index} className='border border-gray-200 rounded-lg p-3 bg-white shadow-sm'>
+//                             <div key={index} className='border border-gray-200 rounded-lg p-3 bg-white shadow-xs'>
 //                                 {/* Name + actions row */}
 //                                 <div className='flex justify-between items-start gap-2 mb-2'>
 //                                     <span className='font-semibold text-blue-950 text-sm leading-tight'>{item.name}</span>
-//                                     <div className='flex gap-2 flex-shrink-0'>
+//                                     <div className='flex gap-2 shrink-0'>
 //                                         <button type='button' onClick={(e) => handleUpdateButton(e, index)}
 //                                             className='text-green-700'>
 //                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
@@ -172,15 +172,15 @@
 
 //                                 {/* Details grid */}
 //                                 <div className='grid grid-cols-3 gap-1 text-xs'>
-//                                     <div className='bg-gray-50 rounded p-2'>
+//                                     <div className='bg-gray-50 rounded-sm p-2'>
 //                                         <p className='text-gray-400 uppercase tracking-wide text-[10px] mb-0.5'>Qty</p>
 //                                         <p className='font-medium text-blue-950'>{item.quantity}</p>
 //                                     </div>
-//                                     <div className='bg-gray-50 rounded p-2'>
+//                                     <div className='bg-gray-50 rounded-sm p-2'>
 //                                         <p className='text-gray-400 uppercase tracking-wide text-[10px] mb-0.5'>Unit</p>
 //                                         <p className='font-medium text-blue-950'>{item.unit}</p>
 //                                     </div>
-//                                     <div className='bg-gray-50 rounded p-2'>
+//                                     <div className='bg-gray-50 rounded-sm p-2'>
 //                                         <p className='text-gray-400 uppercase tracking-wide text-[10px] mb-0.5'>Rate</p>
 //                                         <p className='font-medium text-blue-950'>{item.rate}</p>
 //                                     </div>
