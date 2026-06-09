@@ -24,6 +24,7 @@ const InvoiceNewPage = lazy(() => import('@pages/invoices/CreateInvoicePage'));
 const InvoiceDetailPage = lazy(() => import('@pages/invoices/InvoiceDetailPage'));
 const InvoiceEditPage = lazy(() => import('@pages/invoices/EditInvoicePage'));
 const PaymentsPage = lazy(() => import('@pages/payments/PaymentsPage'));
+const UnitsPage = lazy(() => import('@pages/units/UnitsPage'));
 
 // Error pages
 const ForbiddenPage = lazy(() => import('@pages/errors/ErrorPages'));
@@ -57,6 +58,7 @@ const AppRoutes = () => (
                     <Route path={ROUTES.INVOICE_DETAIL} element={<InvoiceDetailPage />} />
                     <Route path={ROUTES.INVOICE_EDIT} element={<InvoiceEditPage />} />
                     <Route path={ROUTES.PAYMENTS} element={<PaymentsPage />} />
+                    <Route path={ROUTES.UNITS} element={<UnitsPage />} />
                     {/*
             Future modules — uncomment as you build them:
 

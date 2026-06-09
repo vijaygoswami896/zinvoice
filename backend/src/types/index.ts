@@ -51,7 +51,7 @@ export interface IProduct extends Document {
 
     // Pricing
     price: number;
-    unit: UnitType;
+    unit: mongoose.Types.ObjectId;
 
     // Tax
     gstRate: GstRateType;

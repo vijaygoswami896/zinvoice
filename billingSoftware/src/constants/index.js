@@ -23,6 +23,7 @@ export const ROUTES = Object.freeze({
     PAYMENTS: '/payments',
     REPORTS: '/reports',
     SETTINGS: '/settings',
+    UNITS: '/units',
 
     // Admin only
     ADMIN: '/admin',

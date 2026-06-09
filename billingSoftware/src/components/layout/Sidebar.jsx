@@ -43,6 +43,7 @@ const NAV_SECTIONS = [
             { to: ROUTES.DASHBOARD, label: 'Dashboard', icon: Icons.Dashboard },
             { to: ROUTES.INVOICES, label: 'Invoices', icon: Icons.Invoices },
             { to: ROUTES.CUSTOMERS, label: 'Customers', icon: Icons.Customers },
+            { to: ROUTES.UNITS, label: 'Units', icon: Icons.Customers },
             { to: ROUTES.PRODUCTS, label: 'Products', icon: Icons.Products },
             { to: ROUTES.PAYMENTS, label: 'Payments', icon: Icons.Payments },
         ],

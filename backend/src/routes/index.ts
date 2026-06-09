@@ -8,6 +8,7 @@ import invoiceRoutes from './invoice.routes.js'
 import pdfRoutes from './pdf.routes.js'
 import dashboardRoutes from './dashboard.routes.js'
 import paymentRoutes from './payment.routes.js'
+import unitRoutes from './unit.routes.js'
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/invoices', invoiceRoutes);
 router.use('/invoices', pdfRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/units', unitRoutes);
 
 export default router;
