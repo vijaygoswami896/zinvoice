@@ -32,6 +32,8 @@ export const setupInterceptors = (store) => {
     const subscribeToRefresh = (cb) => subscribers.push(cb);
     const notifySubscribers = (token) => { subscribers.forEach((cb) => cb(token)); subscribers = []; };
 
+    const AUTH_ROUTES = ['/auth/refresh', '/auth/login', '/auth/signup'];
+
     api.interceptors.response.use(
         (response) => response,
         async (error) => {
@@ -39,10 +41,11 @@ export const setupInterceptors = (store) => {
             const original = error.config;
 
             const is401 = error.response?.status === 401;
-            const isRefreshRoute = original.url?.includes('/auth/refresh');
+            // const isRefreshRoute = original.url?.includes('/auth/refresh');
+            const isAuthRoute = AUTH_ROUTES.some(route => original.url?.includes(route));
             const alreadyRetried = original._retried;
 
-            if (is401 && !isRefreshRoute && !alreadyRetried) {
+            if (is401 && !isAuthRoute && !alreadyRetried) {
                 original._retried = true;
 
                 if (isRefreshing) {

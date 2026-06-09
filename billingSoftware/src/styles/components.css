@@ -345,3 +345,38 @@
 .input-icon-btn:hover {
     opacity: 1;
 }
+
+.fp-description {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--leading-normal);
+    margin-bottom: var(--space-6);
+}
+ 
+.fp-link-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--space-1);
+    margin-bottom: var(--space-2);
+}
+ 
+.fp-link {
+    font-size: var(--text-sm);
+}
+ 
+/* OTP input — mono spaced, centred glyphs */
+.otp-input {
+    font-family: var(--font-mono);
+    letter-spacing: 0.3em;
+    font-size: var(--text-md);
+}
+ 
+/* Success alert (reuses alert base from your existing components.css) */
+.alert-success {
+    background: var(--color-success-bg);
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+}

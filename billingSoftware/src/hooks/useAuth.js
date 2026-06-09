@@ -52,6 +52,14 @@ export const useAuth = () => {
         },
     });
 
+    const forgotPasswordMutation = useMutation({
+        mutationFn: authApi.forgotPassword,
+    });
+
+    const resetPasswordMutation = useMutation({
+        mutationFn: authApi.resetPassword,
+    });
+
     return {
         user, isAuth, role, isAdmin, isInitialised,
         isStaff: role === 'staff',
@@ -61,13 +69,19 @@ export const useAuth = () => {
         register: registerMutation.mutate,
         logout: logoutMutation.mutate,
         changePassword: changePasswordMutation.mutateAsync,
+        forgotPassword: forgotPasswordMutation.mutate,
+        resetPassword: resetPasswordMutation.mutate,
 
         isLoggingIn: loginMutation.isPending,
         isRegistering: registerMutation.isPending,
         isLoggingOut: logoutMutation.isPending,
         isChangingPassword: changePasswordMutation.isPending,
+        isSendingOtp: forgotPasswordMutation.isPending,
+        isResettingPassword: resetPasswordMutation.isPending,
 
         loginError: loginMutation.error,
         registerError: registerMutation.error,
+        forgotPasswordError: forgotPasswordMutation.error,
+        resetPasswordError: resetPasswordMutation.error,
     };
 };

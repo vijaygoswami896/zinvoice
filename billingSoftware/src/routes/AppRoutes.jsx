@@ -13,6 +13,8 @@ import "@styles/components.css"
 // Auth
 const LoginPage = lazy(() => import('@pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@pages/auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('@pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@pages/auth/ResetPasswordPage'));
 
 // App — placeholders until modules are built
 const DashboardPage = lazy(() => import('@pages/dashboard/DashboadPage'));
@@ -39,6 +41,8 @@ const AppRoutes = () => (
             <Route element={<GuestRoute />}>
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
                 <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+                <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+                <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
             </Route>
 
             {/* Protected: any authenticated user, uses AppLayout shell */}

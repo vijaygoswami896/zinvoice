@@ -16,6 +16,7 @@ const LoginPage = () => {
     const { login, isLoggingIn, loginError } = useAuth();
     const location = useLocation();
     const fromProtected = !!location.state?.from;
+    const passwordReset = !!location.state?.passwordReset;
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(LoginSchema),
@@ -34,6 +35,12 @@ const LoginPage = () => {
                 {fromProtected && (
                     <div className="alert alert-info" style={{ marginBottom: '20px' }}>
                         Please sign in to continue.
+                    </div>
+                )}
+
+                {passwordReset && (
+                    <div className="alert alert-success" style={{ marginBottom: '20px' }}>
+                        Password reset successfully. Please sign in.
                     </div>
                 )}
 
@@ -77,6 +84,12 @@ const LoginPage = () => {
                             </button>
                         </div>
                         {errors.password && <p className="form-error">{errors.password.message}</p>}
+                    </div>
+
+                    <div className="fp-link-row">
+                        <Link to={ROUTES.FORGOT_PASSWORD} className="auth-link fp-link">
+                            Forgot password?
+                        </Link>
                     </div>
 
                     <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={isLoggingIn}>
