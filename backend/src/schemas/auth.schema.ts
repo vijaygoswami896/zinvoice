@@ -18,12 +18,6 @@ export const SignupSchema = z.object({
     name: nameField,
     email: emailField,
     password: passwordField,
-
-    // Business — reuses same validators as settings
-    // businessName: z.string().trim().min(2).max(150),
-    // businessEmail: emailField.optional(),
-    // businessPhone: indianMobileField,
-    // businessGstin: gstinField,
 }).merge(BusinessBaseSchema);;
 
 export const InviteSchema = z.object({
@@ -34,6 +28,16 @@ export const InviteSchema = z.object({
 });
 
 export const RegisterSchema = SignupSchema;
+
+export const ForgotPasswordSchema = z.object({
+    email: emailField,
+});
+
+export const ResetPasswordSchema = z.object({
+    email: emailField,
+    otp: z.string().length(6, 'OTP must be 6 digits').regex(/^\d+$/, 'OTP must be numeric'),
+    newPassword: passwordField,
+});
 
 export type LoginInput = z.infer<typeof LoginSchema>;
 export type SignupBody = z.infer<typeof SignupSchema>;

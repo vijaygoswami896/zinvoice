@@ -34,6 +34,9 @@ interface IUser extends Document {
     deletedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
+    resetOtp: string | null;
+    resetOtpExpires: Date | null;
+    resetOtpAttempts: number;
     comparePassword(plaintext: string): Promise<boolean>;
     pruneRefreshTokens(): void;
     removeExpiredTokens(): void;
@@ -90,6 +93,10 @@ const userSchema = new Schema<IUser, IUserModel>(
         isActive: { type: Boolean, default: true },
         lastLoginAt: { type: Date, default: null },
         deletedAt: { type: Date, default: null, select: false },
+        //reset password related
+        resetOtp: { type: String, default: null, select: false },
+        resetOtpExpires: { type: Date, default: null },
+        resetOtpAttempts: { type: Number, default: 0 },
     },
     {
         timestamps: true,
@@ -97,11 +104,6 @@ const userSchema = new Schema<IUser, IUserModel>(
             transform(_doc, ret) {
                 const { __v, passwordHash, refreshTokens, deletedAt, ...rest } = ret;
                 return rest;
-                // delete ret.passwordHash;
-                // delete ret.refreshTokens;
-                // delete ret.deletedAt;
-                // delete ret.__v;
-                // return ret;
             },
         },
     },
@@ -110,7 +112,6 @@ const userSchema = new Schema<IUser, IUserModel>(
 // ── Indexes ───────────────────────────────────────────────────────────────────
 
 userSchema.index({ email: 1, deletedAt: 1 });
-// userSchema.index({ 'refreshTokens.token': 1 });
 userSchema.index({ 'refreshTokens.tokenHash': 1 });
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
@@ -149,10 +150,6 @@ userSchema.statics.findByEmailWithPassword = async function (email: string): Pro
         .select('+passwordHash +refreshTokens')
         .exec();
 };
-// userSchema.statics.findByEmailWithPassword = function (email: string) {
-//     return this.findOne({ email: email.toLowerCase().trim(), deletedAt: null })
-//         .select('+passwordHash +refreshTokens') as unknown as Promise<IUser | null>;;
-// };
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 

@@ -4,7 +4,7 @@ import authenticate from '../middleware/authenticate.js';
 import requireRole from '../middleware/requireRole.js';
 import validate from '../middleware/validate.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
-import { RegisterSchema, LoginSchema, SignupSchema, InviteSchema } from '../schemas/auth.schema.js';
+import { RegisterSchema, LoginSchema, SignupSchema, InviteSchema, ForgotPasswordSchema, ResetPasswordSchema } from '../schemas/auth.schema.js';
 
 const router = Router();
 
@@ -15,6 +15,8 @@ router.post('/signup', validate({ body: SignupSchema }), authController.signup);
 router.post('/login', validate({ body: LoginSchema }), authController.login);
 router.post('/refresh', authController.refreshToken);
 router.post('/logout', authController.logout);
+router.post('/forgot-password', validate({ body: ForgotPasswordSchema }), authController.forgotPassword);
+router.post('/reset-password', validate({ body: ResetPasswordSchema }), authController.resetPassword);
 
 // ── Authenticated
 router.get('/me', authenticate, authController.getMe);
@@ -28,13 +30,5 @@ router.post(
     validate({ body: InviteSchema }),
     authController.invite,
 );
-
-// router.post(
-//     '/register',
-//     authenticate,
-//     requireRole('admin'),
-//     validate({ body: RegisterSchema }),
-//     authController.register,
-// );
 
 export default router;
