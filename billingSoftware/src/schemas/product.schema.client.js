@@ -1,4 +1,4 @@
-import { UNIT_VALUES, GST_RATES } from '@/constants';
+import { GST_RATES } from '@/constants';
 import { z } from 'zod';
 
 export const ProductFormSchema = z.object({
@@ -13,7 +13,8 @@ export const ProductFormSchema = z.object({
 
   price: z.coerce.number({ error: 'Price is required' }).min(0, 'Cannot be negative'),
 
-  unit: z.enum(UNIT_VALUES, { error: 'Unit is required' }),
+  // unit: z.enum(UNIT_VALUES, { error: 'Unit is required' }),
+  unit: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid unit ID'),
 
   gstRate: z.coerce.number({ error: 'GST rate is required' })
     .refine((v) => GST_RATES.includes(v), { error: 'Invalid GST rate' }),

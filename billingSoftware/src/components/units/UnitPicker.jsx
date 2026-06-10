@@ -20,7 +20,7 @@ export default function UnitPicker({
     const searchRef = useRef(null);
 
     const { data, isLoading } = useAllUnits();
-    const units = data?.items ?? [];
+    const units = data?.data ?? [];
 
     // Resolve display label from current value
     const selected = units.find((u) => u[valueKey] === value) ?? null;

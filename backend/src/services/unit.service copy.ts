@@ -1,259 +1,259 @@
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 
-import { Unit } from '../models/units.model.js';
-import AppError from '../utils/appError.js';
-import type {
-    CreateUnitInput,
-    UpdateUnitInput,
-    DeleteUnitInput,
-    GetUnitByIdInput,
-    ListUnitsInput,
-    RestoreUnitInput,
-} from '../schemas/unit.schema.js';
+// import { Unit } from '../models/units.model.js';
+// import AppError from '../utils/appError.js';
+// import type {
+//     CreateUnitInput,
+//     UpdateUnitInput,
+//     DeleteUnitInput,
+//     GetUnitByIdInput,
+//     ListUnitsInput,
+//     RestoreUnitInput,
+// } from '../schemas/unit.schema.js';
 
-// interface PaginatedUnits {
-//     data: Awaited<ReturnType<typeof Unit.prototype.toJSON>>[];
-//     total: number;
-//     page: number;
-//     limit: number;
-//     totalPages: number;
+// // interface PaginatedUnits {
+// //     data: Awaited<ReturnType<typeof Unit.prototype.toJSON>>[];
+// //     total: number;
+// //     page: number;
+// //     limit: number;
+// //     totalPages: number;
+// // }
+
+// // ── Helpers ───────────────────────────────────────────────────────────────────
+
+// function toObjectId(id: string, label = 'ID'): mongoose.Types.ObjectId {
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//         throw new AppError(`Invalid ${label}`, 400, 'INVALID_ID');
+//     }
+//     return new mongoose.Types.ObjectId(id);
 // }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// async function findUnitOrFail(
+//     id: string,
+//     businessId: mongoose.Types.ObjectId,
+//     includeDeleted = false,
+// ) {
+//     const unitId = toObjectId(id, 'unit ID');
 
-function toObjectId(id: string, label = 'ID'): mongoose.Types.ObjectId {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new AppError(`Invalid ${label}`, 400, 'INVALID_ID');
-    }
-    return new mongoose.Types.ObjectId(id);
-}
+//     const filter: Record<string, unknown> = { _id: unitId, businessId };
+//     if (!includeDeleted) filter.isDeleted = false;
 
-async function findUnitOrFail(
-    id: string,
-    businessId: mongoose.Types.ObjectId,
-    includeDeleted = false,
-) {
-    const unitId = toObjectId(id, 'unit ID');
+//     const unit = await Unit.findOne(filter).select('+isDeleted +deletedAt +deletedBy');
+//     if (!unit) throw new AppError('Unit not found', 404, 'UNIT_NOT_FOUND');
 
-    const filter: Record<string, unknown> = { _id: unitId, businessId };
-    if (!includeDeleted) filter.isDeleted = false;
+//     return unit;
+// }
 
-    const unit = await Unit.findOne(filter).select('+isDeleted +deletedAt +deletedBy');
-    if (!unit) throw new AppError('Unit not found', 404, 'UNIT_NOT_FOUND');
+// // ── Service ───────────────────────────────────────────────────────────────────
 
-    return unit;
-}
+// /**
+//  * Create a new custom unit for the tenant.
+//  */
+// async function createUnit(
+//     body: CreateUnitInput['body'],
+//     auth: AuthContext,
+// ) {
+//     // Duplicate check is enforced by the DB partial-unique index,
+//     // but we give a friendlier message by checking first.
+//     const existing = await Unit.findOne({
+//         businessId: auth.businessId,
+//         $or: [
+//             { name: new RegExp(`^${body.name}$`, 'i') },
+//             { shortName: body.shortName.toLowerCase() },
+//         ],
+//         isDeleted: false,
+//     });
 
-// ── Service ───────────────────────────────────────────────────────────────────
+//     if (existing) {
+//         const conflict = existing.name.toLowerCase() === body.name.toLowerCase()
+//             ? 'name'
+//             : 'short name';
+//         throw new AppError(
+//             `A unit with this ${conflict} already exists`,
+//             409,
+//             'UNIT_DUPLICATE',
+//         );
+//     }
 
-/**
- * Create a new custom unit for the tenant.
- */
-async function createUnit(
-    body: CreateUnitInput['body'],
-    auth: AuthContext,
-) {
-    // Duplicate check is enforced by the DB partial-unique index,
-    // but we give a friendlier message by checking first.
-    const existing = await Unit.findOne({
-        businessId: auth.businessId,
-        $or: [
-            { name: new RegExp(`^${body.name}$`, 'i') },
-            { shortName: body.shortName.toLowerCase() },
-        ],
-        isDeleted: false,
-    });
+//     const unit = await Unit.create({
+//         businessId: auth.businessId,
+//         createdBy: auth.userId,
+//         name: body.name,
+//         shortName: body.shortName,
+//         isDefault: false,
+//     });
 
-    if (existing) {
-        const conflict = existing.name.toLowerCase() === body.name.toLowerCase()
-            ? 'name'
-            : 'short name';
-        throw new AppError(
-            `A unit with this ${conflict} already exists`,
-            409,
-            'UNIT_DUPLICATE',
-        );
-    }
+//     return unit;
+// }
 
-    const unit = await Unit.create({
-        businessId: auth.businessId,
-        createdBy: auth.userId,
-        name: body.name,
-        shortName: body.shortName,
-        isDefault: false,
-    });
+// /**
+//  * Update name and/or shortName of a custom (non-default) unit.
+//  */
+// async function updateUnit(
+//     params: UpdateUnitInput['params'],
+//     body: UpdateUnitInput['body'],
+//     auth: AuthContext,
+// ) {
+//     const unit = await findUnitOrFail(params.id, auth.businessId);
 
-    return unit;
-}
+//     if (unit.isDefault) {
+//         throw new AppError(
+//             'Default units cannot be modified',
+//             403,
+//             'UNIT_DEFAULT_IMMUTABLE',
+//         );
+//     }
 
-/**
- * Update name and/or shortName of a custom (non-default) unit.
- */
-async function updateUnit(
-    params: UpdateUnitInput['params'],
-    body: UpdateUnitInput['body'],
-    auth: AuthContext,
-) {
-    const unit = await findUnitOrFail(params.id, auth.businessId);
+//     // Conflict check only for fields that are actually changing
+//     const checks: { name?: RegExp; shortName?: string }[] = [];
+//     if (body.name) checks.push({ name: new RegExp(`^${body.name}$`, 'i') });
+//     if (body.shortName) checks.push({ shortName: body.shortName.toLowerCase() });
 
-    if (unit.isDefault) {
-        throw new AppError(
-            'Default units cannot be modified',
-            403,
-            'UNIT_DEFAULT_IMMUTABLE',
-        );
-    }
+//     if (checks.length > 0) {
+//         const conflict = await Unit.findOne({
+//             businessId: auth.businessId,
+//             _id: { $ne: unit._id },
+//             $or: checks,
+//             isDeleted: false,
+//         });
 
-    // Conflict check only for fields that are actually changing
-    const checks: { name?: RegExp; shortName?: string }[] = [];
-    if (body.name) checks.push({ name: new RegExp(`^${body.name}$`, 'i') });
-    if (body.shortName) checks.push({ shortName: body.shortName.toLowerCase() });
+//         if (conflict) {
+//             const field = body.name && conflict.name.toLowerCase() === body.name.toLowerCase()
+//                 ? 'name'
+//                 : 'short name';
+//             throw new AppError(
+//                 `A unit with this ${field} already exists`,
+//                 409,
+//                 'UNIT_DUPLICATE',
+//             );
+//         }
+//     }
 
-    if (checks.length > 0) {
-        const conflict = await Unit.findOne({
-            businessId: auth.businessId,
-            _id: { $ne: unit._id },
-            $or: checks,
-            isDeleted: false,
-        });
+//     if (body.name) unit.name = body.name;
+//     if (body.shortName) unit.shortName = body.shortName;
+//     unit.updatedBy = auth.userId;
 
-        if (conflict) {
-            const field = body.name && conflict.name.toLowerCase() === body.name.toLowerCase()
-                ? 'name'
-                : 'short name';
-            throw new AppError(
-                `A unit with this ${field} already exists`,
-                409,
-                'UNIT_DUPLICATE',
-            );
-        }
-    }
+//     await unit.save();
+//     return unit;
+// }
 
-    if (body.name) unit.name = body.name;
-    if (body.shortName) unit.shortName = body.shortName;
-    unit.updatedBy = auth.userId;
+// /**
+//  * Soft-delete a custom unit.
+//  * Default/seeded units cannot be deleted.
+//  */
+// async function deleteUnit(
+//     params: DeleteUnitInput['params'],
+//     auth: AuthContext,
+// ) {
+//     const unit = await findUnitOrFail(params.id, auth.businessId);
 
-    await unit.save();
-    return unit;
-}
+//     if (unit.isDefault) {
+//         throw new AppError(
+//             'Default units cannot be deleted',
+//             403,
+//             'UNIT_DEFAULT_IMMUTABLE',
+//         );
+//     }
 
-/**
- * Soft-delete a custom unit.
- * Default/seeded units cannot be deleted.
- */
-async function deleteUnit(
-    params: DeleteUnitInput['params'],
-    auth: AuthContext,
-) {
-    const unit = await findUnitOrFail(params.id, auth.businessId);
+//     if (unit.isDeleted) {
+//         throw new AppError('Unit is already deleted', 409, 'UNIT_ALREADY_DELETED');
+//     }
 
-    if (unit.isDefault) {
-        throw new AppError(
-            'Default units cannot be deleted',
-            403,
-            'UNIT_DEFAULT_IMMUTABLE',
-        );
-    }
+//     unit.softDelete(auth.userId);
+//     await unit.save();
+// }
 
-    if (unit.isDeleted) {
-        throw new AppError('Unit is already deleted', 409, 'UNIT_ALREADY_DELETED');
-    }
+// /**
+//  * Restore a previously soft-deleted unit.
+//  */
+// async function restoreUnit(
+//     params: RestoreUnitInput['params'],
+//     auth: AuthContext,
+// ) {
+//     const unit = await findUnitOrFail(params.id, auth.businessId, true);
 
-    unit.softDelete(auth.userId);
-    await unit.save();
-}
+//     if (!unit.isDeleted) {
+//         throw new AppError('Unit is not deleted', 409, 'UNIT_NOT_DELETED');
+//     }
 
-/**
- * Restore a previously soft-deleted unit.
- */
-async function restoreUnit(
-    params: RestoreUnitInput['params'],
-    auth: AuthContext,
-) {
-    const unit = await findUnitOrFail(params.id, auth.businessId, true);
+//     unit.restore();
+//     unit.updatedBy = auth.userId;
+//     await unit.save();
 
-    if (!unit.isDeleted) {
-        throw new AppError('Unit is not deleted', 409, 'UNIT_NOT_DELETED');
-    }
+//     return unit;
+// }
 
-    unit.restore();
-    unit.updatedBy = auth.userId;
-    await unit.save();
+// /**
+//  * Fetch a single active unit by ID.
+//  */
+// async function getUnitById(
+//     params: GetUnitByIdInput['params'],
+//     auth: AuthContext,
+// ) {
+//     return findUnitOrFail(params.id, auth.businessId);
+// }
 
-    return unit;
-}
+// /**
+//  * Paginated list of units for the tenant with optional filters.
+//  */
+// async function listUnits(
+//     query: ListUnitsInput['query'],
+//     auth: AuthContext,
+// ): Promise<PaginatedUnits> {
+//     const {
+//         search,
+//         isDefault,
+//         includeDeleted,
+//         page,
+//         limit,
+//         sortBy,
+//         sortOrder,
+//     } = query;
 
-/**
- * Fetch a single active unit by ID.
- */
-async function getUnitById(
-    params: GetUnitByIdInput['params'],
-    auth: AuthContext,
-) {
-    return findUnitOrFail(params.id, auth.businessId);
-}
+//     const filter: Record<string, unknown> = { businessId: auth.businessId };
 
-/**
- * Paginated list of units for the tenant with optional filters.
- */
-async function listUnits(
-    query: ListUnitsInput['query'],
-    auth: AuthContext,
-): Promise<PaginatedUnits> {
-    const {
-        search,
-        isDefault,
-        includeDeleted,
-        page,
-        limit,
-        sortBy,
-        sortOrder,
-    } = query;
+//     if (!includeDeleted) filter.isDeleted = false;
 
-    const filter: Record<string, unknown> = { businessId: auth.businessId };
+//     if (search) {
+//         filter.$or = [
+//             { name: new RegExp(search, 'i') },
+//             { shortName: new RegExp(search, 'i') },
+//         ];
+//     }
 
-    if (!includeDeleted) filter.isDeleted = false;
+//     if (isDefault !== undefined) filter.isDefault = isDefault;
 
-    if (search) {
-        filter.$or = [
-            { name: new RegExp(search, 'i') },
-            { shortName: new RegExp(search, 'i') },
-        ];
-    }
+//     const sortField = sortBy ?? 'name';
+//     const sortDir = sortOrder ?? 'asc';
+//     const skip = (page - 1) * limit;
 
-    if (isDefault !== undefined) filter.isDefault = isDefault;
+//     const [data, total] = await Promise.all([
+//         Unit.find(filter)
+//             .select('-__v')
+//             .sort({ isDefault: -1, [sortField]: sortDir === 'asc' ? 1 : -1 })
+//             .skip(skip)
+//             .limit(limit)
+//             .lean()
+//             .exec(),
+//         Unit.countDocuments(filter),
+//     ]);
 
-    const sortField = sortBy ?? 'name';
-    const sortDir = sortOrder ?? 'asc';
-    const skip = (page - 1) * limit;
+//     return {
+//         data,
+//         total,
+//         page,
+//         limit,
+//         totalPages: Math.ceil(total / limit),
+//     };
+// }
 
-    const [data, total] = await Promise.all([
-        Unit.find(filter)
-            .select('-__v')
-            .sort({ isDefault: -1, [sortField]: sortDir === 'asc' ? 1 : -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .exec(),
-        Unit.countDocuments(filter),
-    ]);
+// // ── Exports ───────────────────────────────────────────────────────────────────
 
-    return {
-        data,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-    };
-}
-
-// ── Exports ───────────────────────────────────────────────────────────────────
-
-export const unitService = {
-    createUnit,
-    updateUnit,
-    deleteUnit,
-    restoreUnit,
-    getUnitById,
-    listUnits,
-};
+// export const unitService = {
+//     createUnit,
+//     updateUnit,
+//     deleteUnit,
+//     restoreUnit,
+//     getUnitById,
+//     listUnits,
+// };

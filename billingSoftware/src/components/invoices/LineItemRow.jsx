@@ -4,6 +4,9 @@ import { GST_RATE_OPTIONS, FLAT_UNITS } from '@constants';
 import { computeLineItem } from '@/utils/tax';
 import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import { FaTrash } from 'react-icons/fa6';
+import { useAllUnits } from '@/hooks/useUnits';
+import { Controller } from 'react-hook-form';
+import UnitPicker from '../units/UnitPicker';
 
 const fmt = (n) =>
   new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n ?? 0);
@@ -18,7 +21,7 @@ const fmt = (n) =>
  * Live tax computation runs on every field change using computeLineItem()
  * which mirrors the server's gstCalculator exactly.
  */
-const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, applyIGST, canRemove }) => {
+const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, applyIGST, canRemove, control }) => {
   const [query, setQuery] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -40,6 +43,8 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
 
   // ── Product search ──────────────────────────────────────────────────────────
   const { data: results = [], isFetching: searching } = useProductSearch(query);
+  const { data: unitsList = [], isFetching: isFetchingUnitsList, isError: isErrorUnitsList } = useAllUnits()
+  const units = unitsList?.data ?? [];
 
   // Close on outside click
   useEffect(() => {
@@ -53,11 +58,14 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
   }, []);
 
   const handleProductSelect = (product) => {
+
+    const selectedUnit = units.find(u => u._id === product.unit)
+
     setValue(`${p}.productId`, product._id, { shouldDirty: true });
     setValue(`${p}.name`, product.name, { shouldDirty: true });
     setValue(`${p}.description`, product.description || '', { shouldDirty: true });
     setValue(`${p}.hsnSacCode`, product.hsnSacCode || '', { shouldDirty: true });
-    setValue(`${p}.unit`, product.unit, { shouldDirty: true });
+    setValue(`${p}.unit`, selectedUnit?.shortName ?? '', { shouldDirty: true });
     setValue(`${p}.itemType`, product.type, { shouldDirty: true });
     setValue(`${p}.rate`, product.price, { shouldDirty: true });
     setValue(`${p}.gstRate`, product.gstRate, { shouldDirty: true, shouldValidate: true });
@@ -139,8 +147,10 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
         {/* Search results dropdown */}
         {showDropdown && results.length > 0 && (
           <div className="li-row__dropdown" role="listbox" aria-label="Product suggestions">
-            {results.map((prod) => (
-              <button
+            {results.map((prod) => {
+              const unit = units.find(item => item._id === prod.unit);
+
+              return <button
                 key={prod._id}
                 type="button"
                 className="li-row__dropdown-item"
@@ -149,13 +159,13 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
               >
                 <span className="li-row__dp-name">{prod.name}</span>
                 <span className="li-row__dp-meta">
-                  {prod.type === 'goods' ? '📦' : '⚙️'} {prod.unit}
+                  {prod.type === 'goods' ? '📦' : '⚙️'} {unit?.shortName ?? prod.unit}
                   {' · '}₹{fmt(prod.price)}
                   {' · '}{prod.gstRate}% GST
                   {prod.hsnSacCode ? ` · ${prod.hsnSacCode}` : ''}
                 </span>
               </button>
-            ))}
+            })}
           </div>
         )}
       </div>
@@ -221,12 +231,28 @@ const LineItemRow = ({ index, errors, register, setValue, watch, onRemove, apply
 
         <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">Unit</label>
+          <Controller
+            name={`${p}.unit`}
+            control={control}
+            render={({ field }) => {
+              return <UnitPicker
+                valueKey="shortName"
+                value={field.value}
+                onChange={field.onChange}
+                // error={errors.unit?.message}
+                disabled={isFetchingUnitsList}
+              />
+            }}
+          />
+        </div>
+        {/* <div className="form-group" style={{ margin: 0 }}>
+          <label className="form-label">Unit</label>
           <select className="form-select" {...register(`${p}.unit`)}>
             {FLAT_UNITS.map(({ value }) => (
               <option key={value} value={value}>{value}</option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
 
       {/* Tax-inclusive toggle */}

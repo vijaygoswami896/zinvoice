@@ -23,7 +23,7 @@ const addDays = (n) => {
 
 const BLANK_ITEM = {
   productId: null, name: '', description: '', hsnSacCode: '',
-  unit: 'PCS', itemType: 'goods', quantity: 1, rate: '', gstRate: 18,
+  unit: '', itemType: 'goods', quantity: 1, rate: '', gstRate: 18,
   taxIncluded: false, discountPct: 0,
 };
 
@@ -216,6 +216,7 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
               onRemove={() => remove(index)}
               applyIGST={applyIGST}
               canRemove={fields.length > 1}
+              control={control}
             />
           ))}
         </div>

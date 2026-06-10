@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     ProductFormSchema
 } from '@schemas/product.schema.client';
 import { PRODUCT_TYPES, UNIT_GROUPS, GST_RATE_OPTIONS } from '@/constants';
+import UnitPicker from '../units/UnitPicker';
 
 const getApiError = (err) =>
     err?.response?.data?.error?.message || 'Something went wrong. Please try again.';
@@ -25,7 +26,7 @@ const Field = ({ label, error, hint, children, required }) => (
 
 const DEFAULTS = {
     name: '', type: 'goods', hsnSacCode: '', price: '',
-    unit: 'PCS', gstRate: 0, taxIncluded: false,
+    unit: '', gstRate: 0, taxIncluded: false,
     inventoryEnabled: false, stockQuantity: 0, lowStockThreshold: 10,
     description: '', isActive: true,
 };
@@ -43,13 +44,11 @@ const DEFAULTS = {
 const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, submitError }) => {
     const isEdit = !!product;
 
-    const {
-        register, handleSubmit, watch, reset, setValue,
-        formState: { errors, isDirty },
-    } = useForm({
-        resolver: zodResolver(ProductFormSchema),
-        defaultValues: DEFAULTS,
-    });
+    const { register, handleSubmit, watch, reset, setValue, control, formState: { errors, isDirty } }
+        = useForm({
+            resolver: zodResolver(ProductFormSchema),
+            defaultValues: DEFAULTS,
+        });
 
     useEffect(() => {
         if (product) {
@@ -58,7 +57,7 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, submit
                 type: product.type ?? 'goods',
                 hsnSacCode: product.hsnSacCode ?? '',
                 price: product.price ?? '',
-                unit: product.unit ?? 'PCS',
+                unit: product.unit?._id ?? product.unit ?? '',
                 gstRate: product.gstRate ?? 18,
                 taxIncluded: product.taxIncluded ?? false,
                 inventoryEnabled: product.inventoryEnabled ?? false,
@@ -180,6 +179,21 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, submit
 
                     {/* Unit */}
                     <Field label="Unit" error={errors.unit} required>
+                        <Controller
+                            name='unit'
+                            control={control}
+                            render={({ field }) => {
+                                return <UnitPicker
+                                    valueKey="_id"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={errors.unit?.message}
+                                    disabled={isSubmitting}
+                                />
+                            }}
+                        />
+                    </Field>
+                    {/* <Field label="Unit" error={errors.unit} required>
                         <select className={`form-select${errors.unit ? ' form-select--error' : ''}`}
                             {...register('unit')}>
                             {UNIT_GROUPS.map((group) => (
@@ -190,7 +204,7 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, submit
                                 </optgroup>
                             ))}
                         </select>
-                    </Field>
+                    </Field> */}
 
                     {/* GST rate */}
                     <Field label="GST rate" error={errors.gstRate} required>

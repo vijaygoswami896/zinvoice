@@ -10,6 +10,7 @@ import { GST_RATE_OPTIONS } from '@/constants';
 import '@styles/ProductsPage.css';
 import { fmt } from '@/utils';
 import { FaTrash } from 'react-icons/fa6';
+import { useAllUnits } from '@/hooks/useUnits';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -66,7 +67,8 @@ const EmptyState = ({ search, onClear }) => (
 );
 
 const Pagination = ({ meta, page, onPage }) => {
-  if (!meta || meta.totalPages <= 1) return null;
+  // if (!meta || meta.totalPages <= 1) return null;
+  if (!meta || meta.totalPages < 1) return null;
   return (
     <div className="ptable__pagination">
       <span className="ptable__pagination-info">
@@ -118,6 +120,8 @@ const ProductsPage = () => {
   };
 
   const { data, isLoading, isError, isFetching } = useProducts(queryParams);
+  const { data: unitsList = [], isFetching: isFetchingUnitsList, isError: isErrorUnitsList } = useAllUnits()
+  const units = unitsList?.data ?? [];
 
   const editId = drawer && drawer !== 'create' ? drawer : null;
   const { data: editProduct, isLoading: editLoading } = useProduct(editId);
@@ -251,10 +255,11 @@ const ProductsPage = () => {
           <div className="alert alert-error" style={{ margin: '24px' }}>
             Failed to load products. Please refresh.
           </div>
-        ) : isLoading ? (
+        ) : isLoading || isFetchingUnitsList ? (
           <div className="ptable__loading"><span className="spinner spinner-lg" /></div>
         ) : (
           <>
+            {/* Desktop Table */}
             <div className="ptable__scroll ptable__desktop-only">
               <table className="ptable" aria-label="Products table">
                 <thead>
@@ -287,8 +292,10 @@ const ProductsPage = () => {
                     <tr><td colSpan={9}>
                       <EmptyState search={search} onClear={handleClearSearch} />
                     </td></tr>
-                  ) : data.items.map((p) => (
-                    <tr key={p._id} className="ptable__row">
+                  ) : data.items.map((p) => {
+                    const unit = units.find(item => item._id === p.unit);
+
+                    return <tr key={p._id} className="ptable__row">
                       <td className="ptable__name">
                         <span className="ptable__avatar" aria-hidden="true"
                           style={{
@@ -314,7 +321,7 @@ const ProductsPage = () => {
                           <span className="ptable__tax-incl" title="Tax inclusive">incl.</span>
                         )}
                       </td>
-                      <td className="ptable__unit mono">{p.unit}</td>
+                      <td className="ptable__unit mono">{unit?.shortName ?? p.unit}</td>
                       <td className="mono ptable__gst">{p.gstRate}%</td>
                       <td><StockCell product={p} /></td>
                       <td>
@@ -336,16 +343,19 @@ const ProductsPage = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  })}
                 </tbody>
               </table>
             </div>
 
+            {/* Mobile Cards */}
             <div className="ptable__mobile-cards">
               {!data?.items?.length ? (
                 <EmptyState search={search} onClear={handleClearSearch} />
-              ) : data.items.map((p) => (
-                <div key={p._id} className="pcard">
+              ) : data.items.map((p) => {
+                const unit = units.find(item => item._id === p.unit);
+
+                return <div key={p._id} className="pcard">
                   <div className="pcard__top">
                     <span className="ptable__avatar"
                       style={{
@@ -423,7 +433,8 @@ const ProductsPage = () => {
                     </div>
                     <div className="pcard__cell">
                       <span className="pcard__label">Unit</span>
-                      <span className="pcard__value mono">{p.unit}</span>
+                      {/* <span className="pcard__value mono">{p.unit}</span> */}
+                      <span className="pcard__value mono">{unit?.shortName ?? p.unit}</span>
                     </div>
                     <div className="pcard__cell">
                       <span className="pcard__label">Stock</span>
@@ -445,7 +456,7 @@ const ProductsPage = () => {
 
 
                 </div>
-              ))}
+              })}
             </div>
 
             <Pagination meta={data?.meta} page={page} onPage={setPage} />

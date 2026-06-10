@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePageTitle } from '@hooks/usePageTitle';
 import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from '@hooks/useInvoices';
@@ -6,8 +6,7 @@ import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
 import { ROUTES } from '@constants';
 import "@styles/InvoicesPage.css"
 import RecordPaymentModal from '@/components/payments/RecordPaymentModal';
-import { generateInvoiceName } from '@/utils/generate-invoice-name';
-// import InvoiceActions from '@/features/invoices/pdf/InvoiceActions';
+import { useAllUnits } from '@/hooks/useUnits';
 
 const InvoiceActions = lazy(() => import('@/features/invoices/pdf/InvoiceActions'));
 
@@ -80,11 +79,14 @@ const InvoiceDetailPage = () => {
 
   usePageTitle(invoice?.invoiceNumber ?? 'Invoice', 'Invoices');
 
+  const { data: unitsList = [], isFetching: isFetchingUnitsList, isError: isErrorUnitsList } = useAllUnits()
+  const units = unitsList?.data ?? [];
+
   // useEffect(() => {
   //   console.log('paymentOpen==> ', paymentOpen);
   // }, [paymentOpen])
 
-  if (isLoading) {
+  if (isLoading || isFetchingUnitsList) {
     return (
       <div className="invoices-page">
         <div style={{ display: 'flex', justifyContent: 'center', padding: '80px' }}>
@@ -226,7 +228,7 @@ const InvoiceDetailPage = () => {
           </div>
         )}
 
-        {/* ── Line items table ────────────────────────────────────────────────── */}
+        {/* ── Line items table Desktop ────────────────────────────────────────────────── */}
         <div className="inv-detail__items-wrap">
           <table className="inv-detail__items" aria-label="Invoice line items">
             <thead>
@@ -251,8 +253,10 @@ const InvoiceDetailPage = () => {
               </tr>
             </thead>
             <tbody>
-              {invoice.items.map((item, i) => (
-                <tr key={item._id ?? i}>
+              {invoice.items.map((item, i) => {
+                const unit = units.find(item => item._id === item.unit);
+
+                return <tr key={item._id ?? i}>
                   <td className="inv-detail__item-num">{i + 1}</td>
                   <td>
                     <span className="inv-detail__item-name">{item.name}</span>
@@ -264,7 +268,7 @@ const InvoiceDetailPage = () => {
                     )}
                   </td>
                   <td className="mono inv-detail__hsn">{item.hsnSacCode || '—'}</td>
-                  <td className="text-right mono">{item.quantity} {item.unit}</td>
+                  <td className="text-right mono">{item.quantity} {unit?.shortName ?? item.unit}</td>
                   <td className="text-right mono">{fmt(item.rate)}</td>
                   <td className="text-right mono">
                     {item.discountPct > 0 ? `${item.discountPct}%` : '—'}
@@ -281,15 +285,17 @@ const InvoiceDetailPage = () => {
                   )}
                   <td className="text-right mono inv-detail__line-total">{fmt(item.lineTotal)}</td>
                 </tr>
-              ))}
+              })}
             </tbody>
           </table>
         </div>
 
         {/* ── Line items cards — mobile only ──────────────────────────────────── */}
         <div className="inv-detail__item-cards">
-          {invoice.items.map((item, i) => (
-            <div key={item._id ?? i} className="inv-detail__item-card">
+          {invoice.items.map((item, i) => {
+            const unit = units.find(item => item._id === item.unit);
+
+            return <div key={item._id ?? i} className="inv-detail__item-card">
 
               {/* Top: index + name + total */}
               <div className="inv-detail__ic-top">
@@ -309,7 +315,7 @@ const InvoiceDetailPage = () => {
               {/* Mid: qty × rate, discount */}
               <div className="inv-detail__ic-mid">
                 <span className="inv-detail__ic-pill">
-                  {item.quantity} {item.unit} × {fmt(item.rate)}
+                  {item.quantity} {unit?.shortNae ?? item.unit} × {fmt(item.rate)}
                 </span>
                 {item.discountPct > 0 && (
                   <span className="inv-detail__ic-pill">Disc {item.discountPct}%</span>
@@ -334,7 +340,7 @@ const InvoiceDetailPage = () => {
               </div>
 
             </div>
-          ))}
+          })}
         </div>
 
         {/* ── Totals + Notes ──────────────────────────────────────────────────── */}
