@@ -6,6 +6,8 @@ import {
   fmtCurrency, fmtNum, fmtDate,
   amountInWords, formatAddressLines,
   buildFileUrl, supplyTypeLabel,
+  calculateDiscAmount,
+  calculateDiscTotalAmount,
 } from '../pdfUtils';
 
 // ── Shared sub-components ─────────────────────────────────────────────────────
@@ -17,7 +19,7 @@ const ThinDivider = () => <View style={S.thinDivider} />;
 const TableHeader = ({ isIGST, showGst }) => (
   <View style={S.tableHeader} fixed>
     <View style={showGst ? S.colSn : S.colSnNoGst}>
-      <Text style={S.headerCellText}>S.N.</Text>
+      <Text style={S.headerCellCenter}>S.N.</Text>
     </View>
     <View style={showGst ? (isIGST ? S.colDescIgst : S.colDesc) : S.colDescNoGst}>
       <Text style={S.headerCellText}>Description</Text>
@@ -34,11 +36,17 @@ const TableHeader = ({ isIGST, showGst }) => (
     <View style={showGst ? S.colQty : S.colQtyNoGst}>
       <Text style={S.headerCellRight}>Qty.</Text>
     </View>
-    <View style={showGst ? S.colUnit : S.colUnitNoGst}>
+    {/* <View style={showGst ? S.colUnit : S.colUnitNoGst}>
       <Text style={S.headerCellCenter}>Unit</Text>
-    </View>
+    </View> */}
     <View style={showGst ? S.colRate : S.colRateNoGst}>
       <Text style={S.headerCellRight}>Rate (₹)</Text>
+    </View>
+    <View style={S.colDiscPct}>
+      <Text style={S.headerCellRight}>Disc%</Text>
+    </View>
+    <View style={S.colDiscAmt}>
+      <Text style={S.headerCellRight}>Disc (₹)</Text>
     </View>
     <View style={showGst ? (isIGST ? S.colTaxableIgst : S.colTaxable) : S.colTotalNoGst}>
       <Text style={S.headerCellRight}> {showGst ? 'Taxable (₹)' : 'Total (₹)'}</Text>
@@ -73,7 +81,7 @@ const LineRow = ({ item, index, isIGST, showGst }) => {
   return (
     <View style={rowStyle} wrap={false}>
       <View style={showGst ? S.colSn : S.colSnNoGst}>
-        <Text style={S.cellText}>{index + 1}.</Text>
+        <Text style={S.cellTextCenter}>{index + 1}.</Text>
       </View>
       <View style={!showGst ? S.colDescNoGst : isIGST ? S.colDescIgst : S.colDesc}>
         <Text style={S.cellText}>{item.name || ''}</Text>
@@ -87,19 +95,28 @@ const LineRow = ({ item, index, isIGST, showGst }) => {
       {showGst && (
         <>
           <View style={S.colHsn}>
-            <Text style={S.cellText}>{item.hsnSacCode || '-'}</Text>
+            <Text style={S.cellTextCenter}>{item.hsnSacCode || '-'}</Text>
           </View>
         </>
       )}
 
       <View style={showGst ? S.colQty : S.colQtyNoGst}>
+        <Text style={S.cellTextRight}>{`${item.quantity} ${item.unit}`}</Text>
+      </View>
+      {/* <View style={showGst ? S.colQty : S.colQtyNoGst}>
         <Text style={S.cellTextRight}>{fmtNum(item.quantity)}</Text>
-      </View>
-      <View style={showGst ? S.colUnit : S.colUnitNoGst}>
+      </View> */}
+      {/* <View style={showGst ? S.colUnit : S.colUnitNoGst}>
         <Text style={S.cellTextCenter}>{item.unit || 'PCS'}</Text>
-      </View>
+      </View> */}
       <View style={showGst ? S.colRate : S.colRateNoGst}>
         <Text style={S.cellTextRight}>{fmtNum(item.rate)}</Text>
+      </View>
+      <View style={S.colDiscPct}>
+        <Text style={S.headerCellRight}>{item.discountPct}%</Text>
+      </View>
+      <View style={S.colDiscAmt}>
+        <Text style={S.headerCellRight}>{calculateDiscAmount(item.discountPct, item.rate, item.quantity)}</Text>
       </View>
       <View style={!showGst ? S.colTotalNoGst : isIGST ? S.colTaxableIgst : S.colTaxable}>
         <Text style={S.cellTextRight}>{fmtNum(item.taxableAmount)}</Text>
@@ -244,6 +261,8 @@ const ClassicTemplate = ({ invoice, settings }) => {
 
   const showDueDate = false;
 
+  const totalDiscAmt = calculateDiscTotalAmount(invoice);
+
   return (
     <Document>
       <Page size="A4" style={S.page}>
@@ -359,8 +378,14 @@ const ClassicTemplate = ({ invoice, settings }) => {
             }
 
             <View style={showGst ? S.colQty : S.colQtyNoGst}><Text /></View>
-            <View style={showGst ? S.colUnit : S.colUnitNoGst}><Text /></View>
+            {/* <View style={showGst ? S.colUnit : S.colUnitNoGst}><Text /></View> */}
             <View style={showGst ? S.colRate : S.colRateNoGst}><Text /></View>
+            <View style={S.colDiscPct}>
+              <Text />
+            </View>
+            <View style={S.colDiscAmt}>
+              <Text style={S.headerCellRight}>{totalDiscAmt}</Text>
+            </View>
             <View style={!showGst ? S.colTotalNoGst : invoice?.isIGST ? S.colTaxableIgst : S.colTaxable}>
               <Text style={S.cellTextRightBold}>{fmtNum(invoice?.subtotal)}</Text>
             </View>
