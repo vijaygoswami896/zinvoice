@@ -77,6 +77,8 @@ const InvoiceDetailPage = () => {
   const statusMutation = useUpdateInvoiceStatus();
   const deleteMutation = useDeleteInvoice();
 
+  console.log('invoice InvoiceDetailPage=>', invoice);
+
   usePageTitle(invoice?.invoiceNumber ?? 'Invoice', 'Invoices');
 
   const { data: unitsList = [], isFetching: isFetchingUnitsList, isError: isErrorUnitsList } = useAllUnits()

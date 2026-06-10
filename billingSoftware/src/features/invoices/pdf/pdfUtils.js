@@ -128,3 +128,28 @@ export const buildFileUrl = (relativePath) => {
 export const gstRateLabel = (rate) => `${rate}%`;
 
 export const supplyTypeLabel = (isIGST) => isIGST ? 'Inter-state Supply (IGST)' : 'Intra-state Supply (CGST + SGST)';
+
+export const calculateDiscAmount = (discPct, rate, qty) => {
+  const subTotal = rate * qty;
+  const discAmt = (subTotal * discPct) / 100;
+  // return parseFloat(discAmt.toFixed(2));
+  return discAmt.toFixed(2);
+}
+
+export const calculateDiscTotalAmount = (invoice) => {
+  if (!invoice?.items) return 0;
+
+  const discTotalAmt = invoice.items.reduce((accumulator, item) => {
+    const { quantity, rate, discountPct } = item;
+
+    const itemSubTotal = rate * quantity;
+    const itemDiscountAmount = (itemSubTotal * discountPct) / 100;
+
+    // 3. Accumulate the values safely
+    return accumulator + itemDiscountAmount;
+  }, 0);
+
+  // Return as a clean number bounded to 2 decimal places
+  // return parseFloat(discTotalAmt.toFixed(2))
+  return discTotalAmt.toFixed(2)
+}
