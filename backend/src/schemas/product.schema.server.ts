@@ -34,10 +34,12 @@ export const ProductBodySchema = z
             .min(0, 'Price cannot be negative')
             .multipleOf(0.01, 'Max 2 decimal places'),
 
-        unit: z.enum(UNITS, {
-            required_error: 'Unit is required',
-            invalid_type_error: `Unit must be one of: ${UNITS.join(', ')}`,
-        }),
+        unit: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid unit ID'),
+
+        //     z.enum(UNITS, {
+        //     required_error: 'Unit is required',
+        //     invalid_type_error: `Unit must be one of: ${UNITS.join(', ')}`,
+        // }),
 
         // gstRate: z
         //     .number({

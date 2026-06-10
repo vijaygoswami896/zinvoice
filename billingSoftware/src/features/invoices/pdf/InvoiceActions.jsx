@@ -4,6 +4,7 @@ import InvoicePDF from '../pdf/InvoicePDF';
 import usePdf from '../pdf/usePdf';
 import { useSettings } from '@hooks/useSettings';
 import PageLoader from '@/components/common/PageLoader';
+import { generateInvoiceName } from '@/utils/generate-invoice-name';
 // import '@styles/PDF.css'
 
 /**
@@ -16,15 +17,16 @@ import PageLoader from '@/components/common/PageLoader';
  * Props:
  *   invoice — full invoice object
  */
+
 const OpenInTabButton = ({ invoice, settings }) => {
-  // console.log('OpenInTabButton==> ', invoice);
   const { generating, generatePdf } = usePdf();
   const [opened, setOpened] = useState(false);
 
   const handleOpen = async () => {
     const blob = await generatePdf({
       document: createElement(InvoicePDF, { invoice, settings }),
-      fileName: `Invoice-${invoice?.invoiceNumber ?? 'draft'}.pdf`,
+      // fileName: `Invoice-${invoice?.invoiceNumber ?? 'draft'}.pdf`,
+      fileName: `${generateInvoiceName(invoice.customerName, invoice.invoiceNumber)}.pdf`,
       mode: 'preview',
     });
 
@@ -70,7 +72,8 @@ const InvoiceActions = ({ invoice }) => {
 
   if (!invoice || !settings) return null;
 
-  const fileName = `Invoice-${invoice.invoiceNumber ?? 'draft'}.pdf`;
+  // const fileName = `Invoice-${invoice.invoiceNumber ?? 'draft'}.pdf`;
+  const fileName = `${generateInvoiceName(invoice.customerName, invoice.invoiceNumber)}.pdf`;
   const docElement = createElement(InvoicePDF, { invoice, settings });
 
 

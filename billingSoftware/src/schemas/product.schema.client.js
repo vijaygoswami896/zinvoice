@@ -1,18 +1,10 @@
-import { UNIT_VALUES, GST_RATES } from '@/constants';
+import { GST_RATES } from '@/constants';
 import { z } from 'zod';
 
 export const ProductFormSchema = z.object({
   name: z.string({ error: 'Product name is required' }),
 
   type: z.enum(['goods', 'service'], { error: 'Type is required' }),
-
-  // name: z
-  //   .string({ required_error: 'Product name is required' })
-  //   .trim()
-  //   .min(2, 'At least 2 characters')
-  //   .max(200, 'Max 200 characters'),
-
-  // type: z.enum(['goods', 'service'], { required_error: 'Type is required' }),
 
   hsnSacCode: z
     .string().trim()
@@ -21,20 +13,11 @@ export const ProductFormSchema = z.object({
 
   price: z.coerce.number({ error: 'Price is required' }).min(0, 'Cannot be negative'),
 
-  unit: z.enum(UNIT_VALUES, { error: 'Unit is required' }),
+  // unit: z.enum(UNIT_VALUES, { error: 'Unit is required' }),
+  unit: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid unit ID'),
 
   gstRate: z.coerce.number({ error: 'GST rate is required' })
     .refine((v) => GST_RATES.includes(v), { error: 'Invalid GST rate' }),
-
-  // price: z.coerce
-  //   .number({ required_error: 'Price is required', invalid_type_error: 'Must be a number' })
-  //   .min(0, 'Cannot be negative'),
-
-  // unit: z.enum(UNIT_VALUES, { required_error: 'Unit is required' }),
-
-  // gstRate: z.coerce
-  //   .number({ required_error: 'GST rate is required' })
-  //   .refine((v) => VALID_GST_RATES.includes(v), { message: 'Invalid GST rate' }),
 
   taxIncluded: z.boolean().default(false),
 

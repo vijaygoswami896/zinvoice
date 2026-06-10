@@ -86,7 +86,8 @@ export const AddressSchema = z.object({
     line1: z.string().trim().max(200).optional().or(z.literal('')),
     line2: z.string().trim().max(200).optional().or(z.literal('')),
     city: z.string().trim().max(100).optional().or(z.literal('')),
-    state: z.enum(INDIAN_STATES).optional(),
+    state: z.preprocess(emptyStringToUndefined, z.enum(INDIAN_STATES).optional()),
+    // state: z.enum(INDIAN_STATES).optional(),
     pincode: pincodeField,
     country: z.string().trim().max(100).default('India').optional(),
 });

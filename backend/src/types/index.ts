@@ -39,18 +39,6 @@ export interface EnvTypes {
     isTest: boolean;
 }
 
-// export interface AuthenticatedRequest extends Request {
-//     user: { id: string; role: string }; // non-optional — guaranteed by authenticate middleware
-// }
-
-// export interface AuthenticatedRequest extends Request {
-//     user: {
-//         id: string;
-//         role: string;
-//         businessId?: string; // add this
-//     };
-// }
-
 export type ProductType = 'goods' | 'service';
 
 export interface IProduct extends Document {
@@ -63,7 +51,7 @@ export interface IProduct extends Document {
 
     // Pricing
     price: number;
-    unit: UnitType;
+    unit: mongoose.Types.ObjectId;
 
     // Tax
     gstRate: GstRateType;
@@ -302,4 +290,38 @@ export interface EntityCounts {
 
 export interface DashboardQuery {
     revenueMonths?: number;
+}
+
+export interface RegisterParams {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+}
+
+export interface LoginParams {
+    email: string;
+    password: string;
+    userAgent: string;
+    ip: string;
+}
+
+export interface RefreshParams {
+    rawToken: string | null;
+    userAgent: string;
+    ip: string;
+}
+
+export interface LogoutParams {
+    rawToken: string | null;
+}
+
+export interface SanitisedUser {
+    id: Types.ObjectId;
+    businesses: Types.ObjectId[];
+    name: string;
+    email: string;
+    role: string;
+    lastLoginAt: Date | null;
+    createdAt: Date;
 }

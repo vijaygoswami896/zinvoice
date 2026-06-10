@@ -29,6 +29,16 @@ export const changePasswordApi = async (payload) => {
     return data;
 };
 
+export const forgotPasswordApi = async (payload) => {
+    const { data } = await api.post('/auth/forgot-password', payload);
+    return data;
+};
+
+export const resetPasswordApi = async (payload) => {
+    const { data } = await api.post('/auth/reset-password', payload);
+    return data;
+};
+
 /* ADD THIS *///
 export const authApi = {
     login: loginApi,
@@ -37,5 +47,7 @@ export const authApi = {
     logout: logoutApi,
     getMe: getMeApi,
     changePassword: changePasswordApi,
+    forgotPassword: forgotPasswordApi,
+    resetPassword: resetPasswordApi,
 };
 

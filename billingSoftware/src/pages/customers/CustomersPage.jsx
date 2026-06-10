@@ -140,13 +140,9 @@ const CustomersPage = () => {
 
     const handleCreate = async (data) => {
 
-        // console.log("######data inside handleCreate: ", data);
-
         if (data.sameAsShipping) {
             delete data.shippingAddress;
         }
-
-        // console.log("$$$$$$$data inside handleCreate: ", data);
 
         await createMutation.mutateAsync(data);
         setDrawer(null);
@@ -154,11 +150,9 @@ const CustomersPage = () => {
 
     const handleUpdate = async (data) => {
 
-        // console.log("######data inside handleUpdate: ", data);
         if (data.sameAsShipping) {
             delete data.shippingAddress;
         }
-        // console.log("$$$$$$$data inside handleCreate: ", data);
 
         await updateMutation.mutateAsync(data);
         setDrawer(null);

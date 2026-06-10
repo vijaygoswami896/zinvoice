@@ -3,6 +3,7 @@ import authService from '../services/auth.service.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 import { setRefreshCookie, clearRefreshCookie, getRefreshTokenFromCookie } from '../utils/tokenUtils.js';
+import { MSG_OTP_SENT } from '../constants/messages.js';
 // import { AuthenticatedRequest } from '../types';
 
 const getClientMeta = (req: Request) => ({
@@ -103,4 +104,24 @@ const getMe = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
-export default { signup, invite, register, login, refreshToken, logout, logoutAll, getMe };
+const forgotPassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    await authService.requestOtp(req.body.email);
+
+    // Always same response — no user enumeration
+    sendSuccess(res, {
+        data: null,
+        message: MSG_OTP_SENT
+    })
+});
+
+const resetPassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { email, otp, newPassword } = req.body;
+    await authService.resetPassword(email, otp, newPassword);
+
+    sendSuccess(res, {
+        data: null,
+        message: 'Password reset successfully.'
+    })
+})
+
+export default { signup, invite, register, login, refreshToken, logout, logoutAll, getMe, forgotPassword, resetPassword };

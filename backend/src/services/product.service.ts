@@ -11,9 +11,7 @@ import {
 import { IProduct } from '../types/index.js';
 import { Product } from '../models/product.model.js';
 
-
-// type LeanProduct = FlattenMaps<IProduct> & { _id: mongoose.Types.ObjectId };
-type LeanProduct = mongoose.mongo.WithId<mongoose.FlattenMaps<IProduct>>;
+// type LeanProduct = mongoose.mongo.WithId<mongoose.FlattenMaps<IProduct>>;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -28,18 +26,6 @@ const escapeRegex = (str: string): string =>
     str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-// interface ProductListResult {
-//     items: Array<
-//         LeanProduct & {
-//             isLowStock: boolean;
-//         }
-//     >;
-//     total: number;
-//     page: number;
-//     limit: number;
-// }
-
 interface ProductListResult {
     items: Array<Record<string, unknown> & { isLowStock: boolean }>;
     total: number;
@@ -271,40 +257,6 @@ export const adjustStock = async (
     delta: number,
     reason = ''
 ): Promise<IProduct> => {
-    // const product = await Product.findOneAndUpdate(
-    //     {
-    //         _id: productId,
-    //         ...baseFilter(businessId),
-    //         inventoryEnabled: true,
-
-    //         // Prevent negative stock
-    //         ...(delta < 0
-    //             ? {
-    //                 stockQuantity: {
-    //                     $gte: Math.abs(delta),
-    //                 },
-    //             }
-    //             : {}),
-    //     },
-    //     {
-    //         $inc: {
-    //             stockQuantity: delta,
-    //         },
-    //     },
-    //     {
-    //         new: true,
-    //     }
-    // );
-
-    // if (!product) {
-    //     throw new AppError(
-    //         delta < 0
-    //             ? 'Insufficient stock or product not found.'
-    //             : 'Product not found or inventory not enabled.',
-    //         400,
-    //         'STOCK_ERROR'
-    //     );
-    // }
 
     // First verify product exists
     const existing = await Product.findOne({ _id: productId, ...baseFilter(businessId) });

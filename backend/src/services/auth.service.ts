@@ -15,53 +15,13 @@ import env from '../config/env.js';
 import { InviteBody, SignupBody } from '../schemas/auth.schema.js';
 import { Business } from '../models/business.model.js';
 import { Settings } from '../models/settings.model.js';
+import { generateOtp, hashOtp } from '../utils/otpUtils.js';
+import { sendOtpEmail } from '../utils/mailer.js';
+import { LoginParams, LogoutParams, RefreshParams, RegisterParams, SanitisedUser } from '../types/index.js';
 
 const REFRESH_TOKEN_MS = parseMs(env.JWT_REFRESH_EXPIRES_IN);
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-interface RegisterParams {
-    name: string;
-    email: string;
-    password: string;
-    role: string;
-}
-
-interface LoginParams {
-    email: string;
-    password: string;
-    userAgent: string;
-    ip: string;
-}
-
-interface RefreshParams {
-    rawToken: string | null;
-    userAgent: string;
-    ip: string;
-}
-
-interface LogoutParams {
-    rawToken: string | null;
-}
-
-interface SanitisedUser {
-    id: Types.ObjectId;
-    businesses: Types.ObjectId[];
-    name: string;
-    email: string;
-    role: string;
-    lastLoginAt: Date | null;
-    createdAt: Date;
-}
-// interface SanitisedUser {
-//     id: unknown;
-//     name: string;
-//     email: string;
-//     role: string;
-//     businesses: unknown[];
-//     lastLoginAt: Date | null;
-//     createdAt: Date;
-// }
+const OTP_EXPIRY_MS = 10 * 60 * 1000;   // 10 minutes
+const MAX_ATTEMPTS = 3;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -105,10 +65,6 @@ const login = async ({ email, password, userAgent, ip }: LoginParams) => {
         await bcrypt.compare(password, DUMMY_HASH);
         passwordMatch = false;
     }
-
-    // const passwordMatch = user
-    //     ? await user.comparePassword(password)
-    //     : (await import('bcryptjs').then((m) => m.compare(password, DUMMY_HASH)), false);
 
     if (!user || !passwordMatch) {
         throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
@@ -256,14 +212,7 @@ const refresh = async ({ rawToken, userAgent, ip }: RefreshParams) => {
         throw new AppError('Refresh token not provided', 401, 'TOKEN_MISSING');
     }
 
-    // Double-check this returns what you expect:
-    // console.log('$$$$$$REFRESH_TOKEN_MS:', REFRESH_TOKEN_MS);
-    // console.log('########Token expires at:', refreshTokenExpiresAt());
-
     const tokenHash = hashRefreshToken(rawToken);
-    // console.log('Computed hash:', tokenHash);
-    // console.log('Expected hash:', '2a4b3795a806b32ae0bbf4d5f8126cf4f3bb30249c1417da0660c1663c54e5e0');
-    // console.log('Match:', tokenHash === '2a4b3795a806b32ae0bbf4d5f8126cf4f3bb30249c1417da0660c1663c54e5e0');
 
     const user = await User.findOne({
         'refreshTokens.tokenHash': tokenHash,
@@ -276,11 +225,6 @@ const refresh = async ({ rawToken, userAgent, ip }: RefreshParams) => {
     }
 
     const storedToken = user.refreshTokens.find((t) => t.tokenHash === tokenHash);
-
-    // console.log('storedToken:', storedToken);
-    // console.log('expiresAt:', storedToken?.expiresAt);
-    // console.log('now:', new Date());
-    // console.log('expired?', storedToken && storedToken.expiresAt < new Date());
 
     if (!storedToken || storedToken.expiresAt < new Date()) {
         user.refreshTokens = user.refreshTokens.filter((t) => t.tokenHash !== tokenHash);
@@ -332,4 +276,86 @@ const logoutAll = async (userId: string): Promise<void> => {
     logger.info({ msg: 'All refresh tokens revoked', userId });
 };
 
-export default { register, signup, invite, login, refresh, logout, logoutAll };
+const requestOtp = async (email: string): Promise<void> => {
+    const user = await User.findOne({ email: email.toLowerCase().trim(), deletedAt: null });
+
+    // Silently return — don't reveal if email exists
+    if (!user) return;
+
+    const plainOtp = generateOtp();
+
+    user.resetOtp = hashOtp(plainOtp);
+    user.resetOtpExpires = new Date(Date.now() + OTP_EXPIRY_MS);
+    user.resetOtpAttempts = 0;
+    await user.save();
+
+    await sendOtpEmail(user.email, plainOtp);
+};
+
+const resetPassword = async (
+    email: string,
+    otp: string,
+    newPassword: string
+): Promise<void> => {
+    const user = await User.findOne({ email: email.toLowerCase().trim(), deletedAt: null })
+        .select('+resetOtp +resetOtpExpires +resetOtpAttempts');
+
+    // No user, or OTP was never issued
+    if (!user || !user.resetOtp || !user.resetOtpExpires) {
+        // throw Object.assign(new Error('OTP is invalid or has expired.'), { status: 400 });
+        throw new AppError('OTP is invalid or has expired.', 400, 'INVALID_OTP');
+    }
+
+    // Expired
+    if (user.resetOtpExpires < new Date()) {
+        user.resetOtp = null;
+        user.resetOtpExpires = null;
+        user.resetOtpAttempts = 0;
+        await user.save();
+        // throw Object.assign(new Error('OTP has expired. Please request a new one.'), { status: 400 });
+        throw new AppError('OTP has expired. Please request a new one.', 400, 'OTP_EXPIRED');
+    }
+
+    // Too many attempts
+    if (user.resetOtpAttempts >= MAX_ATTEMPTS) {
+        user.resetOtp = null;
+        user.resetOtpExpires = null;
+        user.resetOtpAttempts = 0;
+        await user.save();
+        // throw Object.assign(new Error('Too many incorrect attempts. Please request a new OTP.'), { status: 400 });
+        throw new AppError('Too many incorrect attempts. Please request a new OTP.', 400, 'OTP_MAX_ATTEMPTS');
+    }
+
+    // Wrong OTP
+    if (hashOtp(otp) !== user.resetOtp) {
+        user.resetOtpAttempts += 1;
+        await user.save();
+        const attemptsRemaining = MAX_ATTEMPTS - user.resetOtpAttempts;
+        // return { attemptsRemaining };
+        throw new AppError(
+            `Incorrect OTP. ${attemptsRemaining} attempt${attemptsRemaining === 1 ? '' : 's'} remaining.`,
+            400,
+            'INCORRECT_OTP',
+        );
+    }
+
+    // ✅ Valid — update password
+    // Your pre-save hook hashes passwordHash, so assign plain password to passwordHash
+    user.passwordHash = newPassword;
+    user.resetOtp = null;
+    user.resetOtpExpires = null;
+    user.resetOtpAttempts = 0;
+    await user.save();
+};
+
+export default {
+    register,
+    signup,
+    invite,
+    login,
+    refresh,
+    logout,
+    logoutAll,
+    requestOtp,
+    resetPassword
+};

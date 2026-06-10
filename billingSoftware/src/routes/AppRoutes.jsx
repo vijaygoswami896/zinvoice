@@ -13,6 +13,8 @@ import "@styles/components.css"
 // Auth
 const LoginPage = lazy(() => import('@pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@pages/auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('@pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@pages/auth/ResetPasswordPage'));
 
 // App — placeholders until modules are built
 const DashboardPage = lazy(() => import('@pages/dashboard/DashboadPage'));
@@ -22,6 +24,7 @@ const InvoiceNewPage = lazy(() => import('@pages/invoices/CreateInvoicePage'));
 const InvoiceDetailPage = lazy(() => import('@pages/invoices/InvoiceDetailPage'));
 const InvoiceEditPage = lazy(() => import('@pages/invoices/EditInvoicePage'));
 const PaymentsPage = lazy(() => import('@pages/payments/PaymentsPage'));
+const UnitsPage = lazy(() => import('@pages/units/UnitsPage'));
 
 // Error pages
 const ForbiddenPage = lazy(() => import('@pages/errors/ErrorPages'));
@@ -39,6 +42,8 @@ const AppRoutes = () => (
             <Route element={<GuestRoute />}>
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
                 <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+                <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+                <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
             </Route>
 
             {/* Protected: any authenticated user, uses AppLayout shell */}
@@ -53,6 +58,7 @@ const AppRoutes = () => (
                     <Route path={ROUTES.INVOICE_DETAIL} element={<InvoiceDetailPage />} />
                     <Route path={ROUTES.INVOICE_EDIT} element={<InvoiceEditPage />} />
                     <Route path={ROUTES.PAYMENTS} element={<PaymentsPage />} />
+                    <Route path={ROUTES.UNITS} element={<UnitsPage />} />
                     {/*
             Future modules — uncomment as you build them:
 

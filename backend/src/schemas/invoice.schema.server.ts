@@ -16,7 +16,7 @@ export const LineItemSchema = z.object({
     name: z.string({ required_error: 'Item name is required' }).trim().min(1, 'Required').max(200),
     description: z.string().trim().max(500).optional().or(z.literal('')),
     hsnSacCode: z.string().trim().max(8).optional().or(z.literal('')),
-    unit: z.string().trim().max(5).default('PCS'),
+    unit: z.string({ required_error: 'Unit is required' }),
     itemType: z.enum(['goods', 'service']).default('goods'),
 
     quantity: z.coerce

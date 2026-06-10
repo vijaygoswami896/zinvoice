@@ -59,13 +59,8 @@ const productSchema = new Schema<IProduct, ProductModel>(
         },
 
         unit: {
-            type: String,
-            required: [true, 'Unit is required'],
-            enum: {
-                values: UNITS,
-                message: `Unit must be one of: ${UNITS.join(', ')}`,
-            },
-            default: 'PCS',
+            type: Schema.Types.ObjectId,
+            ref: 'Unit'
         },
 
         // ── Tax ───────────────────────────────────────────────────────────────────
@@ -180,20 +175,20 @@ productSchema.pre('validate', function (next) {
 
 // ── Pre-save ──────────────────────────────────────────────────────────────────
 
-productSchema.pre('save', function (next) {
-    const product = this as IProduct;
+// productSchema.pre('save', function (next) {
+//     const product = this as IProduct;
 
-    // Default services to HRS unit if still PCS
-    if (
-        product.isModified('type') &&
-        product.type === 'service' &&
-        product.unit === 'PCS'
-    ) {
-        product.unit = 'HRS';
-    }
+//     // Default services to HRS unit if still PCS
+//     if (
+//         product.isModified('type') &&
+//         product.type === 'service' &&
+//         product.unit === 'PCS'
+//     ) {
+//         product.unit = 'HRS';
+//     }
 
-    next();
-});
+//     next();
+// });
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 

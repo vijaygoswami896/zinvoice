@@ -1,0 +1,1 @@
+export const MSG_OTP_SENT = 'If that email is registered, an OTP has been sent.';
