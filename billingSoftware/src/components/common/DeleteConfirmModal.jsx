@@ -7,10 +7,15 @@ import { useEffect, useRef } from 'react';
  * @param {boolean}  props.isOpen
  * @param {string}   props.title
  * @param {string}   props.description
- * @param {Function} props.onConfirm     - Called when the destructive action is confirmed
+ * @param {Function} props.onConfirm     - Called when the action is confirmed
  * @param {Function} props.onCancel
  * @param {boolean}  [props.isDeleting]
  * @param {string}   [props.confirmLabel]
+ * @param {'danger'|'neutral'} [props.variant] - Styles the confirm button.
+ *   'danger' (default, unchanged): red btn-danger — for actually-destructive
+ *   actions like deleting a record.
+ *   'neutral': btn-secondary — for confirmations that aren't destructive
+ *   themselves (e.g. "leave this page"), just guarding against data loss.
  */
 const DeleteConfirmModal = ({
   isOpen,
@@ -20,6 +25,7 @@ const DeleteConfirmModal = ({
   onCancel,
   isDeleting = false,
   confirmLabel = 'Delete',
+  variant = 'danger',
 }) => {
   const cancelRef = useRef(null);
 
@@ -39,6 +45,8 @@ const DeleteConfirmModal = ({
   }, [isOpen, onCancel]);
 
   if (!isOpen) return null;
+
+  const confirmBtnClass = variant === 'neutral' ? 'btn btn-secondary btn-full' : 'btn btn-danger btn-full';
 
   return (
     <div
@@ -61,7 +69,7 @@ const DeleteConfirmModal = ({
         </div>
 
         <h2 id="modal-title" className="modal-title">{title}</h2>
-        <p  id="modal-desc"  className="modal-desc">{description}</p>
+        <p id="modal-desc" className="modal-desc">{description}</p>
 
         <div className="modal-actions">
           <button
@@ -75,7 +83,7 @@ const DeleteConfirmModal = ({
           </button>
           <button
             type="button"
-            className="btn btn-danger btn-full"
+            className={confirmBtnClass}
             onClick={onConfirm}
             disabled={isDeleting}
           >

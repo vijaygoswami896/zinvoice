@@ -14,7 +14,8 @@ const EditInvoicePage = () => {
 
   const handleSubmit = async (formData) => {
     await updateMutation.mutateAsync(formData);
-    navigate(`/invoices/${id}`);
+    // navigate(`/invoices/${id}`);
+    return `/invoices/${id}`;
   };
 
   if (isLoading) {
