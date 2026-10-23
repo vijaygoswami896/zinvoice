@@ -8,6 +8,11 @@ import { computeInvoiceTotals } from '@/utils/tax';
 import { useCustomers } from '@hooks/useCustomers';
 import LineItemRow from '@/components/invoices/LineItemRow';
 import { ROUTES } from '@constants';
+import { useUnsavedChangesGuard } from '@hooks/useUnsavedChangesGuard';
+import DeleteConfirmModal from '../common/DeleteConfirmModal';
+import useFormDraft from '@/hooks/useFormDraft';
+
+const DRAFT_STORAGE_KEY = 'invoice-draft:new';
 
 const INR = new Intl.NumberFormat('en-IN', {
   style: 'currency', currency: 'INR', maximumFractionDigits: 2,
@@ -41,7 +46,9 @@ const getApiError = (err) =>
  *
  * @param {object}   props
  * @param {object}   [props.invoice]      Existing invoice for edit pre-fill
- * @param {Function} props.onSubmit       async (formData) => void
+ * @param {Function} props.onSubmit       async (formData) => string | void
+ *   Return the path to navigate to on success (e.g. the new invoice's
+ *   detail page); return nothing to stay on the page.
  * @param {boolean}  [props.isSubmitting]
  * @param {Error}    [props.submitError]
  */
@@ -51,13 +58,62 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
 
   const {
     register, handleSubmit, control, watch, setValue, reset,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty }, getValues
   } = useForm({
     resolver: zodResolver(InvoiceFormSchema),
     defaultValues: DEFAULTS,
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
+
+
+  // Guards against accidental refresh, browser/mobile Back, and Cancel-click
+  // data loss. Fully inert while the form is clean.
+  const { isConfirmOpen, confirmLeave, cancelLeave, guardedNavigate, releaseAndNavigate } =
+    useUnsavedChangesGuard(isDirty);
+
+  // Persists in-progress input to sessionStorage so an accidental refresh
+  // doesn't lose it, and restores it on mount. Create mode only —
+  // restoring a stale draft over server-fetched data being edited is a
+  // different, riskier problem, so `enabled: !isEdit` keeps this fully
+  // inert on the edit page.
+  const { clearDraft, hasRestoredDraft, setHasRestoredDraft } = useFormDraft({
+    storageKey: DRAFT_STORAGE_KEY,
+    enabled: !isEdit,
+    watch,
+    reset,
+    getValues
+  });
+
+  // Wraps the page's onSubmit so a successful save hands off to the guard's
+  // clean navigation path instead of the page calling navigate() itself,
+  // and clears the draft now that it's been saved for real.
+  const handleFormSubmit = async (formData) => {
+    try {
+      const targetPath = await onSubmit(formData);
+      if (targetPath) {
+        clearDraft();
+        releaseAndNavigate(targetPath);
+      }
+    } catch {
+      // Handled by createMutation.error / submitError alert banner
+    }
+  };
+
+  // The modal is shared by the Back-button and Cancel-button flows. Either
+  // one means "discard my changes" — so the draft goes too, otherwise it'd
+  // resurface the next time this page is opened even though the user just
+  // said they didn't want it.
+  const handleConfirmLeave = () => {
+    clearDraft();
+    confirmLeave();
+  };
+
+  // Discards the draft from sessionStorage and restores default empty values
+  const handleDiscardDraft = () => {
+    clearDraft();
+    reset(DEFAULTS);
+  };
 
   // ── Populate form on edit ───────────────────────────────────────────────────
   useEffect(() => {
@@ -88,7 +144,7 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
 
   // ── Customer list for picker ────────────────────────────────────────────────
   // const { data: customerData } = useCustomers({ limit: 200, sortBy: 'name', sortDir: 'asc' });
-  const { data: customerData } = useCustomers({ sortBy: 'name', sortDir: 'asc' });
+  const { data: customerData } = useCustomers({ limit: 100, sortBy: 'name', sortDir: 'asc' });
   const customers = customerData?.items ?? [];
 
   const selectedCustomerId = watch('customerId');
@@ -111,10 +167,47 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
   // }, [watchedItems])
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="inv-form">
+    // <form onSubmit={handleSubmit(onSubmit)} noValidate className="inv-form">
+    <form onSubmit={handleSubmit(handleFormSubmit)} noValidate className="inv-form">
       {submitError && (
         <div className="alert alert-error inv-form__alert" role="alert">
           {getApiError(submitError)}
+        </div>
+      )}
+
+      {/* ── Draft Restored Banner ── */}
+      {hasRestoredDraft && (
+        <div
+          className="alert alert-info inv-form__alert"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 'var(--space-3)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <span aria-hidden="true">📝</span>
+            <span>Restored an unsaved draft from your current session.</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={handleDiscardDraft}
+            >
+              Discard draft
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => setHasRestoredDraft(false)}
+              aria-label="Dismiss notice"
+              title="Dismiss notice"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       )}
 
@@ -131,6 +224,7 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
               className={`form-select${errors.customerId ? ' form-select--error' : ''}`}
               disabled={isEdit}
               {...register('customerId')}
+              value={selectedCustomerId ?? ''}
             >
               <option value="">Select customer…</option>
               {customers.map((c) => (
@@ -314,7 +408,8 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
       {/* ── Form actions ─────────────────────────────────────────────────────── */}
       <div className="inv-form__actions">
         <button type="button" className="btn btn-secondary"
-          onClick={() => navigate(ROUTES.INVOICES)}
+          // onClick={() => navigate(ROUTES.INVOICES)}
+          onClick={() => guardedNavigate(ROUTES.INVOICES)}
           disabled={isSubmitting}>
           Cancel
         </button>
@@ -325,6 +420,18 @@ const InvoiceForm = ({ invoice, onSubmit, isSubmitting = false, submitError }) =
             : isEdit ? 'Save changes' : 'Create invoice'}
         </button>
       </div>
+
+
+      <DeleteConfirmModal
+        isOpen={isConfirmOpen}
+        variant="neutral"
+        title="Leave without saving?"
+        description="You have unsaved changes on this invoice. If you leave now, those changes will be lost."
+        confirmLabel="Leave page"
+        onConfirm={handleConfirmLeave}
+        onCancel={cancelLeave}
+      />
+
     </form>
   );
 };

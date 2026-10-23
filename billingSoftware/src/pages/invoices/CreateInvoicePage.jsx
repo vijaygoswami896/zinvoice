@@ -7,12 +7,13 @@ import "@styles/InvoicesPage.css"
 
 const CreateInvoicePage = () => {
   usePageTitle('New Invoice', 'Invoices');
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const createMutation = useCreateInvoice();
 
   const handleSubmit = async (formData) => {
     const invoice = await createMutation.mutateAsync(formData);
-    navigate(`/invoices/${invoice._id}`);
+    // navigate(`/invoices/${invoice._id}`);
+    return `/invoices/${invoice._id}`;
   };
 
   return (
